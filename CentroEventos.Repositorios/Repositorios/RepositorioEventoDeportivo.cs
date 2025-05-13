@@ -6,29 +6,14 @@ namespace CentroEventos.Repositorios.Repositorios;
 public class RepositorioEventoDeportivo : IRepositorioEventoDeportivo
 {
     private readonly IFuenteDeDatos<EventoDeportivo> _fuenteDeDatos;
-    private readonly string _idFilePath = "ids_evento.txt";
 
     public RepositorioEventoDeportivo(IFuenteDeDatos<EventoDeportivo> fuenteDeDatos)
     {
         _fuenteDeDatos = fuenteDeDatos;
     }
 
-    private int GenerarNuevoId()
-    {
-        if (!File.Exists(_idFilePath))
-        {
-            File.WriteAllText(_idFilePath, "0");
-        }
-
-        var lastId = int.Parse(File.ReadAllText(_idFilePath));
-        var newId = lastId + 1;
-        File.WriteAllText(_idFilePath, newId.ToString());
-        return newId;
-    }
-
     public void Agregar(EventoDeportivo evento)
     {
-        evento.Id = GenerarNuevoId();
         _fuenteDeDatos.Agregar(evento);
     }
 
