@@ -1,5 +1,6 @@
 using CentroEventos.Aplicacion.Entidades;
 using CentroEventos.Aplicacion.Interfaces;
+using CentroEventos.Aplicacion.Excepciones;
 
 namespace CentroEventos.Repositorios.Repositorios;
 
