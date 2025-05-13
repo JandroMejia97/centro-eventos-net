@@ -1,4 +1,5 @@
 using CentroEventos.Aplicacion.Interfaces;
+using CentroEventos.Aplicacion.Excepciones;
 using System.Text;
 
 namespace CentroEventos.Repositorios.FuentesDeDatos;
