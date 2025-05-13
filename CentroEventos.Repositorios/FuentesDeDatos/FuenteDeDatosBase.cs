@@ -9,6 +9,13 @@ public abstract class FuenteDeDatosBase<T> where T : class, new()
     protected FuenteDeDatosBase(string idFilePath)
     {
         _idFilePath = idFilePath;
+
+        // Asegurarse de que el directorio exista
+        var directory = Path.GetDirectoryName(_idFilePath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
     }
 
     protected int GenerarNuevoId()
