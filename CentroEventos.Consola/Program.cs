@@ -27,7 +27,7 @@ var fuenteDeDatosEvento = new FuenteDeDatosCsv<EventoDeportivo>("data/eventos.cs
             Id = int.Parse(parts[0]),
             Nombre = parts[1],
             Descripcion = parts[2],
-            FechaHoraInicio = DateTime.Parse(parts[3]),
+            FechaHoraInicio = DateTime.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture),
             DuracionHoras = double.Parse(parts[4]),
             CupoMaximo = int.Parse(parts[5]),
             ResponsableId = int.Parse(parts[6])
@@ -44,7 +44,7 @@ var fuenteDeDatosReserva = new FuenteDeDatosCsv<Reserva>("data/reservas.csv",
             Id = int.Parse(parts[0]),
             PersonaId = int.Parse(parts[1]),
             EventoDeportivoId = int.Parse(parts[2]),
-            FechaAltaReserva = DateTime.Parse(parts[3]),
+            FechaAltaReserva = DateTime.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture),
             EstadoAsistencia = Enum.Parse<EstadoAsistencia>(parts[4])
         };
     },
