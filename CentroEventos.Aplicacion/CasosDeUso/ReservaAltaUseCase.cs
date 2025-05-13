@@ -1,5 +1,6 @@
 using CentroEventos.Aplicacion.Entidades;
 using CentroEventos.Aplicacion.Interfaces;
+using CentroEventos.Aplicacion.Excepciones;
 
 namespace CentroEventos.Aplicacion.CasosDeUso;
 
@@ -21,7 +22,7 @@ public class ReservaAltaUseCase
 
     public void Ejecutar(int personaId, int eventoId)
     {
-        _repositorioPersona.ObtenerPorId(personaId)
+        var persona = _repositorioPersona.ObtenerPorId(personaId)
             ?? throw new EntidadNotFoundException("Persona no encontrada.");
         var evento = _repositorioEvento.ObtenerPorId(eventoId)
             ?? throw new EntidadNotFoundException("Evento no encontrado.");
