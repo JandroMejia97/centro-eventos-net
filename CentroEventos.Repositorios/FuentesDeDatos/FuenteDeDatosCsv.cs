@@ -3,13 +3,14 @@ using System.Text;
 
 namespace CentroEventos.Repositorios.FuentesDeDatos;
 
-public class FuenteDeDatosCsv<T> : IFuenteDeDatos<T> where T : class, new()
+public class FuenteDeDatosCsv<T> : FuenteDeDatosBase<T>, IFuenteDeDatos<T> where T : class, new()
 {
     private readonly string _filePath;
     private readonly Func<string, T> _deserializar;
     private readonly Func<T, string> _serializar;
 
-    public FuenteDeDatosCsv(string filePath, Func<string, T> deserializar, Func<T, string> serializar)
+    public FuenteDeDatosCsv(string filePath, Func<string, T> deserializar, Func<T, string> serializar, string idFilePath)
+        : base(idFilePath)
     {
         _filePath = filePath;
         _deserializar = deserializar;
@@ -19,6 +20,7 @@ public class FuenteDeDatosCsv<T> : IFuenteDeDatos<T> where T : class, new()
     public void Agregar(T entidad)
     {
         var entidades = ObtenerTodos().ToList();
+        AsignarId(entidad);
         entidades.Add(entidad);
         Guardar(entidades);
     }

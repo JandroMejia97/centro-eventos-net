@@ -3,13 +3,14 @@ using System.Text;
 
 namespace CentroEventos.Repositorios.FuentesDeDatos;
 
-public class FuenteDeDatosAtributoPorLinea<T> : IFuenteDeDatos<T> where T : class, new()
+public class FuenteDeDatosAtributoPorLinea<T> : FuenteDeDatosBase<T>, IFuenteDeDatos<T> where T : class, new()
 {
     private readonly string _filePath;
     private readonly Func<IEnumerable<string>, T> _deserializar;
     private readonly Func<T, IEnumerable<string>> _serializar;
 
-    public FuenteDeDatosAtributoPorLinea(string filePath, Func<IEnumerable<string>, T> deserializar, Func<T, IEnumerable<string>> serializar)
+    public FuenteDeDatosAtributoPorLinea(string filePath, Func<IEnumerable<string>, T> deserializar, Func<T, IEnumerable<string>> serializar, string idFilePath)
+        : base(idFilePath)
     {
         _filePath = filePath;
         _deserializar = deserializar;
@@ -19,6 +20,7 @@ public class FuenteDeDatosAtributoPorLinea<T> : IFuenteDeDatos<T> where T : clas
     public void Agregar(T entidad)
     {
         var entidades = ObtenerTodos().ToList();
+        AsignarId(entidad);
         entidades.Add(entidad);
         Guardar(entidades);
     }
