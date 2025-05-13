@@ -10,10 +10,10 @@ public class FuenteDeDatosCsv<T> : FuenteDeDatosBase<T>, IFuenteDeDatos<T> where
     private readonly Func<string, T> _deserializar;
     private readonly Func<T, string> _serializar;
 
-    public FuenteDeDatosCsv(string filePath, Func<string, T> deserializar, Func<T, string> serializar, string idFilePath)
-        : base(idFilePath)
+    public FuenteDeDatosCsv(string relativeFilePath, Func<string, T> deserializar, Func<T, string> serializar, string idFilePath)
+        : base(Path.Combine(AppContext.BaseDirectory, idFilePath))
     {
-        _filePath = filePath;
+        _filePath = Path.Combine(AppContext.BaseDirectory, relativeFilePath);
         _deserializar = deserializar;
         _serializar = serializar;
     }

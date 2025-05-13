@@ -3,7 +3,7 @@ using CentroEventos.Aplicacion.Entidades;
 using CentroEventos.Repositorios.Repositorios;
 using CentroEventos.Repositorios.FuentesDeDatos;
 
-var fuenteDeDatosPersona = new FuenteDeDatosCsv<Persona>("personas.csv", 
+var fuenteDeDatosPersona = new FuenteDeDatosCsv<Persona>("data/personas.csv", 
     line => {
         var parts = line.Split(',');
         return new Persona
@@ -17,9 +17,9 @@ var fuenteDeDatosPersona = new FuenteDeDatosCsv<Persona>("personas.csv",
         };
     },
     persona => $"{persona.Id},{persona.DNI},{persona.Nombre},{persona.Apellido},{persona.Email},{persona.Telefono}",
-    "ids_persona.txt");
+    "data/ids_persona.txt");
 
-var fuenteDeDatosEvento = new FuenteDeDatosCsv<EventoDeportivo>("eventos.csv", 
+var fuenteDeDatosEvento = new FuenteDeDatosCsv<EventoDeportivo>("data/eventos.csv", 
     line => {
         var parts = line.Split(',');
         return new EventoDeportivo
@@ -34,9 +34,9 @@ var fuenteDeDatosEvento = new FuenteDeDatosCsv<EventoDeportivo>("eventos.csv",
         };
     },
     evento => $"{evento.Id},{evento.Nombre},{evento.Descripcion},{evento.FechaHoraInicio},{evento.DuracionHoras},{evento.CupoMaximo},{evento.ResponsableId}",
-    "ids_evento.txt");
+    "data/ids_evento.txt");
 
-var fuenteDeDatosReserva = new FuenteDeDatosCsv<Reserva>("reservas.csv", 
+var fuenteDeDatosReserva = new FuenteDeDatosCsv<Reserva>("data/reservas.csv", 
     line => {
         var parts = line.Split(',');
         return new Reserva
@@ -49,7 +49,7 @@ var fuenteDeDatosReserva = new FuenteDeDatosCsv<Reserva>("reservas.csv",
         };
     },
     reserva => $"{reserva.Id},{reserva.PersonaId},{reserva.EventoDeportivoId},{reserva.FechaAltaReserva},{reserva.EstadoAsistencia}",
-    "ids_reserva.txt");
+    "data/ids_reserva.txt");
 
 var repositorioPersona = new RepositorioPersona(fuenteDeDatosPersona);
 var repositorioEvento = new RepositorioEventoDeportivo(fuenteDeDatosEvento);
