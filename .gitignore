@@ -1,0 +1,92 @@
+# Archivos generados por el sistema
+bin/
+obj/
+
+# Archivos de usuario de Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Archivos de configuración de Rider
+.idea/
+*.sln.iml
+
+# Archivos de paquetes
+*.nupkg
+*.snupkg
+
+# Archivos de bloqueo de NuGet
+debug.log
+
+# Archivos de compilación
+*.dll
+*.exe
+*.pdb
+*.cache
+*.ilk
+*.log
+*.vspscc
+*.vssscc
+
+# Archivos de configuración de VS Code
+.vscode/
+
+# Archivos de configuración de sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración de C#
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Archivos de test
+TestResults/
+
+# Archivos de publicación
+dist/
+.publish/
+
+# Archivos temporales
+*.tmp
+*.temp
+~$*
+*.bak
+*.swp
+*.swo
+*.log
+
+# Archivos de configuración de Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# Archivos de configuración de Rider
+.idea/
+*.sln.iml
+
+# Archivos de configuración de cobertura de código
+coverage/
+*.coverage
+*.coveragexml
+
+# Archivos de configuración de herramientas
+*.dotCover
+*.nvuser
+*.sln.docstates
+
+# Archivos de configuración de depuración
+*.tlog
+*.lastbuildstate
+
+# Archivos de configuración de MSBuild
+*.builds
+*.pidb
+*.log
+*.sln.ide
+
+# Archivos de configuración de paquetes
+*.nuget
+
+# Archivos de configuración de seguridad
+secrets.json
