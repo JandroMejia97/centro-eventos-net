@@ -86,6 +86,32 @@ La aplicación de consola:
 - **CentroEventos.Repositorios**: Implementa la persistencia de datos.
 - **CentroEventos.Consola**: Proporciona una interfaz de usuario basada en consola.
 
+## Patrones de Diseño Utilizados
+
+La solución implementa varios patrones de diseño para garantizar una arquitectura limpia, modular y fácil de mantener. A continuación, se describen los principales patrones utilizados:
+
+### 1. Patrón Repository
+
+Este patrón se utiliza para abstraer la lógica de acceso a datos y proporcionar una interfaz uniforme para interactuar con las entidades del dominio. Los repositorios implementados incluyen:
+
+- `RepositorioPersona`
+- `RepositorioEventoDeportivo`
+- `RepositorioReserva`
+
+Estos repositorios delegan la persistencia de datos a las fuentes de datos, lo que permite cambiar la implementación de almacenamiento sin afectar la lógica de negocio.
+
+### 2. Patrón Data Source
+
+Las fuentes de datos encapsulan la lógica de persistencia en diferentes formatos de almacenamiento, como archivos CSV. Este patrón permite centralizar la lógica de acceso a datos y reutilizarla en múltiples repositorios.
+
+Por ejemplo, `FuenteDeDatosCsv` maneja la lectura y escritura de datos en archivos CSV, mientras que `FuenteDeDatosAtributoPorLinea` permite almacenar datos en un formato más estructurado.
+
+### 3. Patrón Use Case
+
+El patrón de caso de uso organiza la lógica de negocio en clases específicas que representan acciones o procesos del dominio. Por ejemplo, el caso de uso `ReservaAltaUseCase` encapsula la lógica para crear una nueva reserva, incluyendo validaciones y manejo de excepciones.
+
+Además, se implementan otros casos de uso como `ReservaBajaUseCase` y `ConsultaReservasUseCase` para gestionar la eliminación y consulta de reservas, respectivamente.
+
 ## Notas Adicionales
 
 - Los datos se almacenan en archivos CSV en el directorio raíz del proyecto.
