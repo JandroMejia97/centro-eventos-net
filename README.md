@@ -24,11 +24,11 @@ Este proyecto implementa:
 
 ### 3. CentroEventos.Consola
 
-Este proyecto es una aplicación de consola que actúa como punto de entrada para interactuar con la solución. Permite:
+Este proyecto es una aplicación de consola que actúa como punto de entrada para interactuar con la solución. Ahora incluye un **menú interactivo** que permite al usuario navegar fácilmente entre las funcionalidades disponibles, tales como:
 
 - Crear datos iniciales (personas, eventos, reservas).
-- Ejecutar casos de uso como la creación de reservas.
-- Mostrar información almacenada.
+- Ejecutar casos de uso como la creación y gestión de reservas.
+- Consultar y mostrar información almacenada.
 
 ## Requisitos Previos
 
@@ -74,11 +74,7 @@ dotnet run --project CentroEventos.Consola
 
 ### 5. Probar la Aplicación
 
-La aplicación de consola:
-
-- Crea datos iniciales (una persona y un evento deportivo).
-- Intenta realizar una reserva para la persona en el evento.
-- Muestra las reservas creadas o errores si ocurren.
+Al ejecutar la aplicación, se presenta un menú interactivo en la consola que permite seleccionar las diferentes acciones disponibles, como crear nuevas reservas, listar eventos, administrar personas, entre otras opciones. Sigue las instrucciones en pantalla para navegar y utilizar las funcionalidades.
 
 ## Estructura de Archivos
 
