@@ -1,6 +1,5 @@
 namespace CentroEventos.Aplicacion.Excepciones;
 
-public class OperacionInvalidaException : Exception
+public class OperacionInvalidaException(string mensaje) : Exception(mensaje)
 {
-    public OperacionInvalidaException(string mensaje) : base(mensaje) { }
 }

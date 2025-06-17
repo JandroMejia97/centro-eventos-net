@@ -1,6 +1,5 @@
 namespace CentroEventos.Aplicacion.Excepciones;
 
-public class EntidadNotFoundException : Exception
+public class EntidadNotFoundException(string mensaje) : Exception(mensaje)
 {
-    public EntidadNotFoundException(string mensaje) : base(mensaje) { }
 }

@@ -1,6 +1,5 @@
 namespace CentroEventos.Aplicacion.Excepciones;
 
-public class CupoExcedidoException : Exception
+public class CupoExcedidoException(string mensaje) : Exception(mensaje)
 {
-    public CupoExcedidoException(string mensaje) : base(mensaje) { }
 }

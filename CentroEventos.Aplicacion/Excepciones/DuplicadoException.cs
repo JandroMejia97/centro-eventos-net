@@ -1,6 +1,5 @@
 namespace CentroEventos.Aplicacion.Excepciones;
 
-public class DuplicadoException : Exception
+public class DuplicadoException(string mensaje) : Exception(mensaje)
 {
-    public DuplicadoException(string mensaje) : base(mensaje) { }
 }
