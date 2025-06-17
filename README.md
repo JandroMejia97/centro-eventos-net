@@ -110,7 +110,7 @@ Además, se implementan otros casos de uso como `ReservaBajaUseCase` y `Consulta
 
 ## Notas Adicionales
 
-- Los datos se almacenan en archivos CSV en el directorio raíz del proyecto.
+- Los datos se almacenan en archivos CSV en el directorio ..\centro-eventos-net\CentroEventos.Consola\bin\Debug\net8.0\data
 - Los IDs únicos para las entidades se generan automáticamente y se almacenan en archivos separados (`ids_persona.txt`, `ids_evento.txt`, `ids_reserva.txt`).
 - La solución utiliza excepciones personalizadas para manejar errores específicos del dominio.
 
