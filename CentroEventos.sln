@@ -2,11 +2,11 @@
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.Aplicacion", "CentroEventos.Aplicacion\CentroEventos.Aplicacion.csproj", "{866E3720-BE00-4F2F-BED2-6439CF08D999}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.Aplicacion", "CentroEventos.Aplicacion\CentroEventos.Aplicacion.csproj", "{4D0629D2-B442-4C66-A9D0-EA2C0C59D546}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.Repositorios", "CentroEventos.Repositorios\CentroEventos.Repositorios.csproj", "{66CCA774-9DEF-4062-A311-274110FEC1EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.Repositorios", "CentroEventos.Repositorios\CentroEventos.Repositorios.csproj", "{0C7AD6B3-8906-437A-A460-015A80A82B19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.Consola", "CentroEventos.Consola\CentroEventos.Consola.csproj", "{455B8966-7F36-4EB4-AEC6-B7D382DD523B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.UI", "CentroEventos.UI\CentroEventos.UI.csproj", "{5AF5B697-3232-4663-828D-05575236BBE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,21 +17,17 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F0628C9F-F8FE-4BE1-B555-F75E21B538AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F0628C9F-F8FE-4BE1-B555-F75E21B538AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F0628C9F-F8FE-4BE1-B555-F75E21B538AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F0628C9F-F8FE-4BE1-B555-F75E21B538AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{866E3720-BE00-4F2F-BED2-6439CF08D999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{866E3720-BE00-4F2F-BED2-6439CF08D999}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{866E3720-BE00-4F2F-BED2-6439CF08D999}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{866E3720-BE00-4F2F-BED2-6439CF08D999}.Release|Any CPU.Build.0 = Release|Any CPU
-		{66CCA774-9DEF-4062-A311-274110FEC1EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{66CCA774-9DEF-4062-A311-274110FEC1EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{66CCA774-9DEF-4062-A311-274110FEC1EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{66CCA774-9DEF-4062-A311-274110FEC1EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{455B8966-7F36-4EB4-AEC6-B7D382DD523B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{455B8966-7F36-4EB4-AEC6-B7D382DD523B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{455B8966-7F36-4EB4-AEC6-B7D382DD523B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{455B8966-7F36-4EB4-AEC6-B7D382DD523B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D0629D2-B442-4C66-A9D0-EA2C0C59D546}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D0629D2-B442-4C66-A9D0-EA2C0C59D546}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D0629D2-B442-4C66-A9D0-EA2C0C59D546}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D0629D2-B442-4C66-A9D0-EA2C0C59D546}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C7AD6B3-8906-437A-A460-015A80A82B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C7AD6B3-8906-437A-A460-015A80A82B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C7AD6B3-8906-437A-A460-015A80A82B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C7AD6B3-8906-437A-A460-015A80A82B19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AF5B697-3232-4663-828D-05575236BBE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AF5B697-3232-4663-828D-05575236BBE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AF5B697-3232-4663-828D-05575236BBE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AF5B697-3232-4663-828D-05575236BBE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
