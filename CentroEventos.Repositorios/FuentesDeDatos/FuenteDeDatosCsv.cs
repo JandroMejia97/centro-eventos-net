@@ -18,6 +18,11 @@ public class FuenteDeDatosCsv<T> : FuenteDeDatosBase<T>, IFuenteDeDatos<T> where
         _serializar = serializar;
     }
 
+    public T? ObtenerPorId(int id){
+        return ObtenerTodos().FirstOrDefault(e =>
+            e.GetType().GetProperty("Id")?.GetValue(e) is int val && val == id);
+    }
+
     public void Agregar(T entidad)
     {
         var entidades = ObtenerTodos().ToList();

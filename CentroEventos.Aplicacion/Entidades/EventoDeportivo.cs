@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace CentroEventos.Aplicacion.Entidades;
 
 public class EventoDeportivo
@@ -24,5 +26,25 @@ public class EventoDeportivo
     public override int GetHashCode()
     {
         return HashCode.Combine(Id, Nombre, FechaHoraInicio);
+    }
+
+    public static EventoDeportivo DesdeCsv(string line)
+    {
+        var parts = line.Split(',');
+        return new EventoDeportivo
+        {
+            Id = int.Parse(parts[0]),
+            Nombre = parts[1],
+            Descripcion = parts[2],
+            FechaHoraInicio = DateTime.ParseExact(parts[3], "d/M/yyyy H:mm:ss", CultureInfo.InvariantCulture),
+            DuracionHoras = double.Parse(parts[4]),
+            CupoMaximo = int.Parse(parts[5]),
+            ResponsableId = int.Parse(parts[6])
+        };
+    }
+
+    public string ACsv()
+    {
+        return $"{Id},{Nombre},{Descripcion},{FechaHoraInicio.ToString("d/M/yyyy H:mm:ss")},{DuracionHoras},{CupoMaximo},{ResponsableId}";
     }
 }

@@ -6,4 +6,5 @@ public interface IFuenteDeDatos<T>
     void Modificar(T entidad);
     void Eliminar(int id);
     IEnumerable<T> ObtenerTodos();
+    T? ObtenerPorId(int id);
 }

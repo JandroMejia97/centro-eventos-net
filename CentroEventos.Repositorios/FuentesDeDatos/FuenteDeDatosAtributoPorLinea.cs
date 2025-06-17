@@ -6,6 +6,18 @@ namespace CentroEventos.Repositorios.FuentesDeDatos;
 
 public class FuenteDeDatosAtributoPorLinea<T> : FuenteDeDatosBase<T>, IFuenteDeDatos<T> where T : class, new()
 {
+    public T? ObtenerPorId(int id)
+    {
+    return ObtenerTodos().FirstOrDefault(e =>
+        {
+        var propiedadId = typeof(T).GetProperty("Id");
+        if (propiedadId == null) return false;
+
+        var valor = propiedadId.GetValue(e);
+        return valor != null && (int)valor == id;
+        });
+    }
+
     private readonly string _filePath;
     private readonly Func<IEnumerable<string>, T> _deserializar;
     private readonly Func<T, IEnumerable<string>> _serializar;

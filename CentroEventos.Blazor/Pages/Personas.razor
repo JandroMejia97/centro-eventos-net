@@ -1,0 +1,79 @@
+@page "/personas"
+
+@using CentroEventos.Aplicacion.Entidades
+@using CentroEventos.Aplicacion.Interfaces
+
+@inject IRepositorioPersona RepositorioPersona
+
+<h1 class="text-xl font-bold mb-4">Listado de Personas</h1>
+<h2 class="text-lg font-semibold mt-6 mb-2">Agregar Persona</h2>
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <input class="border p-2" @bind="nuevaPersona.DNI" placeholder="DNI" />
+        <input class="border p-2" @bind="nuevaPersona.Nombre" placeholder="Nombre" />
+        <input class="border p-2" @bind="nuevaPersona.Apellido" placeholder="Apellido" />
+        <input class="border p-2" @bind="nuevaPersona.Email" placeholder="Email" />
+        <input class="border p-2" @bind="nuevaPersona.Telefono" placeholder="Teléfono" />
+    </div>
+    <button class="bg-blue-500 text-white px-4 py-2 rounded" @onclick="AgregarPersona">Agregar</button>
+    
+@if (personas == null)
+{
+    <p>Cargando personas...</p>
+}
+else if (!personas.Any())
+{
+    <p>No hay personas registradas.</p>
+}
+else
+{
+    <table class="table-auto border-collapse border border-gray-300 w-full">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="border px-4 py-2">ID</th>
+                <th class="border px-4 py-2">DNI</th>
+                <th class="border px-4 py-2">Nombre</th>
+                <th class="border px-4 py-2">Apellido</th>
+                <th class="border px-4 py-2">Email</th>
+                <th class="border px-4 py-2">Teléfono</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in personas)
+            {
+                <tr>
+                    <td class="border px-4 py-2">@p.Id</td>
+                    <td class="border px-4 py-2">@p.DNI</td>
+                    <td class="border px-4 py-2">@p.Nombre</td>
+                    <td class="border px-4 py-2">@p.Apellido</td>
+                    <td class="border px-4 py-2">@p.Email</td>
+                    <td class="border px-4 py-2">@p.Telefono</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Persona>? personas;
+
+    private Persona nuevaPersona = new();
+
+    protected override void OnInitialized()
+    {
+        personas = RepositorioPersona.ObtenerTodos().ToList();
+    }
+
+    private void AgregarPersona()
+    {
+        try
+        {
+            RepositorioPersona.Agregar(nuevaPersona);
+            personas!.Add(nuevaPersona);
+            nuevaPersona = new Persona();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al agregar: {ex.Message}");
+        }
+    }
+}

@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace CentroEventos.Aplicacion.Entidades;
 
 public enum EstadoAsistencia
@@ -29,5 +31,23 @@ public class Reserva
     public override int GetHashCode()
     {
         return HashCode.Combine(Id, PersonaId, EventoDeportivoId);
+    }
+
+    public static Reserva DesdeCsv(string line)
+    {
+        var parts = line.Split(',');
+        return new Reserva
+        {
+            Id = int.Parse(parts[0]),
+            PersonaId = int.Parse(parts[1]),
+            EventoDeportivoId = int.Parse(parts[2]),
+            FechaAltaReserva = DateTime.ParseExact(parts[3], "d/M/yyyy H:mm:ss", CultureInfo.InvariantCulture),
+            EstadoAsistencia = Enum.Parse<EstadoAsistencia>(parts[4])
+        };
+    }
+
+    public string ACsv()
+    {
+        return $"{Id},{PersonaId},{EventoDeportivoId},{FechaAltaReserva.ToString("d/M/yyyy H:mm:ss")},{EstadoAsistencia}";
     }
 }

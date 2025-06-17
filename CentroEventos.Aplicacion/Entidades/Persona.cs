@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace CentroEventos.Aplicacion.Entidades;
 
 public class Persona
@@ -23,5 +25,24 @@ public class Persona
     public override int GetHashCode()
     {
         return HashCode.Combine(Id, DNI, Email);
+    }
+
+    public static Persona DesdeCsv(string line)
+    {
+        var parts = line.Split(',');
+        return new Persona
+        {
+            Id = int.Parse(parts[0]),
+            DNI = parts[1],
+            Nombre = parts[2],
+            Apellido = parts[3],
+            Email = parts[4],
+            Telefono = parts[5]
+        };
+    }
+
+    public string ACsv()
+    {
+        return $"{Id},{DNI},{Nombre},{Apellido},{Email},{Telefono}";
     }
 }

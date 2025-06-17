@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.Repositorios"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.Consola", "CentroEventos.Consola\CentroEventos.Consola.csproj", "{455B8966-7F36-4EB4-AEC6-B7D382DD523B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentroEventos.Blazor", "CentroEventos.Blazor\CentroEventos.Blazor.csproj", "{49E8C204-45F4-4C64-97ED-9DBD7BBA5DC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,5 +35,9 @@ Global
 		{455B8966-7F36-4EB4-AEC6-B7D382DD523B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{455B8966-7F36-4EB4-AEC6-B7D382DD523B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{455B8966-7F36-4EB4-AEC6-B7D382DD523B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49E8C204-45F4-4C64-97ED-9DBD7BBA5DC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49E8C204-45F4-4C64-97ED-9DBD7BBA5DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49E8C204-45F4-4C64-97ED-9DBD7BBA5DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49E8C204-45F4-4C64-97ED-9DBD7BBA5DC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
