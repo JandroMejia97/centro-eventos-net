@@ -15,6 +15,18 @@ public class Reserva
     public DateTime FechaAltaReserva { get; set; }
     public EstadoAsistencia EstadoAsistencia { get; set; }
 
+    public Reserva(int personaId, int eventoDeportivoId)
+    {
+        if (personaId <= 0) throw new ArgumentException("El ID de la persona debe ser mayor que cero.", nameof(personaId));
+        if (eventoDeportivoId <= 0) throw new ArgumentException("El ID del evento deportivo debe ser mayor que cero.", nameof(eventoDeportivoId));
+        PersonaId = personaId;
+        EventoDeportivoId = eventoDeportivoId;
+        FechaAltaReserva = DateTime.Now;
+        EstadoAsistencia = EstadoAsistencia.Pendiente;
+    }
+
+    protected Reserva() { }
+
     public override string ToString()
     {
         return $"{Id}: Persona {PersonaId}, Evento {EventoDeportivoId}, Fecha: {FechaAltaReserva}, Estado: {EstadoAsistencia}";
