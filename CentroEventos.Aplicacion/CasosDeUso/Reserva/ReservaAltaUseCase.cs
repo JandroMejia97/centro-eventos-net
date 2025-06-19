@@ -25,13 +25,7 @@ public class ReservaAltaUseCase(
         if (repositorioReserva.ObtenerTodos().Count(r => r.EventoDeportivoId == eventoId) >= evento.CupoMaximo)
             throw new CupoExcedidoException("Cupo máximo alcanzado.");
 
-        var reserva = new Reserva
-        {
-            PersonaId = personaId,
-            EventoDeportivoId = eventoId,
-            FechaAltaReserva = DateTime.Now,
-            EstadoAsistencia = EstadoAsistencia.Pendiente
-        };
+        var reserva = new Reserva(personaId, eventoId);
 
         repositorioReserva.Agregar(reserva);
     }

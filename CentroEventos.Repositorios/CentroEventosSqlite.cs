@@ -1,3 +1,5 @@
+using CentroEventos.Repositorios.Contextos;
+
 namespace CentroEventos.Repositorios;
 
 public static class CentroEventosSqlite
