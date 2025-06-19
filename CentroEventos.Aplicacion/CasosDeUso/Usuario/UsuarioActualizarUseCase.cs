@@ -10,7 +10,7 @@ public class UsuarioActualizarUseCase(IRepositorioUsuario repositorioUsuario, IV
     public void Ejecutar(Usuario usuario) {
         validadorUsuario.Validar(usuario);
         var existente = repositorioUsuario.ObtenerPorId(usuario.Id) ?? throw new EntidadNotFoundException("Usuario no encontrado.");
-        if (repositorioUsuario.ObtenerTodos().Any(u => u.Email == usuario.Email && u.Id != usuario.Id))
+        if (existente.Persona.Email != usuario.Persona.Email && repositorioUsuario.ObtenerPorEmail(usuario.Persona.Email) != null)
             throw new DuplicadoException("Ya existe un usuario con ese email.");
         repositorioUsuario.Modificar(usuario);
     }
