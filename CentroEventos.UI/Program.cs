@@ -1,6 +1,5 @@
 using CentroEventos.UI.Components;
 
-using CentroEventos.Repositorios;
 using CentroEventos.Aplicacion.Entidades;
 using CentroEventos.Aplicacion.Validadores;
 using CentroEventos.Aplicacion.Interfaces;
@@ -12,6 +11,8 @@ using CentroEventos.Aplicacion.CasosDeUso.EventoDeportivoUseCases;
 using CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases;
 
 using CentroEventos.Repositorios.Repositorios;
+using CentroEventos.Repositorios.FuentesDeDatos;
+using CentroEventos.Repositorios.Contextos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,15 @@ builder.Services.AddTransient<ReservaEliminarUseCase>();
 builder.Services.AddTransient<ReservaObtenerPorIdUseCase>();
 builder.Services.AddTransient<ReservaObtenerTodosUseCase>();
 
+// Contexto de BD
+builder.Services.AddDbContext<CentroEventosDbContext>();
+
+// Fuentes de datos
+builder.Services.AddSingleton<IFuenteDeDatos<Usuario>, FuenteDeDatosUsuarioEF>();
+builder.Services.AddSingleton<IFuenteDeDatos<Persona>, FuenteDeDatosPersonaEF>();
+builder.Services.AddSingleton<IFuenteDeDatos<EventoDeportivo>, FuenteDeDatosEventoDeportivoEF>();
+builder.Services.AddSingleton<IFuenteDeDatos<Reserva>, FuenteDeDatosReservaEF>();
+
 // Repositorios
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 builder.Services.AddScoped<IRepositorioPersona, RepositorioPersona>();
@@ -55,10 +65,10 @@ builder.Services.AddScoped<IRepositorioEventoDeportivo, RepositorioEventoDeporti
 builder.Services.AddScoped<IRepositorioReserva, RepositorioReserva>();
 
 // Validadores
-builder.Services.AddScoped<ValidadorPersona>();
-builder.Services.AddScoped<ValidadorEventoDeportivo>();
-builder.Services.AddScoped<ValidadorReserva>();
-builder.Services.AddScoped<ValidadorUsuario>();
+builder.Services.AddScoped<IValidadorPersona, ValidadorPersona>();
+builder.Services.AddScoped<IValidadorEventoDeportivo, ValidadorEventoDeportivo>();
+builder.Services.AddScoped<IValidadorReserva, ValidadorReserva>();
+builder.Services.AddScoped<IValidadorUsuario, ValidadorUsuario>();
 
 var app = builder.Build();
 
