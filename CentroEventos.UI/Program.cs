@@ -17,8 +17,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseAntiforgery();
 
-app.MapStaticAssets();
+app.UseStaticFiles();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.Run();
+await app.RunAsync();
