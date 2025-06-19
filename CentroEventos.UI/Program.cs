@@ -13,6 +13,8 @@ using CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases;
 using CentroEventos.Repositorios.Repositorios;
 using CentroEventos.Repositorios.FuentesDeDatos;
 using CentroEventos.Repositorios.Contextos;
+using CentroEventos.Aplicacion.Servicios;
+using CentroEventos.Repositorios.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,7 +52,11 @@ builder.Services.AddTransient<ReservaObtenerPorIdUseCase>();
 builder.Services.AddTransient<ReservaObtenerTodosUseCase>();
 
 // Contexto de BD
-builder.Services.AddDbContext<CentroEventosDbContext>();
+builder.Services.AddTransient<CentroEventosDbContext>();
+
+// Autorización
+builder.Services.AddSingleton<IServicioAutorizacion, ServicioAutorizacion>();
+builder.Services.AddSingleton<IServicioHashContrasena, ServicioHashContrasena>();
 
 // Fuentes de datos
 builder.Services.AddSingleton<IFuenteDeDatos<Usuario>, FuenteDeDatosUsuarioEF>();
