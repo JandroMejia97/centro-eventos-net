@@ -7,9 +7,13 @@ public class Usuario
     public string ContrasenaHash { get; set; } = string.Empty;
     public List<string> Permisos { get; set; } = new();
 
-    public Usuario(Persona persona, string contrasenaHash)
+    public Usuario(Persona persona)
     {
         Persona = persona ?? throw new ArgumentNullException(nameof(persona));
+    }
+
+    public Usuario(Persona persona, string contrasenaHash): this(persona)
+    {
         if (string.IsNullOrWhiteSpace(contrasenaHash))
             throw new ArgumentException("La contraseña no puede estar vacía.", nameof(contrasenaHash));
         if (contrasenaHash.Length < 8)
