@@ -9,7 +9,7 @@ public class UsuarioCrearUseCase(IRepositorioUsuario repositorioUsuario, IValida
 {
     public void Ejecutar(Usuario usuario) {
         validadorUsuario.Validar(usuario);
-        if (repositorioUsuario.ObtenerTodos().Any(u => u.Persona.Email == usuario.Persona.Email))
+        if (repositorioUsuario.ObtenerPorEmail(usuario.Persona.Email) is not null)
             throw new DuplicadoException("Ya existe un usuario con ese email.");
         repositorioUsuario.Agregar(usuario);
     }
