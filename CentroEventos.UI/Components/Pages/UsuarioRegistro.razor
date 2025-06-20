@@ -1,11 +1,11 @@
 @page "/registro"
 @layout AuthLayout
 
-@using System.ComponentModel.DataAnnotations
-@using global::CentroEventos.UI.Components.Layout
+@rendermode InteractiveServer
+
 @inject UsuarioCrearUseCase CrearUseCase
 @inject NavigationManager Navigation
-@inject CustomAuthenticationStateProvider AuthProvider
+@inject AuthenticationStateProvider AuthProvider
 
 <h4 class="text-center mb-4">Registro de usuario</h4>
 <EditForm Model="registroModel" OnValidSubmit="OnRegister">
@@ -35,7 +35,7 @@
         <label for="password" class="form-label">Contraseña</label>
         <InputText id="password" type="password" class="form-control" @bind-Value="registroModel.Password" />
     </div>
-    <button type="submit" class="btn btn-success w-100">Registrarse</button>
+    <button type="submit" class="btn btn-primary w-100">Registrarse</button>
     <div class="text-center mt-3">
         <a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
     </div>
@@ -91,6 +91,3 @@
         public string Password { get; set; } = string.Empty;
     }
 }
-
-using home.mejia.unlp._net.CentroEventos.CentroEventos_UI.Components.Layout;
-#line default

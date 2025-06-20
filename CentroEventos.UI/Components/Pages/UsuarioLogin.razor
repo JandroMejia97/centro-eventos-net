@@ -1,10 +1,11 @@
 @page "/login"
 @layout AuthLayout
 
-@using CentroEventos.UI.Components.Layout
+@rendermode InteractiveServer
+
 @inject UsuarioLoginUseCase LoginUseCase
 @inject NavigationManager Navigation
-@inject CustomAuthenticationStateProvider AuthProvider
+@inject AuthenticationStateProvider AuthProvider
 
 <h4 class="text-center mb-4">Iniciar sesión</h4>
 <EditForm Model="loginModel" OnValidSubmit="OnLogin">
@@ -65,5 +66,3 @@
         public string Password { get; set; } = string.Empty;
     }
 }
-using home.mejia.unlp._net.CentroEventos.CentroEventos_UI.Components.Layout;
-#line default
