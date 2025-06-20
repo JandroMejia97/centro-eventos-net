@@ -6,7 +6,6 @@
 @inject UsuarioLoginUseCase LoginUseCase
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
-@inject HttpClient Http
 
 @using CentroEventos.UI.Components.Shared
 
@@ -44,25 +43,16 @@
         error = null;
         try
         {
-            var content = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("email", loginModel.Email),
-                new KeyValuePair<string, string>("password", loginModel.Password)
-            });
-            var response = await Http.PostAsync("/api/login", content);
-            if (response.IsSuccessStatusCode)
+            var usuario = LoginUseCase.Ejecutar(loginModel.Email, loginModel.Password);
+            if (usuario != null)
             {
                 showSnackbar = true;
                 await Task.Delay(1000);
-                Navigation.NavigateTo("/", forceLoad: true); // Recarga para que el servidor detecte la cookie
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                error = "Credenciales inválidas.";
+                Navigation.NavigateTo("/");
             }
             else
             {
-                error = "Error inesperado al iniciar sesión.";
+                error = "Credenciales inválidas.";
             }
         }
         catch (Exception ex)

@@ -20,14 +20,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using CentroEventos.UI.Auth;
 using CentroEventos.Repositorios;
 using CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
 
 CentroEventosSqlite.Inicializar();
-
-const string AuthScheme = "CentroEventosAuth";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,8 +71,7 @@ builder.Services.AddTransient<CentroEventosDbContext>();
 // Autorización
 builder.Services.AddTransient<IServicioAutorizacion, ServicioAutorizacion>();
 builder.Services.AddSingleton<IServicioHashContrasena, ServicioHashContrasena>();
-builder.Services.AddAuthenticationCore();
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, SessionStorageAuthenticationStateProvider>();
 
 // Fuentes de datos
 builder.Services.AddSingleton<IFuenteDeDatos<Usuario>, FuenteDeDatosUsuarioEF>();
@@ -101,15 +94,6 @@ builder.Services.AddScoped<IValidadorReserva, ValidadorReserva>();
 builder.Services.AddScoped<IValidadorUsuario, ValidadorUsuario>();
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
-builder.Services.AddAuthentication(AuthScheme)
-    .AddCookie(AuthScheme, options =>
-    {
-        options.LoginPath = "/login";
-        options.LogoutPath = "/logout";
-        options.AccessDeniedPath = "/acceso-denegado";
-        options.ExpireTimeSpan = TimeSpan.FromHours(2);
-        options.SlidingExpiration = true;
-    });
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -122,40 +106,9 @@ if (!app.Environment.IsDevelopment())
 
 
 app.UseAntiforgery();
-app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-app.MapPost("/api/login", async (HttpContext http, UsuarioLoginUseCase loginUseCase, [FromForm] string email, [FromForm] string password) =>
-{
-    var usuario = loginUseCase.Ejecutar(email, password);
-    if (usuario == null)
-        return Results.Unauthorized();
-
-    var claims = new List<Claim>
-    {
-        new(ClaimTypes.Name, usuario.Persona.Email),
-        new(ClaimTypes.NameIdentifier, usuario.PersonaId.ToString())
-    };
-    var claimsIdentity = new ClaimsIdentity(claims, AuthScheme);
-    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-    await http.SignInAsync(AuthScheme, claimsPrincipal);
-    return Results.Ok();
-});
-app.MapPost("/api/register", (UsuarioCrearUseCase crearUsuarioUC, [FromForm] RegistroRequest req) =>
-{
-    try
-    {
-        var persona = new Persona(req.Dni, req.Nombre, req.Apellido, req.Email, req.Telefono);
-        var usuario = new Usuario(persona);
-        crearUsuarioUC.Ejecutar(usuario, req.Password);
-        return Results.Ok();
-    }
-    catch (Exception ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-});
 
 await app.RunAsync();
