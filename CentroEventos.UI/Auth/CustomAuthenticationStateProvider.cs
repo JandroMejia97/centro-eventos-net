@@ -19,16 +19,25 @@ namespace CentroEventos.UI.Auth
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var userName = await GetUserNameFromCookieAsync();
-            if (string.IsNullOrEmpty(userName))
-                return new AuthenticationState(_anonymous);
-
-            var identity = new ClaimsIdentity(new[]
+            try
             {
-                new Claim(ClaimTypes.Name, userName)
-            }, AuthCookieName);
-            var user = new ClaimsPrincipal(identity);
-            return new AuthenticationState(user);
+                var userName = await GetUserNameFromCookieAsync();
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    var identity = new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.Name, userName)
+                    }, AuthCookieName);
+                    var user = new ClaimsPrincipal(identity);
+                    return new AuthenticationState(user);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                // Si ocurre una excepción, retornamos un estado anónimo
+                Console.WriteLine("Error al obtener el nombre de usuario del cookie.");
+            }
+            return new AuthenticationState(_anonymous);
         }
 
         public async Task MarkUserAsAuthenticated(string userName)
