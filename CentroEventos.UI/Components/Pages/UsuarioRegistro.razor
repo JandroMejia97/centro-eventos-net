@@ -3,37 +3,43 @@
 
 @rendermode InteractiveServer
 
+@using Microsoft.AspNetCore.Components.Forms
 @inject UsuarioCrearUseCase CrearUseCase
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
 
 <h4 class="text-center mb-4">Registro de usuario</h4>
-<EditForm Model="registroModel" OnValidSubmit="OnRegister">
+<EditForm Model="registroModel" OnValidSubmit="OnRegister" FormName="RegistroForm">
     <DataAnnotationsValidator />
-    <ValidationSummary />
     <div class="mb-3">
         <label for="nombre" class="form-label">Nombre</label>
         <InputText id="nombre" class="form-control" @bind-Value="registroModel.Nombre" />
+        <ValidationMessage For="@(() => registroModel.Nombre)" />
     </div>
     <div class="mb-3">
         <label for="apellido" class="form-label">Apellido</label>
         <InputText id="apellido" class="form-control" @bind-Value="registroModel.Apellido" />
+        <ValidationMessage For="@(() => registroModel.Apellido)" />
     </div>
     <div class="mb-3">
         <label for="dni" class="form-label">DNI</label>
         <InputText id="dni" class="form-control" @bind-Value="registroModel.DNI" />
+        <ValidationMessage For="@(() => registroModel.DNI)" />
     </div>
     <div class="mb-3">
         <label for="telefono" class="form-label">Teléfono</label>
         <InputText id="telefono" class="form-control" @bind-Value="registroModel.Telefono" />
+        <ValidationMessage For="@(() => registroModel.Telefono)" />
     </div>
     <div class="mb-3">
         <label for="email" class="form-label">Correo electrónico</label>
         <InputText id="email" class="form-control" @bind-Value="registroModel.Email" />
+        <ValidationMessage For="@(() => registroModel.Email)" />
     </div>
     <div class="mb-3">
         <label for="password" class="form-label">Contraseña</label>
         <InputText id="password" type="password" class="form-control" @bind-Value="registroModel.Password" />
+        <ValidationMessage For="@(() => registroModel.Password)" />
     </div>
     <button type="submit" class="btn btn-primary w-100">Registrarse</button>
     <div class="text-center mt-3">
@@ -75,18 +81,18 @@
 
     public class RegistroModel
     {
-        [Required]
+        [Required(ErrorMessage = "El nombre es obligatorio.")]
         public string Nombre { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "El apellido es obligatorio.")]
         public string Apellido { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "El DNI es obligatorio.")]
         public string DNI { get; set; } = string.Empty;
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
+        [EmailAddress(ErrorMessage = "El correo electrónico no es válido.")]
         public string Email { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "El teléfono es obligatorio.")]
         public string Telefono { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
         public string Password { get; set; } = string.Empty;
     }
