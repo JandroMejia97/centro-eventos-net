@@ -4,7 +4,7 @@
 @rendermode InteractiveServer
 
 @using Microsoft.AspNetCore.Components.Forms
-@inject UsuarioCrearUseCase CrearUseCase
+@inject UsuarioCrearUseCase CrearUsuarioUC
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
 
@@ -71,6 +71,7 @@
             {
                 await customProvider.MarkUserAsAuthenticated(registroModel.Email);
             }
+            CrearUsuarioUC.Ejecutar(usuario, registroModel.Password);
             Navigation.NavigateTo("/");
         }
         catch (Exception ex)

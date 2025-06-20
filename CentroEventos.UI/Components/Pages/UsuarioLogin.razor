@@ -41,7 +41,7 @@
             var usuario = LoginUseCase.Ejecutar(loginModel.Email, loginModel.Password);
             if (usuario != null)
             {
-                if (AuthProvider is CentroEventos.UI.Auth.CustomAuthenticationStateProvider customProvider)
+                if (AuthProvider is CustomAuthenticationStateProvider customProvider)
                 {
                     await customProvider.MarkUserAsAuthenticated(loginModel.Email);
                 }

@@ -13,13 +13,13 @@ else
     <ul>
         @foreach (var p in personas)
         {
-            <li>@p.Nombre @p.Apellido - @p.Dni</li>
+            <li>@p.Nombre @p.Apellido - @p.DNI</li>
         }
     </ul>
 }
 
 @code {
-    private List<CentroEventos.Aplicacion.Entidades.Persona>? personas;
+    private List<Persona>? personas;
 
     protected override void OnInitialized()
     {

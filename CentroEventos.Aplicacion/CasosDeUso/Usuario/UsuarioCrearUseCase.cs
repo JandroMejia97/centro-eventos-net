@@ -21,10 +21,10 @@ public class UsuarioCrearUseCase
 
     public void Ejecutar(Usuario usuario, string contrasenaPlano)
     {
-        _validadorUsuario.Validar(usuario);
         if (_repositorioUsuario.ObtenerPorEmail(usuario.Persona.Email) is not null)
             throw new DuplicadoException("Ya existe un usuario con ese email.");
         usuario.ContrasenaHash = _servicioHash.Hashear(contrasenaPlano);
+        _validadorUsuario.Validar(usuario);
         _repositorioUsuario.Agregar(usuario);
     }
 }
