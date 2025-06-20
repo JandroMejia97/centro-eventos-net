@@ -7,6 +7,8 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
 
+@using CentroEventos.UI.Components.Shared
+
 <h4 class="text-center mb-4">Iniciar sesión</h4>
 <EditForm Model="loginModel" OnValidSubmit="OnLogin" FormName="LoginUsuarioForm">
     <DataAnnotationsValidator />
@@ -29,10 +31,12 @@
         <div class="alert alert-danger mt-3">@error</div>
     }
 </EditForm>
+<Snackbar Message="¡Inicio de sesión exitoso!" Show="@showSnackbar" OnClose="@(() => showSnackbar = false)" />
 
 @code {
     private LoginModel loginModel = new();
     private string? error;
+    private bool showSnackbar = false;
 
     private async Task OnLogin()
     {
@@ -43,8 +47,10 @@
             {
                 if (AuthProvider is CustomAuthenticationStateProvider customProvider)
                 {
-                    await customProvider.MarkUserAsAuthenticated(loginModel.Email);
+                    await customProvider.MarkUserAsAuthenticated(usuario.PersonaId, usuario.Email);
                 }
+                showSnackbar = true;
+                await Task.Delay(1200);
                 Navigation.NavigateTo("/");
             }
             else

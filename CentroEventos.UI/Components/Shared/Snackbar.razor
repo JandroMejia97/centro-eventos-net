@@ -1,0 +1,24 @@
+@code {
+    [Parameter] public string Message { get; set; } = "";
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task Close()
+    {
+        Show = false;
+        await OnClose.InvokeAsync();
+    }
+}
+
+@if (Show)
+{
+    <div class="toast show position-fixed bottom-0 end-0 m-4" style="z-index: 9999; min-width: 250px;">
+        <div class="toast-header bg-success text-white">
+            <strong class="me-auto">Éxito</strong>
+            <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+        </div>
+        <div class="toast-body">
+            @Message
+        </div>
+    </div>
+}
