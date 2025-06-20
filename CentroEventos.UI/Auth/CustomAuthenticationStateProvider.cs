@@ -1,8 +1,7 @@
 using System.Security.Claims;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
-using System;
 using CentroEventos.Aplicacion.Excepciones;
 
 namespace CentroEventos.UI.Auth
@@ -10,12 +9,14 @@ namespace CentroEventos.UI.Auth
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly IJSRuntime _jsRuntime;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private const string AuthCookieName = "CentroEventosAuth";
         private ClaimsPrincipal _anonymous => new ClaimsPrincipal(new ClaimsIdentity());
 
-        public CustomAuthenticationStateProvider(IJSRuntime jsRuntime)
+        public CustomAuthenticationStateProvider(IJSRuntime jsRuntime, IHttpContextAccessor httpContextAccessor)
         {
             _jsRuntime = jsRuntime;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -57,6 +58,10 @@ namespace CentroEventos.UI.Auth
             }, AuthCookieName);
             var user = new ClaimsPrincipal(identity);
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                await _httpContextAccessor.HttpContext.SignInAsync(AuthCookieName, user);
+            }
         }
 
         public async Task MarkUserAsLoggedOut()

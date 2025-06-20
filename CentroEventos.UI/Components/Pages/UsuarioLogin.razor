@@ -45,12 +45,11 @@
             var usuario = LoginUseCase.Ejecutar(loginModel.Email, loginModel.Password);
             if (usuario != null)
             {
+                showSnackbar = true;
                 if (AuthProvider is CustomAuthenticationStateProvider customProvider)
                 {
                     await customProvider.MarkUserAsAuthenticated(usuario.PersonaId, usuario.Persona.Email);
                 }
-                showSnackbar = true;
-                await Task.Delay(1200);
                 Navigation.NavigateTo("/");
             }
             else

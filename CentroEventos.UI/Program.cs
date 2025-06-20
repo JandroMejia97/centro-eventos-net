@@ -95,6 +95,18 @@ builder.Services.AddScoped<IValidadorUsuario, ValidadorUsuario>();
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuthentication("CentroEventosAuth")
+    .AddCookie("CentroEventosAuth", options =>
+    {
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/acceso-denegado";
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.SlidingExpiration = true;
+    });
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -105,7 +117,8 @@ if (!app.Environment.IsDevelopment())
 
 
 app.UseAntiforgery();
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseStaticFiles();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

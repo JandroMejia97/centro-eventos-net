@@ -70,13 +70,12 @@
                 registroModel.Telefono
             );
             var usuario = new Usuario(persona);
+            CrearUsuarioUC.Ejecutar(usuario, registroModel.Password);
+            showSnackbar = true;
             if (AuthProvider is CustomAuthenticationStateProvider customProvider)
             {
                 await customProvider.MarkUserAsAuthenticated(usuario.PersonaId, usuario.Persona.Email);
             }
-            CrearUsuarioUC.Ejecutar(usuario, registroModel.Password);
-            showSnackbar = true;
-            await Task.Delay(1800);
             Navigation.NavigateTo("/");
         }
         catch (Exception ex)
