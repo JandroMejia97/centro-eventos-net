@@ -9,6 +9,7 @@ public class CentroEventosDbContext : DbContext
     public DbSet<Persona> Personas { get; set; }
     public DbSet<EventoDeportivo> EventosDeportivos { get; set; }
     public DbSet<Reserva> Reservas { get; set; }
+    public DbSet<PermisoUsuario> PermisosUsuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
