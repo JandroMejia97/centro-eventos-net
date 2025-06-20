@@ -68,7 +68,7 @@ builder.Services.AddTransient<PermisoUsuarioObtenerTodosUseCase>();
 builder.Services.AddTransient<CentroEventosDbContext>();
 
 // Autorización
-builder.Services.AddSingleton<IServicioAutorizacion, ServicioAutorizacion>();
+builder.Services.AddTransient<IServicioAutorizacion, ServicioAutorizacion>();
 builder.Services.AddSingleton<IServicioHashContrasena, ServicioHashContrasena>();
 builder.Services.AddAuthenticationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
