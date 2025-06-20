@@ -90,3 +90,8 @@ coverage/
 
 # Archivos de configuración de seguridad
 secrets.json
+
+# Archivos de BD
+*.db*
+*.sqlite
+*.sql
