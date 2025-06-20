@@ -2,7 +2,7 @@ namespace CentroEventos.Aplicacion.Entidades;
 
 public class Usuario
 {
-    public int Id => Persona.Id;
+    public int PersonaId { get; set; }
     public Persona Persona { get; set; } = null!;
     public string ContrasenaHash { get; set; } = string.Empty;
     public List<string> Permisos { get; set; } = new();
@@ -25,17 +25,17 @@ public class Usuario
 
     public override string ToString()
     {
-        return $"{Id}: {Persona.Nombre} {Persona.Apellido} (DNI: {Persona.DNI}, Email: {Persona.Email})";
+        return $"{PersonaId}: {Persona.Nombre} {Persona.Apellido} (DNI: {Persona.DNI}, Email: {Persona.Email})";
     }
 
     public override bool Equals(object? obj)
     {
         if (obj is not Usuario other) return false;
-        return Id == other.Id && Persona.Equals(other.Persona);
+        return PersonaId == other.PersonaId && Persona.Equals(other.Persona);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Id, Persona);
+        return HashCode.Combine(PersonaId, Persona);
     }
 }

@@ -44,7 +44,7 @@ public class RepositorioUsuario : IRepositorioUsuario
 
     public Usuario? ObtenerPorId(int id)
     {
-        return _fuenteDeDatos.ObtenerTodos().FirstOrDefault(u => u.Id == id);
+        return _fuenteDeDatos.ObtenerTodos().FirstOrDefault(u => u.PersonaId == id);
     }
 
     public Usuario? ObtenerPorEmail(string email)
