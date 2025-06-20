@@ -15,4 +15,12 @@ public class CentroEventosDbContext : DbContext
     {
         optionsBuilder.UseSqlite("Data Source=CentroEventos.db");
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<PermisoUsuario>()
+            .HasKey(p => new { p.UsuarioId, p.Permiso });
+    }
 }
