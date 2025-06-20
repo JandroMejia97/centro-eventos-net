@@ -1,117 +1,40 @@
-@page "/eventos/alta"
-@layout AuthLayout
+@page "/eventos/agregar"
+@layout MainLayout
 
 @rendermode InteractiveServer
 
-@using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Components.Forms
+@using CentroEventos.UI.Components.Forms
+
 @inject EventoDeportivoCrearUseCase CrearUseCase
+@inject PersonaObtenerTodosUseCase ObtenerPersonasUseCase
 @inject NavigationManager Navigation
 
-<h4 class="text-center mb-4">Alta de Evento Deportivo</h4>
+<h4 class="text-center my-4">Alta de Evento Deportivo</h4>
 
-<EditForm Model="eventoModel" OnValidSubmit="Guardar">
-    <DataAnnotationsValidator />
-
-    <div class="mb-3">
-        <label class="form-label">Nombre</label>
-        <InputText class="form-control" @bind-Value="eventoModel.Nombre" />
-        <ValidationMessage For="@(() => eventoModel.Nombre)" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Descripción</label>
-        <InputText class="form-control" @bind-Value="eventoModel.Descripcion" />
-        <ValidationMessage For="@(() => eventoModel.Descripcion)" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Duración (horas)</label>
-        <InputNumber class="form-control" @bind-Value="eventoModel.DuracionHoras" />
-        <ValidationMessage For="@(() => eventoModel.DuracionHoras)" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Fecha y hora de inicio</label>
-        <InputDate class="form-control" @bind-Value="eventoModel.FechaHoraInicio" />
-        <ValidationMessage For="@(() => eventoModel.FechaHoraInicio)" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Cupo máximo</label>
-        <InputNumber class="form-control" @bind-Value="eventoModel.CupoMaximo" />
-        <ValidationMessage For="@(() => eventoModel.CupoMaximo)" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">ID Responsable</label>
-        <InputNumber class="form-control" @bind-Value="eventoModel.ResponsableId" />
-        <ValidationMessage For="@(() => eventoModel.ResponsableId)" />
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100">Guardar Evento</button>
-
-    @if (!string.IsNullOrEmpty(error))
-    {
-        <div class="alert alert-danger mt-3">@error</div>
-    }
-    @if (!string.IsNullOrEmpty(mensaje))
-    {
-        <div class="alert alert-success mt-3">@mensaje</div>
-    }
-</EditForm>
+<EventoDeportivoForm
+    Error="@Error"
+    Mensaje="@Mensaje"
+    OnSubmit="Guardar"
+/>
 
 @code {
-    private EventoModel eventoModel = new();
-    private string? error;
-    private string? mensaje;
+    private string? Error { get; set; } = null;
+    private string? Mensaje { get; set; } = null;
 
-    private async Task Guardar()
+    private async Task Guardar(EventoDeportivo evento)
     {
         try
         {
-            var evento = new EventoDeportivo(
-                eventoModel.Nombre,
-                eventoModel.Descripcion,
-                eventoModel.FechaHoraInicio,
-                eventoModel.DuracionHoras,
-                eventoModel.CupoMaximo,
-                eventoModel.ResponsableId
-            );
-
             CrearUseCase.Ejecutar(evento);
-            mensaje = "Evento guardado correctamente.";
-            eventoModel = new(); // limpiar
-            error = null;
+            Mensaje = "Evento guardado correctamente.";
+            Error = null;
+            await Task.Delay(1000);
+            await Task.Run(() => Navigation.NavigateTo("/eventos"));
         }
         catch (Exception ex)
         {
-            error = ex.Message;
-            mensaje = null;
+            Error = ex.Message;
+            Mensaje = null;
         }
-    }
-
-    public class EventoModel
-    {
-        [Required(ErrorMessage = "El nombre es obligatorio.")]
-        public string Nombre { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "La descripción es obligatoria.")]
-        public string Descripcion { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Duración obligatoria.")]
-        [Range(1, 100, ErrorMessage = "Debe ser entre 1 y 100 horas.")]
-        public double DuracionHoras { get; set; }
-
-        [Required(ErrorMessage = "Fecha obligatoria.")]
-        public DateTime FechaHoraInicio { get; set; } = DateTime.Today;
-
-        [Required(ErrorMessage = "El cupo es obligatorio.")]
-        [Range(1, 9999)]
-        public int CupoMaximo { get; set; }
-
-        [Required(ErrorMessage = "El responsable es obligatorio.")]
-        [Range(1, 9999)]
-        public int ResponsableId { get; set; }
     }
 }
