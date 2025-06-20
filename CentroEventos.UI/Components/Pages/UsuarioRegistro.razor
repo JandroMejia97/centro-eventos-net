@@ -8,6 +8,7 @@
 @inject UsuarioCrearUseCase CrearUsuarioUC
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
+@inject HttpClient Http
 
 <h4 class="text-center mb-4">Registro de usuario</h4>
 <EditForm Model="registroModel" OnValidSubmit="OnRegister" FormName="RegistroForm">
@@ -60,23 +61,30 @@
 
     private async Task OnRegister()
     {
+        error = null;
         try
         {
-            var persona = new Persona(
-                registroModel.DNI,
-                registroModel.Nombre,
-                registroModel.Apellido,
-                registroModel.Email,
-                registroModel.Telefono
-            );
-            var usuario = new Usuario(persona);
-            CrearUsuarioUC.Ejecutar(usuario, registroModel.Password);
-            showSnackbar = true;
-            if (AuthProvider is CustomAuthenticationStateProvider customProvider)
+            var content = new FormUrlEncodedContent(new[]
             {
-                await customProvider.MarkUserAsAuthenticated(usuario.PersonaId, usuario.Persona.Email);
+                new KeyValuePair<string, string>("nombre", registroModel.Nombre),
+                new KeyValuePair<string, string>("apellido", registroModel.Apellido),
+                new KeyValuePair<string, string>("dni", registroModel.DNI),
+                new KeyValuePair<string, string>("telefono", registroModel.Telefono),
+                new KeyValuePair<string, string>("email", registroModel.Email),
+                new KeyValuePair<string, string>("password", registroModel.Password)
+            });
+            var response = await Http.PostAsync("/api/register", content);
+            if (response.IsSuccessStatusCode)
+            {
+                showSnackbar = true;
+                await Task.Delay(1000);
+                Navigation.NavigateTo("/", forceLoad: true); // Recarga para que el servidor detecte la cookie
             }
-            Navigation.NavigateTo("/");
+            else
+            {
+                var resp = await response.Content.ReadAsStringAsync();
+                error = resp.Contains("error") ? resp : "Error inesperado al registrar usuario.";
+            }
         }
         catch (Exception ex)
         {
