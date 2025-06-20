@@ -1,0 +1,96 @@
+@page "/registro"
+@layout AuthLayout
+
+@using System.ComponentModel.DataAnnotations
+@using global::CentroEventos.UI.Components.Layout
+@inject UsuarioCrearUseCase CrearUseCase
+@inject NavigationManager Navigation
+@inject CustomAuthenticationStateProvider AuthProvider
+
+<h4 class="text-center mb-4">Registro de usuario</h4>
+<EditForm Model="registroModel" OnValidSubmit="OnRegister">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <InputText id="nombre" class="form-control" @bind-Value="registroModel.Nombre" />
+    </div>
+    <div class="mb-3">
+        <label for="apellido" class="form-label">Apellido</label>
+        <InputText id="apellido" class="form-control" @bind-Value="registroModel.Apellido" />
+    </div>
+    <div class="mb-3">
+        <label for="dni" class="form-label">DNI</label>
+        <InputText id="dni" class="form-control" @bind-Value="registroModel.DNI" />
+    </div>
+    <div class="mb-3">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <InputText id="telefono" class="form-control" @bind-Value="registroModel.Telefono" />
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Correo electrónico</label>
+        <InputText id="email" class="form-control" @bind-Value="registroModel.Email" />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="registroModel.Password" />
+    </div>
+    <button type="submit" class="btn btn-success w-100">Registrarse</button>
+    <div class="text-center mt-3">
+        <a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
+    </div>
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger mt-3">@error</div>
+    }
+</EditForm>
+
+@code {
+    private RegistroModel registroModel = new();
+    private string? error;
+
+    private async Task OnRegister()
+    {
+        try
+        {
+            var persona = new Persona(
+                registroModel.DNI,
+                registroModel.Nombre,
+                registroModel.Apellido,
+                registroModel.Email,
+                registroModel.Telefono
+            );
+            var usuario = new Usuario(persona);
+            if (AuthProvider is CustomAuthenticationStateProvider customProvider)
+            {
+                await customProvider.MarkUserAsAuthenticated(registroModel.Email);
+            }
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    public class RegistroModel
+    {
+        [Required]
+        public string Nombre { get; set; } = string.Empty;
+        [Required]
+        public string Apellido { get; set; } = string.Empty;
+        [Required]
+        public string DNI { get; set; } = string.Empty;
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+        [Required]
+        public string Telefono { get; set; } = string.Empty;
+        [Required]
+        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
+        public string Password { get; set; } = string.Empty;
+    }
+}
+
+using home.mejia.unlp._net.CentroEventos.CentroEventos_UI.Components.Layout;
+#line default

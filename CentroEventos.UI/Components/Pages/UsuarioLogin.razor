@@ -1,0 +1,69 @@
+@page "/login"
+@layout AuthLayout
+
+@using CentroEventos.UI.Components.Layout
+@inject UsuarioLoginUseCase LoginUseCase
+@inject NavigationManager Navigation
+@inject CustomAuthenticationStateProvider AuthProvider
+
+<h4 class="text-center mb-4">Iniciar sesión</h4>
+<EditForm Model="loginModel" OnValidSubmit="OnLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label for="email" class="form-label">Correo electrónico</label>
+        <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+    <div class="text-center mt-3">
+        <a href="/registro">¿No tienes cuenta? Regístrate</a>
+    </div>
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger mt-3">@error</div>
+    }
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new();
+    private string? error;
+
+    private async Task OnLogin()
+    {
+        try
+        {
+            var usuario = LoginUseCase.Ejecutar(loginModel.Email, loginModel.Password);
+            if (usuario != null)
+            {
+                if (AuthProvider is CentroEventos.UI.Auth.CustomAuthenticationStateProvider customProvider)
+                {
+                    await customProvider.MarkUserAsAuthenticated(loginModel.Email);
+                }
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                error = "Credenciales inválidas.";
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+        [Required]
+        public string Password { get; set; } = string.Empty;
+    }
+}
+using home.mejia.unlp._net.CentroEventos.CentroEventos_UI.Components.Layout;
+#line default
