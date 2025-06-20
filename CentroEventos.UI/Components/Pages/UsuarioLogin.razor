@@ -47,7 +47,7 @@
             {
                 if (AuthProvider is CustomAuthenticationStateProvider customProvider)
                 {
-                    await customProvider.MarkUserAsAuthenticated(usuario.PersonaId, usuario.Email);
+                    await customProvider.MarkUserAsAuthenticated(usuario.PersonaId, usuario.Persona.Email);
                 }
                 showSnackbar = true;
                 await Task.Delay(1200);

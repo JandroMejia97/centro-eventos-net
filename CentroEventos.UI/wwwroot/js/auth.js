@@ -1,7 +1,9 @@
 window.CentroEventosAuth = {
-    setAuthUser: function (userName, hours) {
+    setAuthUser: function (userId, userName, hours) {
         const expires = new Date(Date.now() + hours * 60 * 60 * 1_000).toUTCString();
-        document.cookie = `CentroEventosAuth=${userName}; expires=${expires}; path=/`;
+        const data = `${userId}|${userName}`;
+        const encodedData = encodeURIComponent(data);
+        document.cookie = `CentroEventosAuth=${encodedData}; expires=${expires}; path=/; SameSite=Lax; Secure`;
     },
     getAuthUser: function () {
         const name = 'CentroEventosAuth=';
@@ -11,10 +13,18 @@ window.CentroEventosAuth = {
             let c = ca[i];
             while (c.charAt(0) === ' ') c = c.substring(1);
             if (c.indexOf(name) === 0) {
-                return c.substring(name.length, c.length);
+                const cookieValue = c.substring(name.length, c.length);
+                const decodedValue = decodeURIComponent(cookieValue);
+                const parts = decodedValue.split('|');
+                if (parts.length === 2) {
+                    return {
+                        userId: +parts[0],
+                        userName: parts[1]
+                    };
+                }
             }
         }
-        return '';
+        return { userId: 0, userName: '' };
     },
     removeAuthUser: function () {
         document.cookie = 'CentroEventosAuth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
