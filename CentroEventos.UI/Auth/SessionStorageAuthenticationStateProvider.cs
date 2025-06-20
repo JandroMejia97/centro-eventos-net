@@ -18,7 +18,10 @@ namespace CentroEventos.UI.Auth
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            // Si JS interop no está disponible (prerendering), devolver usuario no autenticado
+            if (_currentUser.Identity != null && _currentUser.Identity.IsAuthenticated)
+            {
+                return new AuthenticationState(_currentUser);
+            }
             if (_js is not IJSInProcessRuntime)
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));

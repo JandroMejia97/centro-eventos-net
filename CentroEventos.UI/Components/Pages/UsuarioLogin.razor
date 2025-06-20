@@ -31,7 +31,7 @@
         <div class="alert alert-danger mt-3">@error</div>
     }
 </EditForm>
-<Snackbar Message="¡Inicio de sesión exitoso!" Show="@showSnackbar" OnClose="@(() => showSnackbar = false)" />
+<Snackbar Message="¡Inicio de sesión exitoso!" Duration="2000" Show="@showSnackbar" OnClose="@(() => showSnackbar = false)" />
 
 @code {
     private LoginModel loginModel = new();
@@ -47,7 +47,6 @@
             if (usuario != null)
             {
                 showSnackbar = true;
-                await Task.Delay(1000);
                 Navigation.NavigateTo("/");
             }
             else

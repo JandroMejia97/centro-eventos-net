@@ -77,15 +77,15 @@ builder.Services.AddScoped<AuthenticationStateProvider, SessionStorageAuthentica
 builder.Services.AddSingleton<IFuenteDeDatos<Usuario>, FuenteDeDatosUsuarioEF>();
 builder.Services.AddSingleton<IFuenteDeDatos<Persona>, FuenteDeDatosPersonaEF>();
 builder.Services.AddSingleton<IFuenteDeDatos<EventoDeportivo>, FuenteDeDatosEventoDeportivoEF>();
-builder.Services.AddSingleton<IFuenteDeDatos<Reserva>, FuenteDeDatosReservaEF>();
+builder.Services.AddSingleton<IFuenteDeDatosReserva, FuenteDeDatosReservaEF>();
 builder.Services.AddSingleton<IFuenteDeDatosPermisoUsuario, FuenteDeDatosPermisoUsuarioEF>();
 
 // Repositorios
-builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
-builder.Services.AddScoped<IRepositorioPersona, RepositorioPersona>();
-builder.Services.AddScoped<IRepositorioEventoDeportivo, RepositorioEventoDeportivo>();
-builder.Services.AddScoped<IRepositorioReserva, RepositorioReserva>();
-builder.Services.AddScoped<IRepositorioPermisoUsuario, RepositorioPermisoUsuario>();
+builder.Services.AddSingleton<IRepositorioUsuario, RepositorioUsuario>();
+builder.Services.AddSingleton<IRepositorioPersona, RepositorioPersona>();
+builder.Services.AddSingleton<IRepositorioEventoDeportivo, RepositorioEventoDeportivo>();
+builder.Services.AddSingleton<IRepositorioReserva, RepositorioReserva>();
+builder.Services.AddSingleton<IRepositorioPermisoUsuario, RepositorioPermisoUsuario>();
 
 // Validadores
 builder.Services.AddScoped<IValidadorPersona, ValidadorPersona>();

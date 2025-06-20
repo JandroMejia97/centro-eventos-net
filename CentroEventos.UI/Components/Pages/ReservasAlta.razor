@@ -52,7 +52,7 @@
                 reservaModel.EventoDeportivoId
             );
 
-            AltaUseCase.Ejecutar(reservaModel.PersonaId, reservaModel.EventoDeportivoId);
+            @* AltaUseCase.Ejecutar(1, reservaModel.PersonaId, reservaModel.EventoDeportivoId); *@
             mensaje = "Reserva creada correctamente.";
             reservaModel = new(); // limpiar formulario
             error = null;
