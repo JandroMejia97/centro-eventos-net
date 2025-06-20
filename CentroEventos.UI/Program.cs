@@ -15,6 +15,8 @@ using CentroEventos.Repositorios.FuentesDeDatos;
 using CentroEventos.Repositorios.Contextos;
 using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Repositorios.Servicios;
+using Microsoft.AspNetCore.Components.Authorization;
+using CentroEventos.UI.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +59,8 @@ builder.Services.AddTransient<CentroEventosDbContext>();
 // Autorización
 builder.Services.AddSingleton<IServicioAutorizacion, ServicioAutorizacion>();
 builder.Services.AddSingleton<IServicioHashContrasena, ServicioHashContrasena>();
+builder.Services.AddAuthenticationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
 // Fuentes de datos
 builder.Services.AddSingleton<IFuenteDeDatos<Usuario>, FuenteDeDatosUsuarioEF>();
@@ -75,6 +79,8 @@ builder.Services.AddScoped<IValidadorPersona, ValidadorPersona>();
 builder.Services.AddScoped<IValidadorEventoDeportivo, ValidadorEventoDeportivo>();
 builder.Services.AddScoped<IValidadorReserva, ValidadorReserva>();
 builder.Services.AddScoped<IValidadorUsuario, ValidadorUsuario>();
+
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 var app = builder.Build();
 
