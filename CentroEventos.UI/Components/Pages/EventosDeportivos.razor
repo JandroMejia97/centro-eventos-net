@@ -63,7 +63,16 @@ else
                         <ul class="list-unstyled mb-2">
                             <li><strong>Duración:</strong> @e.DuracionHoras h</li>
                             <li><strong>Cupo máximo:</strong> @e.CupoMaximo</li>
-                            <li><strong>ID Responsable:</strong> @e.ResponsableId</li>
+                            <li><strong>Responsable:</strong>
+                                @if (e.Responsable is null)
+                                {
+                                    <span class="text-muted">@e.ResponsableId</span>
+                                }
+                                else
+                                {
+                                    @e.Responsable?.NombreCompleto
+                                }
+                            </li>
                         </ul>
                         <div class="d-flex gap-2 mt-auto">
                             <a class="btn btn-outline-primary btn-sm" href="/eventos/@e.Id">Ver</a>
@@ -97,7 +106,16 @@ else
                         <td>@e.FechaHoraInicio.ToString("g")</td>
                         <td>@e.DuracionHoras</td>
                         <td>@e.CupoMaximo</td>
-                        <td>@e.ResponsableId</td>
+                        <td>
+                            @if (e.Responsable is null)
+                            {
+                                <span class="text-muted">@e.ResponsableId</span>
+                            }
+                            else
+                            {
+                                @e.Responsable?.NombreCompleto
+                            }
+                        </td>
                         <td class="d-flex gap-2">
                             <a class="btn btn-outline-primary" href="/eventos/@e.Id">Ver</a>
                             <a class="btn btn-outline-secondary" href="/eventos/editar/@e.Id">Editar</a>
