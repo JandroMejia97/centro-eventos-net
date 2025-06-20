@@ -29,7 +29,7 @@ public class Persona
         Telefono = telefono;
     }
 
-    protected Persona() { }
+    public Persona() { }
 
     public override string ToString()
     {

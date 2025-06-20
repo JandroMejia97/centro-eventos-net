@@ -1,0 +1,31 @@
+@page "/eventos/alta"
+@using CentroEventos.Aplicacion.Validadores
+@inject EventoDeportivoCrearUseCase Crear
+@inject IValidadorEventoDeportivo Validador
+
+<h3>Alta de Evento Deportivo</h3>
+
+<EditForm Model="evento" OnValidSubmit="Guardar">
+    <InputText @bind-Value="evento.Nombre" placeholder="Nombre" class="form-control" />
+    <InputText @bind-Value="evento.Descripcion" placeholder="Deporte" class="form-control" />
+    <InputNumber @bind-Value="evento.DuracionHoras" placeholder="DuracionHoras" class="form-control" />
+    <InputDate @bind-Value="evento.FechaHoraInicio" class="form-control" />
+    <button type="submit">Guardar</button>
+</EditForm>
+
+@code {
+    EventoDeportivo evento = new();
+
+    void Guardar()
+    {
+        try
+        {
+            Validador.Validar(evento);
+            Crear.Ejecutar(evento);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}

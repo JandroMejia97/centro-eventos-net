@@ -33,7 +33,7 @@ public class EventoDeportivo
         ResponsableId = responsableId;
     }
 
-    protected EventoDeportivo() { }
+    public EventoDeportivo() { }
 
     public override string ToString()
     {

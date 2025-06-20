@@ -1,0 +1,31 @@
+@page "/reservas/alta"
+@using CentroEventos.Aplicacion.CasosDeUso
+@using CentroEventos.Aplicacion.Validadores
+@inject ReservaAltaUseCase Alta
+@inject IValidadorReserva Validador
+
+<h3>Alta de Reserva</h3>
+
+<EditForm Model="reserva" OnValidSubmit="Guardar">
+    <InputNumber @bind-Value="reserva.PersonaId" placeholder="ID de Persona" class="form-control" />
+    <InputNumber @bind-Value="reserva.EventoDeportivoId" placeholder="ID de Evento" class="form-control" />
+    <InputDate @bind-Value="reserva.FechaAltaReserva" class="form-control" />
+    <button type="submit">Guardar</button>
+</EditForm>
+
+@code {
+    Reserva reserva = new();
+
+    void Guardar()
+    {
+        try
+        {
+            Validador.Validar(reserva);
+            Alta.Ejecutar(reserva.PersonaId, reserva.EventoDeportivoId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}

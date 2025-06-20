@@ -25,7 +25,7 @@ public class Reserva
         EstadoAsistencia = EstadoAsistencia.Pendiente;
     }
 
-    protected Reserva() { }
+    public Reserva() { }
 
     public override string ToString()
     {
