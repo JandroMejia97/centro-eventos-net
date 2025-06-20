@@ -13,8 +13,16 @@
 </head>
 
 <body>
-    <Routes />
+    @using Microsoft.AspNetCore.Components.Authorization
+    @using CentroEventos.UI.Components
+    @using CentroEventos.UI.Components.Pages
+
+    <CascadingAuthenticationState>
+        <Routes />
+    </CascadingAuthenticationState>
+
     <script src="_framework/blazor.web.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 
 </html>
