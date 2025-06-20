@@ -1,0 +1,102 @@
+@using CentroEventos.Core
+@using CentroEventos.Core.DTOs
+@using System.ComponentModel.DataAnnotations
+
+<EditForm Model="ReservaModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    @if (!string.IsNullOrEmpty(SuccessMessage))
+    {
+        <div class="alert alert-success">@SuccessMessage</div>
+    }
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger">@ErrorMessage</div>
+    }
+    @if (!IsValid)
+    {
+        <ValidationSummary class="alert alert-danger" />
+    }
+
+    <div class="mb-3">
+        <label for="evento" class="form-label">Evento Deportivo:</label>
+        <InputSelect id="evento" class="form-select" @bind-Value="ReservaModel.EventoDeportivoId"
+                     disabled="@(EventosDeportivos == null || !EventosDeportivos.Any())">
+            <option value="0">-- Seleccione un Evento --</option>
+            @if (EventosDeportivos != null)
+            {
+                @foreach (var evento in EventosDeportivos)
+                {
+                    <option value="@evento.Id">@evento.Nombre</option>
+                }
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => ReservaModel.EventoDeportivoId)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="persona" class="form-label">Persona:</label>
+        <InputSelect id="persona" class="form-select" @bind-Value="ReservaModel.PersonaId"
+                     disabled="@(Personas == null || !Personas.Any())">
+            <option value="0">-- Seleccione una Persona --</option>
+            @if (Personas != null)
+            {
+                @foreach (var persona in Personas)
+                {
+                    <option value="@persona.Id">@persona.NombreCompleto</option>
+                }
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => ReservaModel.PersonaId)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@IsSubmitDisabled()">@SubmitButtonText</button>
+
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public ReservaDTO ReservaModel { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<ReservaDTO> OnSubmitCallback { get; set; } // Changed to typed EventCallback
+
+    [Parameter]
+    public string? SuccessMessage { get; set; }
+
+    [Parameter]
+    public string? ErrorMessage { get; set; }
+
+    [Parameter]
+    public IEnumerable<EventoDeportivo>? EventosDeportivos { get; set; }
+
+    [Parameter]
+    public IEnumerable<Persona>? Personas { get; set; }
+
+    [Parameter]
+    public string SubmitButtonText { get; set; } = "Guardar";
+
+    private bool IsValid = true; // To control visibility of ValidationSummary initially
+
+    // OnInitialized removed as FechaReserva and EstadoReserva are no longer set by this form.
+
+    private async Task HandleValidSubmit()
+    {
+        IsValid = true; // Assume valid if OnValidSubmit is called
+        if (ReservaModel.EventoDeportivoId == 0 || ReservaModel.PersonaId == 0)
+        {
+            IsValid = false; // Manually trigger summary if needed for 0 values not caught by Range(1,...)
+            // ErrorMessage = "Por favor, seleccione un evento y una persona."; // Or let ValidationSummary handle
+            return;
+        }
+        // Now invokes with the ReservaModel, which is a ReservaDTO.
+        // The parent component (ReservasAlta) will receive this DTO.
+        await OnSubmitCallback.InvokeAsync(ReservaModel);
+    }
+
+    private bool IsSubmitDisabled()
+    {
+        return (EventosDeportivos == null || !EventosDeportivos.Any()) ||
+               (Personas == null || !Personas.Any());
+    }
+}

@@ -1,77 +1,115 @@
-@page "/reservas/alta"
-@layout AuthLayout
+@page "/reservas/agregar"
+@using CentroEventos.Core
+@using CentroEventos.Core.DTOs
+@using CentroEventos.Core.UseCases
+@inject ReservaAltaUseCase ReservaAltaUseCase
+@inject EventoDeportivoObtenerTodosUseCase EventoDeportivoObtenerTodosUseCase
+@inject PersonaObtenerTodosUseCase PersonaObtenerTodosUseCase
+@inject NavigationManager NavigationManager
 
-@rendermode InteractiveServer
+<PageTitle>Alta de Reserva</PageTitle>
 
-@using System.ComponentModel.DataAnnotations
-@using CentroEventos.Aplicacion.CasosDeUso
-@using Microsoft.AspNetCore.Components.Forms
-@inject ReservaAltaUseCase AltaUseCase
-@inject NavigationManager Navigation
+<h3>Alta de Reserva</h3>
 
-<h4 class="text-center mb-4">Alta de Reserva</h4>
-
-<EditForm Model="reservaModel" OnValidSubmit="Guardar">
-    <DataAnnotationsValidator />
-
-    <div class="mb-3">
-        <label class="form-label">ID de Persona</label>
-        <InputNumber class="form-control" @bind-Value="reservaModel.PersonaId" />
-        <ValidationMessage For="@(() => reservaModel.PersonaId)" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">ID de Evento Deportivo</label>
-        <InputNumber class="form-control" @bind-Value="reservaModel.EventoDeportivoId" />
-        <ValidationMessage For="@(() => reservaModel.EventoDeportivoId)" />
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100">Guardar Reserva</button>
-
-    @if (!string.IsNullOrEmpty(error))
-    {
-        <div class="alert alert-danger mt-3">@error</div>
-    }
-    @if (!string.IsNullOrEmpty(mensaje))
-    {
-        <div class="alert alert-success mt-3">@mensaje</div>
-    }
-</EditForm>
+@if (loadingLists)
+{
+    <p><em>Cargando datos necesarios para el formulario (eventos, personas)...</em></p>
+}
+else if (!string.IsNullOrEmpty(loadListsErrorMessage))
+{
+    <div class="alert alert-danger">@loadListsErrorMessage</div>
+}
+else
+{
+    <ReservaForm ReservaModel="reservaDto"
+                 EventosDeportivos="eventos"
+                 Personas="personas"
+                 OnSubmitCallback="GuardarReserva"
+                 SubmitButtonText="Crear Reserva"
+                 SuccessMessage="@successMessage"
+                 ErrorMessage="@errorMessage" />
+}
 
 @code {
-    private ReservaModel reservaModel = new();
-    private string? error;
-    private string? mensaje;
+    private ReservaDTO reservaDto = new ReservaDTO();
+    private IEnumerable<EventoDeportivo>? eventos;
+    private IEnumerable<Persona>? personas;
 
-    private async Task Guardar()
+    private bool loadingLists = true; // For initial data load
+    private string? loadListsErrorMessage;
+
+    private string? successMessage;
+    private string? errorMessage;
+    private bool isSaving = false; // To disable button during save
+
+    protected override async Task OnInitializedAsync()
     {
+        loadingLists = true;
+        loadListsErrorMessage = null;
         try
         {
-            var reserva = new Reserva(
-                reservaModel.PersonaId,
-                reservaModel.EventoDeportivoId
-            );
+            eventos = await EventoDeportivoObtenerTodosUseCase.ExecuteAsync();
+            personas = await PersonaObtenerTodosUseCase.ExecuteAsync();
 
-            @* AltaUseCase.Ejecutar(1, reservaModel.PersonaId, reservaModel.EventoDeportivoId); *@
-            mensaje = "Reserva creada correctamente.";
-            reservaModel = new(); // limpiar formulario
-            error = null;
+            if (eventos == null || !eventos.Any())
+            {
+                loadListsErrorMessage = "No hay eventos deportivos disponibles para crear una reserva.";
+            }
+            if (personas == null || !personas.Any())
+            {
+                loadListsErrorMessage = (loadListsErrorMessage ?? "") + " No hay personas disponibles para crear una reserva.";
+            }
         }
         catch (Exception ex)
         {
-            error = ex.Message;
-            mensaje = null;
+            loadListsErrorMessage = $"Error cargando listas necesarias: {ex.Message}";
+            Console.WriteLine(loadListsErrorMessage); // Log for debugging
+        }
+        finally
+        {
+            loadingLists = false;
         }
     }
 
-    public class ReservaModel
+    // Method signature changed to accept ReservaDTO from the form callback
+    private async Task GuardarReserva(ReservaDTO submittedDto)
     {
-        [Required(ErrorMessage = "El ID de Persona es obligatorio.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Debe ser un ID válido.")]
-        public int PersonaId { get; set; }
+        if (isSaving) return;
 
-        [Required(ErrorMessage = "El ID de Evento Deportivo es obligatorio.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Debe ser un ID válido.")]
-        public int EventoDeportivoId { get; set; }
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // The DTO from the form (submittedDto) contains PersonaId and EventoDeportivoId.
+            // FechaReserva and EstadoReserva are handled by the use case/constructor.
+            // Hardcoded usuarioId: 1 as per requirement.
+            var nuevaReservaId = await ReservaAltaUseCase.EjecutarAsync(
+                usuarioId: 1, // Hardcoded as per requirement
+                personaId: submittedDto.PersonaId,
+                eventoId: submittedDto.EventoDeportivoId
+            );
+            // Assuming EjecutarAsync returns the ID of the new reserva or the full entity.
+            // If it returns the entity, you might use nuevaReserva.Id
+            successMessage = $"Reserva creada con éxito (ID: {nuevaReservaId}). Redirigiendo a la lista de reservas...";
+
+            // Optionally, reset the form model if staying on the page:
+            // reservaDto = new ReservaDTO();
+
+            await Task.Delay(2500); // Wait for message visibility
+            NavigationManager.NavigateTo("/reservas");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar la reserva: {ex.Message}";
+            Console.WriteLine($"Error en GuardarReserva: {ex}"); // Full exception for debugging
+        }
+        finally
+        {
+            isSaving = false;
+            // StateHasChanged() is important to update UI with messages or if form needs reset
+            StateHasChanged();
+        }
     }
 }
