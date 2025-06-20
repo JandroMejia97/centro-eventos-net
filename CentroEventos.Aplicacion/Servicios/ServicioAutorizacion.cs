@@ -12,9 +12,9 @@ public class ServicioAutorizacion : IServicioAutorizacion {
         _repoPermiso = repoPermiso;
         _repoUsuario = repoUsuario;
     }
-    public bool Autorizar(int idUsuario, Permiso accion) {
-        _ = _repoUsuario.ObtenerPorId(idUsuario) ?? throw new FalloAutorizacionException("Usuario no encontrado.");
-        _ = _repoPermiso.Obtener(idUsuario, accion) ?? throw new FalloAutorizacionException($"No tiene el permiso requerido: {accion}.");
+    public bool Autorizar(int usuarioId, Permiso accion) {
+        _ = _repoUsuario.ObtenerPorId(usuarioId) ?? throw new FalloAutorizacionException("Usuario no encontrado.");
+        _ = _repoPermiso.Obtener(usuarioId, accion) ?? throw new FalloAutorizacionException($"No tiene el permiso requerido: {accion}.");
         return true;
     }
 }

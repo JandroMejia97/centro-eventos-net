@@ -17,6 +17,10 @@ using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Repositorios.Servicios;
 using Microsoft.AspNetCore.Components.Authorization;
 using CentroEventos.UI.Auth;
+using CentroEventos.Repositorios;
+using CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases;
+
+CentroEventosSqlite.Inicializar();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +57,13 @@ builder.Services.AddTransient<ReservaEliminarUseCase>();
 builder.Services.AddTransient<ReservaObtenerPorIdUseCase>();
 builder.Services.AddTransient<ReservaObtenerTodosUseCase>();
 
+// Casos de uso - Permiso Usuario
+builder.Services.AddTransient<PermisoUsuarioAgregarUseCase>();
+builder.Services.AddTransient<PermisoUsuarioEliminarUseCase>();
+builder.Services.AddTransient<PermisoUsuarioObtenerUseCase>();
+builder.Services.AddTransient<PermisoUsuarioObtenerPorUsuarioUseCase>();
+builder.Services.AddTransient<PermisoUsuarioObtenerTodosUseCase>();
+
 // Contexto de BD
 builder.Services.AddTransient<CentroEventosDbContext>();
 
@@ -66,13 +77,14 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddSingleton<IFuenteDeDatos<Usuario>, FuenteDeDatosUsuarioEF>();
 builder.Services.AddSingleton<IFuenteDeDatos<Persona>, FuenteDeDatosPersonaEF>();
 builder.Services.AddSingleton<IFuenteDeDatos<EventoDeportivo>, FuenteDeDatosEventoDeportivoEF>();
-builder.Services.AddSingleton<IFuenteDeDatos<Reserva>, FuenteDeDatosReservaEF>();
+builder.Services.AddSingleton<IFuenteDeDatosPermisoUsuario, FuenteDeDatosPermisoUsuarioEF>();
 
 // Repositorios
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 builder.Services.AddScoped<IRepositorioPersona, RepositorioPersona>();
 builder.Services.AddScoped<IRepositorioEventoDeportivo, RepositorioEventoDeportivo>();
 builder.Services.AddScoped<IRepositorioReserva, RepositorioReserva>();
+builder.Services.AddScoped<IRepositorioPermisoUsuario, RepositorioPermisoUsuario>();
 
 // Validadores
 builder.Services.AddScoped<IValidadorPersona, ValidadorPersona>();

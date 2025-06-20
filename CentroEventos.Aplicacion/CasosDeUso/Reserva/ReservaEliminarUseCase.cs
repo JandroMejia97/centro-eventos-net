@@ -1,6 +1,7 @@
 using CentroEventos.Aplicacion.Interfaces;
 using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
+using CentroEventos.Aplicacion.Enums;
 
 namespace CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases;
 
@@ -10,8 +11,8 @@ public class ReservaEliminarUseCase(IRepositorioReserva repositorioReserva, ISer
     private readonly IRepositorioReserva _repositorioReserva = repositorioReserva;
     private readonly IServicioAutorizacion _servicioAutorizacion = servicioAutorizacion;
 
-    public void Ejecutar(int reservaId, string usuario) {
-        _servicioAutorizacion.Autorizar(usuario, "eliminar");
+    public void Ejecutar(int reservaId, int usuarioId) {
+        _servicioAutorizacion.Autorizar(usuarioId, Permiso.EliminarReserva);
         if (_repositorioReserva.ObtenerPorId(reservaId) is null)
             throw new EntidadNotFoundException("Reserva no encontrada.");
         _repositorioReserva.Eliminar(reservaId);

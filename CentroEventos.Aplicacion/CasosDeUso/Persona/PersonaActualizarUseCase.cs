@@ -3,6 +3,7 @@ using CentroEventos.Aplicacion.Interfaces;
 using CentroEventos.Aplicacion.Validadores;
 using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
+using CentroEventos.Aplicacion.Enums;
 
 namespace CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases;
 
@@ -13,8 +14,8 @@ public class PersonaActualizarUseCase(IRepositorioPersona repositorioPersona, IV
     private readonly IValidadorPersona _validadorPersona = validadorPersona;
     private readonly IServicioAutorizacion _servicioAutorizacion = servicioAutorizacion;
 
-    public void Ejecutar(Persona persona, string usuario) {
-        _servicioAutorizacion.Autorizar(usuario, "actualizar");
+    public void Ejecutar(Persona persona, int usuarioId) {
+        _servicioAutorizacion.Autorizar(usuarioId, Permiso.EditarUsuario);
         _validadorPersona.Validar(persona);
         if (_repositorioPersona.ObtenerPorId(persona.Id) is null)
             throw new EntidadNotFoundException("Persona no encontrada.");

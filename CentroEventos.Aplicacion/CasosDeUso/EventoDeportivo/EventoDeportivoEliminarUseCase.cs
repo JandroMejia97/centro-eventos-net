@@ -1,6 +1,7 @@
 using CentroEventos.Aplicacion.Interfaces;
 using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
+using CentroEventos.Aplicacion.Enums;
 
 namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivoUseCases;
 
@@ -10,8 +11,8 @@ public class EventoDeportivoEliminarUseCase(IRepositorioEventoDeportivo reposito
     private readonly IRepositorioEventoDeportivo _repositorioEvento = repositorioEvento;
     private readonly IServicioAutorizacion _servicioAutorizacion = servicioAutorizacion;
 
-    public void Ejecutar(int eventoId, string usuario) {
-        _servicioAutorizacion.Autorizar(usuario, "eliminar");
+    public void Ejecutar(int eventoId, int usuarioId) {
+        _servicioAutorizacion.Autorizar(usuarioId, Permiso.EliminarEvento);
         if (_repositorioEvento.ObtenerPorId(eventoId) is null)
             throw new EntidadNotFoundException("Evento no encontrado.");
         _repositorioEvento.Eliminar(eventoId);
