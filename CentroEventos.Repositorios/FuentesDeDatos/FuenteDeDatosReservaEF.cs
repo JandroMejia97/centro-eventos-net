@@ -34,6 +34,8 @@ public class FuenteDeDatosReservaEF : IFuenteDeDatosReserva
     public Reserva? Obtener(int personaId, int eventoDeportivoId)
     {
         return _context.Reservas
+            .Include(r => r.EventoDeportivo)
+            .Include(r => r.Persona)
             .AsNoTracking()
             .FirstOrDefault(r => r.PersonaId == personaId && r.EventoDeportivoId == eventoDeportivoId);
     }
@@ -51,6 +53,8 @@ public class FuenteDeDatosReservaEF : IFuenteDeDatosReserva
     public IEnumerable<Reserva> ObtenerPorPersonaId(int personaId)
     {
         return [.. _context.Reservas
+            .Include(r => r.EventoDeportivo)
+            .Include(r => r.Persona)
             .AsNoTracking()
             .Where(r => r.PersonaId == personaId)];
     }
@@ -58,6 +62,8 @@ public class FuenteDeDatosReservaEF : IFuenteDeDatosReserva
     public IEnumerable<Reserva> ObtenerPorEventoId(int eventoDeportivoId)
     {
         return [.. _context.Reservas
+            .Include(r => r.EventoDeportivo)
+            .Include(r => r.Persona)
             .AsNoTracking()
             .Where(r => r.EventoDeportivoId == eventoDeportivoId)];
     }

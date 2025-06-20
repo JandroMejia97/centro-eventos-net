@@ -38,11 +38,11 @@ public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatos<EventoDeportivo>
 
     public EventoDeportivo? ObtenerPorId(int id)
     {
-        return _context.EventosDeportivos.Find(id);
+        return _context.EventosDeportivos.Include(e => e.Responsable).FirstOrDefault(e => e.Id == id);
     }
 
     public IEnumerable<EventoDeportivo> ObtenerTodos()
     {
-        return _context.EventosDeportivos.AsNoTracking().ToList();
+        return _context.EventosDeportivos.Include(e => e.Responsable).AsNoTracking().ToList();
     }
 }

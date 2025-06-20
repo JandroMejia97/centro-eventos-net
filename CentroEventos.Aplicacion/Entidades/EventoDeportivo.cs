@@ -9,8 +9,9 @@ public class EventoDeportivo
     public double DuracionHoras { get; set; }
     public int CupoMaximo { get; set; }
     public int ResponsableId { get; set; }
+    public Persona? Responsable { get; set; }
 
-    public EventoDeportivo(string nombre, string descripcion, DateTime fechaHoraInicio, double duracionHoras, int cupoMaximo, int responsableId)
+    public EventoDeportivo(string nombre, string descripcion, DateTime fechaHoraInicio, double duracionHoras, int cupoMaximo, int responsableId, Persona? responsable = null)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             throw new ArgumentException("El nombre del evento no puede estar vacío.", nameof(nombre));

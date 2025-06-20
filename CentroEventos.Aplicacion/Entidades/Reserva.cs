@@ -10,7 +10,9 @@ public enum EstadoAsistencia
 public class Reserva
 {
     public int PersonaId { get; set; }
+    public Persona? Persona { get; set; }
     public int EventoDeportivoId { get; set; }
+    public EventoDeportivo? EventoDeportivo { get; set; }
     public DateTime FechaAltaReserva { get; set; }
     public EstadoAsistencia EstadoAsistencia { get; set; }
 
@@ -22,6 +24,19 @@ public class Reserva
         EventoDeportivoId = eventoDeportivoId;
         FechaAltaReserva = DateTime.Now;
         EstadoAsistencia = EstadoAsistencia.Pendiente;
+    }
+
+    public Reserva(int personaId, int eventoDeportivoId, EstadoAsistencia estadoAsistencia)
+        : this(personaId, eventoDeportivoId)
+    {
+        EstadoAsistencia = estadoAsistencia;
+    }
+
+    public Reserva(int personaId, int eventoDeportivoId, EstadoAsistencia estadoAsistencia, EventoDeportivo? eventoDeportivo = null, Persona? persona = null)
+        : this(personaId, eventoDeportivoId, estadoAsistencia)
+    {
+        EventoDeportivo = eventoDeportivo;
+        Persona = persona;
     }
 
     public Reserva() { }

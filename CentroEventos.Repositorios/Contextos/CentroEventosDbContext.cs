@@ -26,6 +26,16 @@ public class CentroEventosDbContext : DbContext
         modelBuilder.Entity<Reserva>()
             .HasKey(r => new { r.PersonaId, r.EventoDeportivoId });
 
+        modelBuilder.Entity<Reserva>()
+            .HasOne(r => r.Persona)
+            .WithMany()
+            .HasForeignKey(r => r.PersonaId);
+
+        modelBuilder.Entity<Reserva>()
+            .HasOne(r => r.EventoDeportivo)
+            .WithMany()
+            .HasForeignKey(r => r.EventoDeportivoId);
+
         modelBuilder.Entity<Usuario>()
             .HasKey(u => u.PersonaId);
 
@@ -33,5 +43,10 @@ public class CentroEventosDbContext : DbContext
             .HasOne(u => u.Persona)
             .WithOne()
             .HasForeignKey<Usuario>(u => u.PersonaId);
+
+        modelBuilder.Entity<EventoDeportivo>()
+            .HasOne(e => e.Responsable)
+            .WithMany()
+            .HasForeignKey(e => e.ResponsableId);
     }
 }
