@@ -1,0 +1,25 @@
+@page "/personas/nueva"
+@using CentroEventos.Aplicacion.Validadores
+@inject PersonaCrearUseCase CrearUseCase
+@inject IValidadorPersona Validador
+
+<h3>Nueva Persona</h3>
+
+<EditForm Model="persona" OnValidSubmit="Guardar">
+    <InputText @bind-Value="persona.Nombre" placeholder="Nombre" />
+    <InputText @bind-Value="persona.Apellido" placeholder="Apellido" />
+    <InputText @bind-Value="persona.DNI" placeholder="DNI" />
+    <button type="submit">Guardar</button>
+</EditForm>
+
+@code {
+    Persona persona = new();
+
+    private void Guardar()
+    {
+        Validador.Validar(persona);
+        CrearUseCase.Ejecutar(persona, "usuarioActual");
+    }
+}
+
+// ----------- REPETIR MISMO PATRÓN PARA EVENTO DEPORTIVO -----------
