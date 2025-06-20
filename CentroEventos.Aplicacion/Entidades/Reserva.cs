@@ -9,7 +9,6 @@ public enum EstadoAsistencia
 
 public class Reserva
 {
-    public int Id { get; set; }
     public int PersonaId { get; set; }
     public int EventoDeportivoId { get; set; }
     public DateTime FechaAltaReserva { get; set; }
@@ -29,17 +28,17 @@ public class Reserva
 
     public override string ToString()
     {
-        return $"{Id}: Persona {PersonaId}, Evento {EventoDeportivoId}, Fecha: {FechaAltaReserva}, Estado: {EstadoAsistencia}";
+        return $"Persona {PersonaId}, Evento {EventoDeportivoId}, Fecha: {FechaAltaReserva}, Estado: {EstadoAsistencia}";
     }
 
     public override bool Equals(object? obj)
     {
         if (obj is not Reserva other) return false;
-        return Id == other.Id && PersonaId == other.PersonaId && EventoDeportivoId == other.EventoDeportivoId;
+        return PersonaId == other.PersonaId && EventoDeportivoId == other.EventoDeportivoId;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Id, PersonaId, EventoDeportivoId);
+        return HashCode.Combine(PersonaId, EventoDeportivoId);
     }
 }

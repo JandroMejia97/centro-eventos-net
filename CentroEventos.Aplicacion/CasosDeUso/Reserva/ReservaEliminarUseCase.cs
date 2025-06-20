@@ -11,10 +11,10 @@ public class ReservaEliminarUseCase(IRepositorioReserva repositorioReserva, ISer
     private readonly IRepositorioReserva _repositorioReserva = repositorioReserva;
     private readonly IServicioAutorizacion _servicioAutorizacion = servicioAutorizacion;
 
-    public void Ejecutar(int reservaId, int usuarioId) {
+    public void Ejecutar(int usuarioId, int personaId, int eventoDeportivoId) {
         _servicioAutorizacion.Autorizar(usuarioId, Permiso.EliminarReserva);
-        if (_repositorioReserva.ObtenerPorId(reservaId) is null)
+        if (_repositorioReserva.Obtener(personaId, eventoDeportivoId) is null)
             throw new EntidadNotFoundException("Reserva no encontrada.");
-        _repositorioReserva.Eliminar(reservaId);
+        _repositorioReserva.Eliminar(personaId, eventoDeportivoId);
     }
 }

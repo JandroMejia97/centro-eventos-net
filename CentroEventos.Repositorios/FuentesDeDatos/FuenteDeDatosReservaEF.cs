@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CentroEventos.Repositorios.FuentesDeDatos;
 
-public class FuenteDeDatosReservaEF : IFuenteDeDatos<Reserva>
+public class FuenteDeDatosReservaEF : IFuenteDeDatosReserva
 {
     private readonly CentroEventosDbContext _context;
 
@@ -26,9 +26,21 @@ public class FuenteDeDatosReservaEF : IFuenteDeDatos<Reserva>
         _context.SaveChanges();
     }
 
-    public void Eliminar(int id)
+    public IEnumerable<Reserva> ObtenerTodos()
     {
-        var reserva = _context.Reservas.Find(id);
+        return [.. _context.Reservas.AsNoTracking()];
+    }
+
+    public Reserva? Obtener(int personaId, int eventoDeportivoId)
+    {
+        return _context.Reservas
+            .AsNoTracking()
+            .FirstOrDefault(r => r.PersonaId == personaId && r.EventoDeportivoId == eventoDeportivoId);
+    }
+
+    public void Eliminar(int personaId, int eventoDeportivoId)
+    {
+        var reserva = _context.Reservas.FirstOrDefault(r => r.PersonaId == personaId && r.EventoDeportivoId == eventoDeportivoId);
         if (reserva is not null)
         {
             _context.Reservas.Remove(reserva);
@@ -36,13 +48,17 @@ public class FuenteDeDatosReservaEF : IFuenteDeDatos<Reserva>
         }
     }
 
-    public Reserva? ObtenerPorId(int id)
+    public IEnumerable<Reserva> ObtenerPorPersonaId(int personaId)
     {
-        return _context.Reservas.Find(id);
+        return [.. _context.Reservas
+            .AsNoTracking()
+            .Where(r => r.PersonaId == personaId)];
     }
 
-    public IEnumerable<Reserva> ObtenerTodos()
+    public IEnumerable<Reserva> ObtenerPorEventoId(int eventoDeportivoId)
     {
-        return _context.Reservas.AsNoTracking().ToList();
+        return [.. _context.Reservas
+            .AsNoTracking()
+            .Where(r => r.EventoDeportivoId == eventoDeportivoId)];
     }
 }

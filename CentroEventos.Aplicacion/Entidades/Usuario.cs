@@ -5,7 +5,6 @@ public class Usuario
     public int PersonaId { get; set; }
     public Persona Persona { get; set; } = null!;
     public string ContrasenaHash { get; set; } = string.Empty;
-    public List<string> Permisos { get; set; } = new();
 
     public Usuario(Persona persona)
     {

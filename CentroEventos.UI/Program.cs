@@ -55,7 +55,7 @@ builder.Services.AddTransient<EventoDeportivoObtenerTodosUseCase>();
 builder.Services.AddTransient<ReservaAltaUseCase>();
 builder.Services.AddTransient<ReservaActualizarUseCase>();
 builder.Services.AddTransient<ReservaEliminarUseCase>();
-builder.Services.AddTransient<ReservaObtenerPorIdUseCase>();
+builder.Services.AddTransient<ReservaObtenerUseCase>();
 builder.Services.AddTransient<ReservaObtenerTodosUseCase>();
 
 // Casos de uso - Permiso Usuario

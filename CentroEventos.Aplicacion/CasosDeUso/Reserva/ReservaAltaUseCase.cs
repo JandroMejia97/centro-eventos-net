@@ -9,8 +9,9 @@ public class ReservaAltaUseCase(
     IRepositorioEventoDeportivo repositorioEvento,
     IRepositorioPersona repositorioPersona)
 {
-    public void Ejecutar(int personaId, int eventoId)
+    public void Ejecutar(int usuarioId, int personaId, int eventoId)
     {
+
         var persona = repositorioPersona.ObtenerPorId(personaId)
             ?? throw new EntidadNotFoundException("Persona no encontrada.");
         var evento = repositorioEvento.ObtenerPorId(eventoId)

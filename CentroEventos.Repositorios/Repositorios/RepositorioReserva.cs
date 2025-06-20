@@ -6,9 +6,9 @@ namespace CentroEventos.Repositorios.Repositorios;
 
 public class RepositorioReserva : IRepositorioReserva
 {
-    private readonly IFuenteDeDatos<Reserva> _fuenteDeDatos;
+    private readonly IFuenteDeDatosReserva _fuenteDeDatos;
 
-    public RepositorioReserva(IFuenteDeDatos<Reserva> fuenteDeDatos)
+    public RepositorioReserva(IFuenteDeDatosReserva fuenteDeDatos)
     {
         _fuenteDeDatos = fuenteDeDatos;
     }
@@ -30,11 +30,11 @@ public class RepositorioReserva : IRepositorioReserva
         }
     }
 
-    public void Eliminar(int id)
+    public void Eliminar(int personaId, int eventoDeportivoId)
     {
         try
         {
-            _fuenteDeDatos.Eliminar(id);
+            _fuenteDeDatos.Eliminar(personaId, eventoDeportivoId);
         }
         catch (Exception)
         {
@@ -42,9 +42,19 @@ public class RepositorioReserva : IRepositorioReserva
         }
     }
 
-    public Reserva? ObtenerPorId(int id)
+    public Reserva? Obtener(int personaId, int eventoDeportivoId)
     {
-        return _fuenteDeDatos.ObtenerTodos().FirstOrDefault(r => r.Id == id);
+        return _fuenteDeDatos.Obtener(personaId, eventoDeportivoId);
+    }
+
+    public IEnumerable<Reserva> ObtenerPorPersonaId(int personaId)
+    {
+        return _fuenteDeDatos.ObtenerPorPersonaId(personaId);
+    }
+
+    public IEnumerable<Reserva> ObtenerPorEventoId(int eventoDeportivoId)
+    {
+        return _fuenteDeDatos.ObtenerPorEventoId(eventoDeportivoId);
     }
 
     public IEnumerable<Reserva> ObtenerTodos()

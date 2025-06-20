@@ -11,9 +11,9 @@ public class ReservaActualizarUseCase(IRepositorioReserva repositorioReserva, IV
     private readonly IRepositorioReserva _repositorioReserva = repositorioReserva;
     private readonly IValidadorReserva _validadorReserva = validadorReserva;
 
-    public void Ejecutar(Reserva reserva) {
+    public void Ejecutar(int usuarioId, Reserva reserva) {
         _validadorReserva.Validar(reserva);
-        if (_repositorioReserva.ObtenerPorId(reserva.Id) is null)
+        if (_repositorioReserva.Obtener(reserva.PersonaId, reserva.EventoDeportivoId) is null)
             throw new EntidadNotFoundException("Reserva no encontrada.");
         _repositorioReserva.Modificar(reserva);
     }

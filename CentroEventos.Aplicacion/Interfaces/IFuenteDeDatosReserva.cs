@@ -1,8 +1,8 @@
-namespace CentroEventos.Aplicacion.Interfaces;
-
 using CentroEventos.Aplicacion.Entidades;
+using CentroEventos.Aplicacion.Enums;
 
-public interface IRepositorioReserva
+namespace CentroEventos.Aplicacion.Interfaces;
+public interface IFuenteDeDatosReserva
 {
     void Agregar(Reserva reserva);
     void Modificar(Reserva reserva);
