@@ -1,12 +1,23 @@
 @code {
     [Parameter] public string Message { get; set; } = "";
+    [Parameter] public int Duration { get; set; } = 3000;
     [Parameter] public bool Show { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
+
+    override async Task OnInitializedAsync()
+    {
+        if (Duration > 0)
+        {
+            await Task.Delay(Duration);
+            await Close();
+        }
+    }
 
     private async Task Close()
     {
         Show = false;
         await OnClose.InvokeAsync();
+        StateHasChanged();
     }
 }
 
