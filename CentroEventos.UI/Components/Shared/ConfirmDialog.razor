@@ -1,0 +1,51 @@
+@rendermode InteractiveServer
+
+@if (Visible)
+{
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@Message</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">@CancelText</button>
+                    <button type="button" class="btn @ConfirmButtonClass" @onclick="Confirm">@ConfirmText</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
+}
+@code {
+    [Parameter] public string Title { get; set; } = "Confirmar";
+    [Parameter] public string Message { get; set; } = "¿Está seguro de que desea continuar?";
+    [Parameter] public string CancelText { get; set; } = "Cancelar";
+    [Parameter] public string ConfirmText { get; set; } = "Confirmar";
+    [Parameter] public string? ConfirmButtonClass { get; set; } = "btn-primary";
+    [Parameter] public EventCallback<bool> OnConfirm { get; set; }
+    [Parameter] public bool Visible { get; set; }
+
+    private void Close()
+    {
+        Visible = false;
+        StateHasChanged();
+    }
+
+    private async Task Confirm()
+    {
+        Visible = false;
+        await OnConfirm.InvokeAsync(true);
+        StateHasChanged();
+    }
+
+    public void Show()
+    {
+        Visible = true;
+        StateHasChanged(); 
+    }
+}

@@ -1,7 +1,9 @@
 @code {
+    [Parameter] public string Title { get; set; } = "Éxito";
     [Parameter] public string Message { get; set; } = "";
     [Parameter] public int Duration { get; set; } = 3000;
     [Parameter] public bool Show { get; set; }
+    [Parameter] public string? CssClass { get; set; } = "bg-success text-white";
     [Parameter] public EventCallback OnClose { get; set; }
 
     override protected async Task OnInitializedAsync()
@@ -24,8 +26,8 @@
 @if (Show)
 {
     <div class="toast show position-fixed bottom-0 end-0 m-4" style="z-index: 9999; min-width: 250px;">
-        <div class="toast-header bg-success text-white">
-            <strong class="me-auto">Éxito</strong>
+        <div class="toast-header @CssClass">
+            <strong class="me-auto">@Title</strong>
             <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
         </div>
         <div class="toast-body">
