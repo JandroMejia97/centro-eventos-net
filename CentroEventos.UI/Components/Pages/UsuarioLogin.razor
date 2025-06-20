@@ -8,16 +8,17 @@
 @inject AuthenticationStateProvider AuthProvider
 
 <h4 class="text-center mb-4">Iniciar sesión</h4>
-<EditForm Model="loginModel" OnValidSubmit="OnLogin">
+<EditForm Model="loginModel" OnValidSubmit="OnLogin" FormName="LoginUsuarioForm">
     <DataAnnotationsValidator />
-    <ValidationSummary />
     <div class="mb-3">
         <label for="email" class="form-label">Correo electrónico</label>
         <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />
+        <ValidationMessage For="@(() => loginModel.Email)" />
     </div>
     <div class="mb-3">
         <label for="password" class="form-label">Contraseña</label>
         <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+        <ValidationMessage For="@(() => loginModel.Password)" />
     </div>
     <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
     <div class="text-center mt-3">
@@ -59,10 +60,10 @@
 
     public class LoginModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "El correo es obligatorio.")]
+        [EmailAddress(ErrorMessage = "El correo no tiene un formato válido.")]
         public string Email { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
         public string Password { get; set; } = string.Empty;
     }
 }
