@@ -9,6 +9,8 @@ public class Persona
     public string Email { get; set; } = string.Empty;
     public string Telefono { get; set; } = string.Empty;
 
+    public string NombreCompleto => $"{Nombre} {Apellido}";
+
     public Persona(string dni, string nombre, string apellido, string email, string telefono)
     {
         if (string.IsNullOrWhiteSpace(dni))
