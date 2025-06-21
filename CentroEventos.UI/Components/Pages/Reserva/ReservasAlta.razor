@@ -1,0 +1,115 @@
+@page "/reservas/agregar"
+
+@using CentroEventos.UI.DTOs
+
+@inject ReservaCrearUseCase ReservaAltaUseCase
+@inject EventoDeportivoObtenerTodosUseCase EventoDeportivoObtenerTodosUseCase
+@inject PersonaObtenerTodosUseCase PersonaObtenerTodosUseCase
+@inject NavigationManager NavigationManager
+
+<PageTitle>Alta de Reserva</PageTitle>
+
+<h3>Alta de Reserva</h3>
+
+@if (loadingLists)
+{
+    <p><em>Cargando datos necesarios para el formulario (eventos, personas)...</em></p>
+}
+else if (!string.IsNullOrEmpty(loadListsErrorMessage))
+{
+    <div class="alert alert-danger">@loadListsErrorMessage</div>
+}
+else
+{
+    <ReservaForm ReservaModel="reservaDto"
+                 EventosDeportivos="eventos"
+                 Personas="personas"
+                 OnSubmitCallback="GuardarReserva"
+                 SubmitButtonText="Crear Reserva"
+                 SuccessMessage="@successMessage"
+                 ErrorMessage="@errorMessage" />
+}
+
+@code {
+    private ReservaDto reservaDto = new ReservaDto();
+    private IEnumerable<EventoDeportivo>? eventos;
+    private IEnumerable<Persona>? personas;
+
+    private bool loadingLists = true; // For initial data load
+    private string? loadListsErrorMessage;
+
+    private string? successMessage;
+    private string? errorMessage;
+    private bool isSaving = false; // To disable button during save
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingLists = true;
+        loadListsErrorMessage = null;
+        try
+        {
+            eventos = EventoDeportivoObtenerTodosUseCase.Ejecutar();
+            personas = PersonaObtenerTodosUseCase.Ejecutar();
+
+            if (eventos == null || !eventos.Any())
+            {
+                loadListsErrorMessage = "No hay eventos deportivos disponibles para crear una reserva.";
+            }
+            if (personas == null || !personas.Any())
+            {
+                loadListsErrorMessage = (loadListsErrorMessage ?? "") + " No hay personas disponibles para crear una reserva.";
+            }
+        }
+        catch (Exception ex)
+        {
+            loadListsErrorMessage = $"Error cargando listas necesarias: {ex.Message}";
+            Console.WriteLine(loadListsErrorMessage); // Log for debugging
+        }
+        finally
+        {
+            loadingLists = false;
+        }
+    }
+
+    // Method signature changed to accept ReservaDto from the form callback
+    private async Task GuardarReserva(ReservaDto submittedDto)
+    {
+        if (isSaving) return;
+
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            // The DTO from the form (submittedDto) contains PersonaId and EventoDeportivoId.
+            // FechaReserva and EstadoReserva are handled by the use case/constructor.
+            // Hardcoded usuarioId: 1 as per requirement.
+            var nuevaReservaId = ReservaAltaUseCase.Ejecutar(
+                usuarioId: 1, // Hardcoded as per requirement
+                personaId: submittedDto.PersonaId,
+                eventoId: submittedDto.EventoDeportivoId
+            );
+            // Assuming EjecutarAsync returns the ID of the new reserva or the full entity.
+            // If it returns the entity, you might use nuevaReserva.Id
+            successMessage = $"Reserva creada con éxito (ID: {nuevaReservaId}). Redirigiendo a la lista de reservas...";
+
+            // Optionally, reset the form model if staying on the page:
+            // reservaDto = new ReservaDto();
+
+            await Task.Delay(2500); // Wait for message visibility
+            NavigationManager.NavigateTo("/reservas");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al guardar la reserva: {ex.Message}";
+            Console.WriteLine($"Error en GuardarReserva: {ex}"); // Full exception for debugging
+        }
+        finally
+        {
+            isSaving = false;
+            // StateHasChanged() is important to update UI with messages or if form needs reset
+            StateHasChanged();
+        }
+    }
+}
