@@ -22,6 +22,7 @@
         Title="@DialogoDeConfirmacionTitulo"
         Message="@DialogoDeConfirmacionMensaje"
         OnConfirm="ManejarEliminacion"
+        ConfirmButtonClass="btn-outline-danger"
     />
     <Snackbar
         Message="@MensajeDeExito"
@@ -175,6 +176,7 @@
     {
         if (DialogoDeConfirmacion != null)
         {
+            DatoABorrar = item;
             DialogoDeConfirmacionTitulo = $"Eliminar {NombreDeEntidad}";
             DialogoDeConfirmacionMensaje = $"¿Estás seguro de que deseas eliminar este {NombreDeEntidad.ToLower()}: \"{ExtraerNombreDelDato(item)}\"? Esta acción no se puede deshacer.";
             DialogoDeConfirmacion.Show();
