@@ -13,4 +13,5 @@ public enum Permiso
     CrearUsuario = 9,
     EditarUsuario = 10,
     EliminarUsuario = 11,
+    VerUsuarios = 12,
 }
