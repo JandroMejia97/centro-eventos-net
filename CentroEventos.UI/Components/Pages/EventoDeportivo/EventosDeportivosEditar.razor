@@ -1,0 +1,102 @@
+@page "/eventos/{Id:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+
+@using CentroEventos.UI.Components.Forms
+
+@inject EventoDeportivoObtenerPorIdUseCase ObtenerEventoUseCase
+@inject EventoDeportivoActualizarUseCase ActualizarEventoUseCase
+@inject NavigationManager Navigation
+
+<PageTitle>
+    @Titulo
+</PageTitle>
+
+<h3>
+    @Titulo
+</h3>
+
+@if (isLoading)
+{
+    <p><em>Cargando datos del evento...</em></p>
+}
+else if (loadError)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+    <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
+}
+else if (Evento == null) // Should be covered by isLoading or loadError initially
+{
+    <p><em>No se encontró el evento o no se pudo cargar el formulario.</em></p>
+     <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
+}
+else
+{
+    <EventoDeportivoForm
+        EventoAEditar="Evento"
+        OnSubmitCallback="Guardars"
+        SuccessMessage="@successMessage"
+        ErrorMessage="@errorMessage"
+        SubmitButtonText="Guardar Cambios"
+    />
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private EventoDeportivo? Evento { get; set; } = null;
+    private bool isLoading = true;
+    private bool loadError = false;
+    private string? successMessage;
+    private string? errorMessage;
+    private Titulo { get; set; } = "Editar Evento Deportivo";
+
+    protected override void OnInitialized()
+    {
+        isLoading = true;
+        loadError = false;
+        successMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            var evento = EventoObtenerPorIdUseCase.Ejecutar(Id);
+            if (evento != null)
+            {
+                EventoAEditar = evento;
+                Titulo = $"Editar Evento Deportivo: {evento.Nombre}";
+            }
+            else
+            {
+                loadError = true;
+                errorMessage = $"Evento con ID {Id} no encontrado.";
+            }
+        }
+        catch (Exception ex)
+        {
+            loadError = true;
+            errorMessage = $"Error al cargar el evento: {ex.Message}";
+            Console.WriteLine(errorMessage);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    private async Task Guardar(EventoDeportivo EventoAGuardar)
+    {
+        try
+        {
+            ActualizarEventoUseCase.Ejecutar(EventoAGuardar);
+            Mensaje = "Evento guardado correctamente.";
+            Error = null;
+            await Task.Delay(1_000);
+            await Task.Run(() => Navigation.NavigateTo("/eventos"));
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+            Mensaje = null;
+        }
+    }
+}

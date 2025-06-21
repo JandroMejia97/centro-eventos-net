@@ -2,51 +2,56 @@
 @using Microsoft.AspNetCore.Components.Forms
 
 @inject EventoDeportivoObtenerPorIdUseCase ObtenerPorIdUseCase
-@inject PersonaObtenerTodosUseCase ObtenerPersonasUseCase
+@inject UsuarioObtenerTodosUseCase ObtenerUsuariosUseCase
 
-<EditForm Model="eventoModel" OnValidSubmit="@Submit">
+<EditForm Model="EventoDeportivo" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
 
     <div class="mb-3">
         <label class="form-label">Nombre</label>
-        <InputText class="form-control" @bind-Value="eventoModel.Nombre" />
-        <ValidationMessage For="@(() => eventoModel.Nombre)" />
+        <InputText class="form-control" @bind-Value="EventoDeportivo.Nombre" />
+        <ValidationMessage For="@(() => EventoDeportivo.Nombre)" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Descripción</label>
-        <InputText class="form-control" @bind-Value="eventoModel.Descripcion" />
-        <ValidationMessage For="@(() => eventoModel.Descripcion)" />
+        <InputText class="form-control" @bind-Value="EventoDeportivo.Descripcion" />
+        <ValidationMessage For="@(() => EventoDeportivo.Descripcion)" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Duración (horas)</label>
-        <InputNumber TValue="double" class="form-control" @bind-Value="eventoModel.DuracionHoras" />
-        <ValidationMessage For="@(() => eventoModel.DuracionHoras)" />
+        <InputNumber TValue="double" class="form-control" @bind-Value="EventoDeportivo.DuracionHoras" />
+        <ValidationMessage For="@(() => EventoDeportivo.DuracionHoras)" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Fecha y hora de inicio</label>
-        <InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="eventoModel.FechaHoraInicio" EnableMinMax="true" Min="@MinFecha" />
-        <ValidationMessage For="@(() => eventoModel.FechaHoraInicio)" />
+        <InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="EventoDeportivo.FechaHoraInicio" EnableMinMax="true" Min="@MinFecha" />
+        <ValidationMessage For="@(() => EventoDeportivo.FechaHoraInicio)" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Cupo máximo</label>
-        <InputNumber TValue="int" class="form-control" @bind-Value="eventoModel.CupoMaximo" />
-        <ValidationMessage For="@(() => eventoModel.CupoMaximo)" />
+        <InputNumber TValue="int" class="form-control" @bind-Value="EventoDeportivo.CupoMaximo" />
+        <ValidationMessage For="@(() => EventoDeportivo.CupoMaximo)" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Responsable</label>
-        <InputSelect class="form-select" @bind-Value="eventoModel.ResponsableId">
+        <InputSelect
+            id="responsable"
+            class="form-select"
+            @bind-Value="EventoDeportivo.ResponsableId"
+            @disabled="@(Responsables == null || !Responsables.Any())"
+        >
             <option value="">Seleccione un responsable</option>
-            @foreach (var persona in personas)
+            @foreach (var usuario in Responsables)
             {
-                <option value="@persona.Id">@persona.NombreCompleto</option>
+                <option value="@usuario.PersonaId">@usuario.Persona.NombreCompleto</option>
             }
         </InputSelect>
-        <ValidationMessage For="@(() => eventoModel.ResponsableId)" />
+        <ValidationMessage For="@(() => EventoDeportivo.ResponsableId)" />
     </div>
 
     <button type="submit" class="btn btn-primary w-100">Guardar Evento</button>
@@ -62,34 +67,33 @@
 </EditForm>
 @code {
     [Parameter] public int Id { get; set; }
-
-    [Parameter] public EventoModel eventoModel { get; set; } = new();
-    [Parameter] public EventCallback<EventoDeportivo> OnSubmit { get; set; } = default!;
+    [Parameter] public EventoDeportivoDto EventoDeportivo { get; set; } = new();
+    [Parameter] public EventCallback<EventoDeportivo> OnSubmitCallback { get; set; } = default!;
     [Parameter] public string? Error { get; set; } = null;
     [Parameter] public string? Mensaje { get; set; } = null;
-    private IEnumerable<Persona> personas = Enumerable.Empty<Persona>();
+    private IEnumerable<Usuario> Responsables = Enumerable.Empty<Usuario>();
     private DateTime MinFecha = DateTime.Now;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        personas = ObtenerPersonasUseCase.Ejecutar();
-        if (personas.Count() == 1) {
-            eventoModel.ResponsableId = personas.First().Id;
+        Responsables = ObtenerUsuariosUseCase.Ejecutar();
+        if (Responsables.Count() == 1) {
+            EventoDeportivo.ResponsableId = Responsables.First().PersonaId;
         }
 
         if (Id > 0)
         {
             try
             {
-                EventoDeportivo evento = ObtenerPorIdUseCase.Ejecutar(Id);
-                eventoModel = new EventoModel
+                EventoDeportivo EventoDeportivoGuardado = ObtenerPorIdUseCase.Ejecutar(Id);
+                EventoDeportivo = new EventoDeportivoDto
                 {
-                    Nombre = evento.Nombre,
-                    Descripcion = evento.Descripcion,
-                    DuracionHoras = evento.DuracionHoras,
-                    FechaHoraInicio = evento.FechaHoraInicio,
-                    CupoMaximo = evento.CupoMaximo,
-                    ResponsableId = evento.ResponsableId
+                    Nombre = EventoDeportivoGuardado.Nombre,
+                    Descripcion = EventoDeportivoGuardado.Descripcion,
+                    DuracionHoras = EventoDeportivoGuardado.DuracionHoras,
+                    FechaHoraInicio = EventoDeportivoGuardado.FechaHoraInicio,
+                    CupoMaximo = EventoDeportivoGuardado.CupoMaximo,
+                    ResponsableId = EventoDeportivoGuardado.ResponsableId
                 };
             }
             catch (Exception ex)
@@ -99,11 +103,11 @@
         }
     }
 
-    private async Task Submit()
+    private async Task HandleValidSubmit()
     {
         try
         {
-            if (eventoModel.FechaHoraInicio < DateTime.Now)
+            if (EventoDeportivo.FechaHoraInicio < DateTime.Now)
             {
                 Error = "La fecha y hora de inicio no puede ser en el pasado.";
                 Mensaje = null;
@@ -111,21 +115,15 @@
             }
 
             var evento = new EventoDeportivo(
-                eventoModel.Nombre,
-                eventoModel.Descripcion,
-                eventoModel.FechaHoraInicio,
-                eventoModel.DuracionHoras,
-                eventoModel.CupoMaximo,
-                eventoModel.ResponsableId
+                EventoDeportivo.Nombre,
+                EventoDeportivo.Descripcion,
+                EventoDeportivo.FechaHoraInicio,
+                EventoDeportivo.DuracionHoras,
+                EventoDeportivo.CupoMaximo,
+                EventoDeportivo.ResponsableId
             );
 
-            try {
-                await OnSubmit.InvokeAsync(evento);
-                StateHasChanged();
-            } catch (Exception ex) {
-                Error = ex.Message;
-                Mensaje = null;
-            }
+            await OnSubmitCallback.InvokeAsync(evento);
         }
         catch (Exception ex)
         {
@@ -134,7 +132,7 @@
         }
     }
 
-    public class EventoModel
+    public class EventoDeportivoDto
     {
         [Required(ErrorMessage = "El nombre es obligatorio.")]
         public string Nombre { get; set; } = string.Empty;
