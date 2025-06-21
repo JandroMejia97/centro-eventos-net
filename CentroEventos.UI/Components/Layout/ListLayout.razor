@@ -27,6 +27,7 @@
         Show="@MostrarSnackbarDeExito"
     />
     <Snackbar
+        Title="¡Ooops! Algo salió mal"
         Message="@MensajeDeError"
         OnClose="@EventCallback.Factory.Create(this, CerrarSnackbarDeError)"
         Show="@MostrarSnackbarDeError"
@@ -175,7 +176,7 @@
         {
             DatoABorrar = item;
             DialogoDeConfirmacionTitulo = $"Eliminar {NombreDeEntidad}";
-            DialogoDeConfirmacionMensaje = $"¿Estás seguro de que deseas eliminar este {NombreDeEntidad.ToLower()}: \"{ExtraerNombreDelDato(item)}\"? Esta acción no se puede deshacer.";
+            DialogoDeConfirmacionMensaje = $"¿Estás seguro de que deseas eliminar: \"{ExtraerNombreDelDato(item)}\"? Esta acción no se puede deshacer.";
             DialogoDeConfirmacion.Show();
         }
         else
