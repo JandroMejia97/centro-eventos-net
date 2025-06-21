@@ -7,17 +7,5 @@
 
 <PageTitle>Home</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <h1>¡Bienvenido!</h1>
-        <p>Estás autenticado y puedes ver esta página.</p>
-    </Authorized>
-    <NotAuthorized>
-        @code {
-            protected override async Task OnInitializedAsync()
-            {
-                await Task.Run(() => Navigation.NavigateTo("/login", true));
-            }
-        }
-    </NotAuthorized>
-</AuthorizeView>
+<h1>¡Bienvenido!</h1>
+<p>Estás autenticado y puedes ver esta página.</p>
