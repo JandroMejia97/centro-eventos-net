@@ -2,18 +2,17 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using CentroEventos.Aplicacion.Enums
 
-<EditForm Model="PersonaAEditar" OnValidSubmit="HandleValidSubmit">
+<SuccessErrorSnackbars
+    MensajeDeExito="@MensajeDeExito"
+/>
+
+<EditForm Model="PersonaModel" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
 
-    @if (!string.IsNullOrEmpty(SuccessMessage))
+    @if (!string.IsNullOrEmpty(MensajeDeError))
     {
-        <div class="alert alert-success" role="alert">@SuccessMessage</div>
+        <div class="alert alert-danger mt-3" role="alert">@MensajeDeError</div>
     }
-    @if (!string.IsNullOrEmpty(ErrorMessage))
-    {
-        <div class="alert alert-danger" role="alert">@ErrorMessage</div>
-    }
-    <ValidationSummary class="text-danger" />
 
     <div class="mb-3">
         <label for="nombre" class="form-label">Nombre</label>
@@ -40,53 +39,71 @@
         <InputText id="email" class="form-control" @bind-Value="PersonaModel.Email" />
         <ValidationMessage For="@(() => PersonaModel.Email)" />
     </div>
-    <div class="mb-3">
-        <label for="password" class="form-label">Contraseña</label>
-        <InputText id="password" type="password" class="form-control" @bind-Value="PersonaModel.Password" />
-        <ValidationMessage For="@(() => PersonaModel.Password)" />
-    </div>
+    @if (PermitirCambiarContraseña)
+    {
+        <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="PersonaModel.Password" />
+            <ValidationMessage For="@(() => PersonaModel.Password)" />
+        </div>
+    }
     @if (PermitirCambiarPermisos)
     {
         <div class="mb-3">
             <label for="permisos" class="form-label">Permisos:</label>
-            <InputSelect 
+            <select 
                 id="permisos"
                 multiple="true"
                 class="form-select"
-                @bind-Value="PersonaModel.Permisos"
+                @onchange="CambiosEnPermisos"
             >
                 @foreach (var permiso in Enum.GetValues(typeof(Permiso)).Cast<Permiso>())
                 {
-                    <option value="@permiso">
+                    <option value="@permiso" selected="@PersonaModel.Permisos.Contains(permiso)">
                         @permiso.ToString()
                     </option>
                 }
-            </InputSelect>
+            </select>
             <ValidationMessage For="@(() => PersonaModel.Permisos)" />
         </div>
     }
 
-    <button type="submit" class="btn btn-primary">@SubmitButtonText</button>
+    <button type="submit" disabled="@GuardandoCambios" class="btn btn-primary w-100">
+        @if (GuardandoCambios)
+        {
+            <span class="spinner-border spinner-border-sm mx-2" role="status" aria-hidden="true"></span>
+        }
+        @TextoBoton
+    </button>
 </EditForm>
 
 @code {
     [Parameter]
     public Usuario? PersonaAEditar { get; set; }
     [Parameter]
-    public EventCallback<Usuario> OnSubmitCallback { get; set; }
+    public EventCallback<Usuario> GuardarCambiosDelegado { get; set; }
     [Parameter]
-    public string? SuccessMessage { get; set; }
+    public string? MensajeDeExito { get; set; }
     [Parameter]
-    public string? ErrorMessage { get; set; }
+    public string? MensajeDeError { get; set; }
     [Parameter]
-    public string SubmitButtonText { get; set; } = "Guardar Cambios";
+    public string TextoBoton { get; set; } = "Guardar Cambios";
     [Parameter]
     public bool PermitirCambiarPermisos { get; set; } = false;
+    [Parameter]
+    public bool PermitirCambiarContraseña { get; set; } = true;
+    [Parameter]
+    public bool GuardandoCambios { get; set; } = false;
     public PersonaDto PersonaModel { get; set; } = new();
-    private IEnumerable<Permiso> PermisosPorDefecto = new List<Permiso> { Permiso.VerEventos, Permiso.VerReservas, Permiso.VerUsuarios };
+
+    protected override void OnInitialized()
+    {
+        Inicializar();
+    }
 
     private async Task HandleValidSubmit()
     {
+        GuardandoCambios = true;
         Persona PersonaAGuardar = new Persona(
             PersonaModel.DNI,
             PersonaModel.Nombre,
@@ -94,12 +111,39 @@
             PersonaModel.Email,
             PersonaModel.Telefono
         );
-        Usuario usuario = new Usuario(PersonaAGuardar, PersonaModel.Password);
-        await OnSubmitCallback.InvokeAsync(usuario);
+        try {
+            Usuario usuario;
+            if (PersonaAEditar == null || string.IsNullOrEmpty(PersonaModel.Password) == false)
+            {
+                usuario = new Usuario(PersonaAGuardar, PersonaModel.Password);
+            }
+            else
+            {
+                usuario = new Usuario(PersonaAGuardar);
+            }
+            usuario.PermisosUsuarios = PersonaModel.Permisos
+                .Select(p => new PermisoUsuario(p, usuario))
+                .ToList();
+            await GuardarCambiosDelegado.InvokeAsync(usuario);
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = ex.Message;
+        }
+        finally
+        {
+            GuardandoCambios = false;
+        }
     }
 
-    protected override void OnParametersSet()
+    protected void Inicializar()
     {
+        HashSet<Permiso> permisosPorDefecto = new()
+        {
+            Permiso.VerEventos,
+            Permiso.VerReservas,
+            Permiso.VerPersonas
+        };
         if (PersonaAEditar != null)
         {
             PersonaModel = new PersonaDto
@@ -110,17 +154,28 @@
                 Email = PersonaAEditar.Persona.Email,
                 Telefono = PersonaAEditar.Persona.Telefono,
                 Password = string.Empty,
-                Permisos = PersonaAEditar.Permisos ?? new List<Permiso>()
+                Permisos = PersonaAEditar.Permisos?.ToHashSet() ?? permisosPorDefecto
             };
+            PersonaModel.Password = string.Empty;
         }
         else
         {
             PersonaModel = new PersonaDto();
-            PersonaModel.Permisos = PermisosPorDefecto;
+            PersonaModel.Permisos = permisosPorDefecto;
         }
     }
 
-    public class PersonaDto
+    private void CambiosEnPermisos(ChangeEventArgs e)
+    {
+        var permisos = e.Value as IEnumerable<string>;
+        var enumPermisos = permisos?
+            .Select(p => Enum.TryParse<Permiso>(p, out var permiso) ? permiso : (Permiso?)null)
+            .Where(p => p.HasValue)
+            .Select(p => p!.Value);
+        PersonaModel.Permisos = enumPermisos?.ToHashSet() ?? new HashSet<Permiso>();
+    }
+
+    public class PersonaDto : IValidatableObject
     {
         [Required(ErrorMessage = "El nombre es obligatorio.")]
         [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
@@ -130,7 +185,7 @@
         public string Apellido { get; set; } = string.Empty;
         [Required(ErrorMessage = "El DNI es obligatorio.")]
         [StringLength(9, ErrorMessage = "El DNI no puede exceder los 9 caracteres.")]
-        [RegularExpression(@"^\d{9}$", ErrorMessage = "El formato del DNI no es válido.")]
+        [RegularExpression(@"^\d{6,9}$", ErrorMessage = "El formato del DNI no es válido.")]
         public string DNI { get; set; } = string.Empty;
         [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
         [EmailAddress(ErrorMessage = "El correo electrónico no es válido.")]
@@ -140,13 +195,26 @@
         [StringLength(20, ErrorMessage = "El teléfono no puede exceder los 20 caracteres.")]
         [RegularExpression(@"^\+?[0-9\s]+$", ErrorMessage = "El teléfono solo puede contener números y espacios.")]
         public string Telefono { get; set; } = string.Empty;
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
-        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
         [StringLength(100, ErrorMessage = "La contraseña no puede exceder los 100 caracteres.")]
         public string Password { get; set; } = string.Empty;
         [Required(ErrorMessage = "Los permisos son obligatorios.")]
-        [EnumDataType(typeof(Permiso), ErrorMessage = "Los permisos deben ser válidos.")]
         [MinLength(1, ErrorMessage = "Debe seleccionar al menos un permiso.")]
-        public IEnumerable<Permiso> Permisos { get; set; } = new List<Permiso>();
+        public HashSet<Permiso> Permisos { get; set; } = new HashSet<Permiso>();
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var personaForm = validationContext.GetService(typeof(PersonaForm)) as PersonaForm;
+            if (personaForm != null && personaForm.PersonaAEditar == null)
+            {
+                if (string.IsNullOrWhiteSpace(Password))
+                {
+                    yield return new ValidationResult("La contraseña es obligatoria.", new[] { nameof(Password) });
+                }
+            }
+            if (!string.IsNullOrEmpty(Password) && Password.Length < 8)
+            {
+                yield return new ValidationResult("La contraseña debe tener al menos 8 caracteres.", new[] { nameof(Password) });
+            }
+        }
     }
 }

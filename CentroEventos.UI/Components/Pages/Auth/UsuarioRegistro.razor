@@ -12,25 +12,16 @@
 <h4 class="text-center mb-4">Registro de usuario</h4>
 <PersonaForm
     OnSubmitCallback="OnRegister"
-    ErrorMessage="@MensajeDeError"
+    MensajeDeError="@MensajeDeError"
+    MensajeDeExito="@MensajeDeExito"
 />
 <div class="text-center mt-3">
     <a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
 </div>
-@if (!string.IsNullOrEmpty(MensajeDeError))
-{
-    <div class="alert alert-danger mt-3">@MensajeDeError</div>
-}
-<Snackbar
-    Show="@MostrarSnackbar"
-    SubmitButtonText="Registrarme"
-    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
-    Message="¡Registro exitoso! Ahora puedes iniciar sesión."
-/>
 
 @code {
     private string? MensajeDeError;
-    private bool MostrarSnackbar = false;
+    private string? MensajeDeExito;
 
     private async Task OnRegister(Usuario usuario)
     {
@@ -38,7 +29,7 @@
         try
         {
             CrearUsuarioUC.Ejecutar(usuario, usuario.ContrasenaHash);
-            MostrarSnackbar = true;
+            MensajeDeExito = "¡Registro exitoso! Ahora puedes iniciar sesión.";
             await Task.Delay(1_000);
             Navigation.NavigateTo("/login");
         }
