@@ -96,9 +96,10 @@ namespace CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases
         IServicioAutorizacion servicioAutorizacion
     ) : ReservaUseCase(repositorioReserva, servicioAutorizacion)
     {
-        public IEnumerable<Reserva> Ejecutar(int usuarioId, int eventoDeportivoId)
+        public IEnumerable<Reserva> Ejecutar(int eventoDeportivoId, int? usuarioId = null)
         {
-            ValidarPermiso(usuarioId, Permiso.VerReservas);
+            if (usuarioId.HasValue)
+                ValidarPermiso(usuarioId.Value, Permiso.VerReservas);
             return repositorioReserva.ObtenerPorEventoId(eventoDeportivoId);
         }
     }
@@ -108,9 +109,10 @@ namespace CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases
         IServicioAutorizacion servicioAutorizacion
     ) : ReservaUseCase(repositorioReserva, servicioAutorizacion)
     {
-        public IEnumerable<Reserva> Ejecutar(int usuarioId, int personaId)
+        public IEnumerable<Reserva> Ejecutar(int personaId, int? usuarioId = null)
         {
-            ValidarPermiso(usuarioId, Permiso.VerReservas);
+            if (usuarioId.HasValue)
+                ValidarPermiso(usuarioId.Value, Permiso.VerReservas);
             return repositorioReserva.ObtenerPorPersonaId(personaId);
         }
     }

@@ -5,6 +5,7 @@ using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Aplicacion.Enums;
 using CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases;
+using CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases;
 
 namespace CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases
 {
@@ -36,6 +37,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases
     public class PersonaEliminarUseCase(
         IRepositorioPersona repositorioPersona,
         IServicioAutorizacion servicioAutorizacion,
+        ReservaObtenerPorPersonaUseCase reservaObtenerPorPersonaUseCase,
         UsuarioEliminarUseCase usuarioEliminarUseCase
     ) : PersonaUseCase(repositorioPersona, servicioAutorizacion)
     {
@@ -45,6 +47,8 @@ namespace CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases
                 ValidarPermiso(usuarioSolicitanteId, Permiso.EliminarUsuario);
             if (repositorioPersona.ObtenerPorId(personaId) is null)
                 throw new EntidadNotFoundException("Persona no encontrado.");
+            if (reservaObtenerPorPersonaUseCase.Ejecutar(personaId).Any())
+                throw new OperacionInvalidaException("No se puede eliminar una persona con reservas asociadas.");
             repositorioPersona.Eliminar(personaId);
             usuarioEliminarUseCase.Ejecutar(usuarioSolicitanteId, personaId);
         }

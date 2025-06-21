@@ -5,6 +5,7 @@ using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Aplicacion.Enums;
 using CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases;
+using CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases;
 
 namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
 {
@@ -30,20 +31,25 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
             _validadorEvento.Validar(evento);
             if (personaObtenerPorId.Ejecutar(usuarioId, evento.ResponsableId) is null)
                 throw new EntidadNotFoundException("Responsable del evento no encontrado.");
+            if (evento.FechaHoraInicio <= DateTime.Now)
+                throw new OperacionInvalidaException("La fecha de inicio del evento debe ser futura.");
             _repositorioEvento.Agregar(evento);
         }
     }
 
     public class EventoDeportivoEliminarUseCase(
         IRepositorioEventoDeportivo repositorioEvento,
-        IServicioAutorizacion servicioAutorizacion
+        IServicioAutorizacion servicioAutorizacion,
+        ReservaObtenerPorEventoUseCase reservaObtenerPorEvento
     ) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
     {
-        public void Ejecutar(int eventoId, int usuarioId)
+        public void Ejecutar(int usuarioSolicitanteId, int eventoId, int usuarioId)
         {
-            ValidarPermiso(usuarioId, Permiso.EliminarEvento);
+            ValidarPermiso(usuarioSolicitanteId, Permiso.EliminarEvento);
             if (_repositorioEvento.ObtenerPorId(eventoId) is null)
                 throw new EntidadNotFoundException("Evento no encontrado.");
+            if (reservaObtenerPorEvento.Ejecutar(eventoId).Any())
+                throw new OperacionInvalidaException("No se puede eliminar un evento con reservas asociadas.");
             _repositorioEvento.Eliminar(eventoId);
         }
     }
