@@ -8,11 +8,19 @@ using CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases;
 
 namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
 {
-    public abstract class EventoDeportivoUseCase(IRepositorioEventoDeportivo repositorioEvento, IServicioAutorizacion servicioAutorizacion) : CasoDeUsoBase(servicioAutorizacion)
+    public abstract class EventoDeportivoUseCase(
+        IRepositorioEventoDeportivo repositorioEvento,
+        IServicioAutorizacion servicioAutorizacion
+    ) : CasoDeUsoBase(servicioAutorizacion)
     {
         protected readonly IRepositorioEventoDeportivo _repositorioEvento = repositorioEvento;
     }
-    public class EventoDeportivoCrearUseCase(IRepositorioEventoDeportivo repositorioEvento, IValidadorEventoDeportivo validadorEvento, IServicioAutorizacion servicioAutorizacion, PersonaObtenerPorIdUseCase personaObtenerPorId) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
+    public class EventoDeportivoCrearUseCase(
+        IRepositorioEventoDeportivo repositorioEvento,
+        IValidadorEventoDeportivo validadorEvento,
+        IServicioAutorizacion servicioAutorizacion,
+        PersonaObtenerPorIdUseCase personaObtenerPorId
+    ) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
     {
         protected readonly IValidadorEventoDeportivo _validadorEvento = validadorEvento;
 
@@ -20,7 +28,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
         {
             ValidarPermiso(usuarioId, Permiso.CrearEvento);
             _validadorEvento.Validar(evento);
-            if (personaObtenerPorId.Ejecutar(evento.ResponsableId) is null)
+            if (personaObtenerPorId.Ejecutar(usuarioId, evento.ResponsableId) is null)
                 throw new EntidadNotFoundException("Responsable del evento no encontrado.");
             _repositorioEvento.Agregar(evento);
         }

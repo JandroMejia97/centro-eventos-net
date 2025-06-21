@@ -50,6 +50,16 @@ namespace CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases
         }
     }
 
+    public class PersonaObtenerPorIdUseCase(IRepositorioPersona repositorioPersona, IServicioAutorizacion servicioAutorizacion) : PersonaUseCase(repositorioPersona, servicioAutorizacion)
+    {
+        public Persona Ejecutar(int personaSolicitanteId, int id)
+        {
+            if (id != personaSolicitanteId)
+                ValidarPermiso(personaSolicitanteId, Permiso.VerUsuarios);
+            return repositorioPersona.ObtenerPorId(id) ?? throw new EntidadNotFoundException("Persona no encontrada.");
+        }
+    }
+
     public class PersonaObtenerTodosUseCase(IRepositorioPersona repositorioPersona, IServicioAutorizacion servicioAutorizacion) : PersonaUseCase(repositorioPersona, servicioAutorizacion)
     {
         public IEnumerable<Persona> Ejecutar(int personaSolicitanteId)
