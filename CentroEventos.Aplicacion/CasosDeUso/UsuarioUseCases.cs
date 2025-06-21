@@ -22,7 +22,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         public void Ejecutar(int usuarioId, Usuario usuario, string? contrasenaPlano = null)
         {
             if (usuarioId != usuario.PersonaId)
-                ValidarPermiso(usuarioId, Permiso.EditarUsuario);
+                ValidarPermiso(usuarioId, Permiso.EditarPersona);
             if (contrasenaPlano != null)
             {
                 usuario.ContrasenaHash = servicioHash.Hashear(contrasenaPlano);
@@ -46,7 +46,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         public void Ejecutar(Usuario usuario, string contrasenaPlano, int? usuarioId = null)
         {
             if (usuarioId.HasValue)
-                ValidarPermiso(usuarioId.Value, Permiso.CrearUsuario);
+                ValidarPermiso(usuarioId.Value, Permiso.CrearPersona);
             if (repositorioPersona.ObtenerPorEmail(usuario.Persona.Email).Any())
                 throw new DuplicadoException("Ya existe un usuario con ese email.");
             if (repositorioPersona.ObtenerPorDni(usuario.Persona.DNI).Any())
@@ -62,7 +62,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         public void Ejecutar(int usuarioSolicitanteId, int usuarioId)
         {
             if (usuarioId != usuarioSolicitanteId)
-                ValidarPermiso(usuarioSolicitanteId, Permiso.EliminarUsuario);
+                ValidarPermiso(usuarioSolicitanteId, Permiso.EliminarPersona);
             if (repositorioUsuario.ObtenerPorId(usuarioId) is null)
                 throw new EntidadNotFoundException("Usuario no encontrado.");
             repositorioUsuario.Eliminar(usuarioId);
@@ -86,7 +86,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         public Usuario Ejecutar(int usuarioSolicitanteId, int usuarioId)
         {
             if (usuarioId != usuarioSolicitanteId)
-                ValidarPermiso(usuarioSolicitanteId, Permiso.VerUsuarios);
+                ValidarPermiso(usuarioSolicitanteId, Permiso.VerPersonas);
             return repositorioUsuario.ObtenerPorId(usuarioId) ?? throw new EntidadNotFoundException("Usuario no encontrado.");
         }
     }
@@ -95,7 +95,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
     {
         public IEnumerable<Usuario> Ejecutar(int usuarioSolicitanteId)
         {
-            ValidarPermiso(usuarioSolicitanteId, Permiso.VerUsuarios);
+            ValidarPermiso(usuarioSolicitanteId, Permiso.VerPersonas);
             return repositorioUsuario.ObtenerTodos();
         }
     }

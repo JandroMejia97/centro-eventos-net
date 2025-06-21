@@ -21,7 +21,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         public void Ejecutar(int personaId, Persona persona)
         {
             if (personaId != persona.Id)
-                ValidarPermiso(personaId, Permiso.EditarUsuario);
+                ValidarPermiso(personaId, Permiso.EditarPersona);
             validadorPersona.Validar(persona);
             var existente = repositorioPersona.ObtenerPorId(persona.Id) ?? throw new EntidadNotFoundException("Persona no encontrado.");
             if (existente.Email != persona.Email && repositorioPersona.ObtenerPorEmail(persona.Email).Any())
@@ -42,7 +42,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         public void Ejecutar(int usuarioSolicitanteId, int personaId)
         {
             if (personaId != usuarioSolicitanteId)
-                ValidarPermiso(usuarioSolicitanteId, Permiso.EliminarUsuario);
+                ValidarPermiso(usuarioSolicitanteId, Permiso.EliminarPersona);
             if (repositorioPersona.ObtenerPorId(personaId) is null)
                 throw new EntidadNotFoundException("Persona no encontrado.");
             if (reservaObtenerPorPersonaUseCase.Ejecutar(personaId).Any())
@@ -57,7 +57,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         public Persona Ejecutar(int personaSolicitanteId, int id)
         {
             if (id != personaSolicitanteId)
-                ValidarPermiso(personaSolicitanteId, Permiso.VerUsuarios);
+                ValidarPermiso(personaSolicitanteId, Permiso.VerPersonas);
             return repositorioPersona.ObtenerPorId(id) ?? throw new EntidadNotFoundException("Persona no encontrada.");
         }
     }
@@ -66,7 +66,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
     {
         public IEnumerable<Persona> Ejecutar(int personaSolicitanteId)
         {
-            ValidarPermiso(personaSolicitanteId, Permiso.VerUsuarios);
+            ValidarPermiso(personaSolicitanteId, Permiso.VerPersonas);
             return repositorioPersona.ObtenerTodos();
         }
     }
