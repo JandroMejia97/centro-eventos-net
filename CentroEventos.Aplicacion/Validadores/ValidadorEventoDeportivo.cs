@@ -7,6 +7,8 @@ public class ValidadorEventoDeportivo : IValidadorEventoDeportivo {
     public void Validar(EventoDeportivo evento) {
         if (string.IsNullOrWhiteSpace(evento.Nombre))
             throw new ValidacionException("El nombre es obligatorio.");
+        if (string.IsNullOrWhiteSpace(evento.Descripcion))
+            throw new ValidacionException("La descripción es obligatoria.");
         if (evento.FechaHoraInicio < DateTime.Now)
             throw new ValidacionException("La fecha de inicio debe ser futura.");
         if (evento.CupoMaximo <= 0)
