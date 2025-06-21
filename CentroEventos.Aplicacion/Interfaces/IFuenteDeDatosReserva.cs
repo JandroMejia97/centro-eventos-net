@@ -1,5 +1,4 @@
 using CentroEventos.Aplicacion.Entidades;
-using CentroEventos.Aplicacion.Enums;
 
 namespace CentroEventos.Aplicacion.Interfaces;
 public interface IFuenteDeDatosReserva
