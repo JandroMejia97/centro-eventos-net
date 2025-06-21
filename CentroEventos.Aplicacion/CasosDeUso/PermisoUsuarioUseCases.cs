@@ -15,6 +15,14 @@ namespace CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases
         {
             _repo.Agregar(permiso);
         }
+        public void Ejecutar(int usuarioId, IEnumerable<Permiso> permisos)
+        {
+            _repo.AgregarMultiples(usuarioId, permisos);
+        }
+        public void Ejecutar(IEnumerable<PermisoUsuario> permisos)
+        {
+            _repo.AgregarMultiples(permisos);
+        }
     }
 
     public class PermisoUsuarioEliminarUseCase
@@ -27,6 +35,14 @@ namespace CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases
         public void Ejecutar(int usuarioId, Permiso permiso)
         {
             _repo.Eliminar(usuarioId, permiso);
+        }
+        public void Ejecutar(int usuarioId, IEnumerable<Permiso> permisos)
+        {
+            _repo.EliminarMultiples(usuarioId, permisos);
+        }
+        public void Ejecutar(IEnumerable<PermisoUsuario> permisos)
+        {
+            _repo.EliminarMultiples(permisos);
         }
     }
 
