@@ -1,3 +1,5 @@
+using CentroEventos.Aplicacion.Enums;
+
 namespace CentroEventos.Aplicacion.Entidades;
 
 public class Usuario
@@ -5,6 +7,13 @@ public class Usuario
     public int PersonaId { get; set; }
     public Persona Persona { get; set; } = null!;
     public string ContrasenaHash { get; set; } = string.Empty;
+
+    public IEnumerable<PermisoUsuario> PermisosUsuarios
+    {
+        get;
+        set;
+    } = Array.Empty<PermisoUsuario>();
+    public IEnumerable<Permiso> Permisos { get => PermisosUsuarios.Select(pu => pu.Permiso); }
 
     public Usuario(Persona persona)
     {
@@ -18,6 +27,12 @@ public class Usuario
         if (contrasenaHash.Length < 8)
             throw new ArgumentException("La contraseña debe tener al menos 8 caracteres.", nameof(contrasenaHash));
         ContrasenaHash = contrasenaHash;
+    }
+
+    public Usuario(Persona persona, string contrasenaHash, IEnumerable<PermisoUsuario> permisos)
+        : this(persona, contrasenaHash)
+    {
+        PermisosUsuarios = permisos;
     }
 
     protected Usuario() { }

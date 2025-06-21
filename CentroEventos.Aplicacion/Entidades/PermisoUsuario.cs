@@ -6,5 +6,17 @@ namespace CentroEventos.Aplicacion.Entidades
     {
         public int UsuarioId { get; set; }
         public Permiso Permiso { get; set; }
+        public Usuario Usuario { get; set; }
+        public PermisoUsuario(int usuarioId, Permiso permiso, Usuario usuario)
+        {
+            UsuarioId = usuarioId;
+            Permiso = permiso;
+            Usuario = usuario;
+        }
+
+        public override string ToString()
+        {
+            return $"PermisoUsuario: UsuarioId={UsuarioId}, Permiso={Permiso}, Usuario={Usuario}";
+        }
     }
 }

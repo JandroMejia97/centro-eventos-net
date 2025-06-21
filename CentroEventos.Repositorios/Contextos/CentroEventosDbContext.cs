@@ -40,6 +40,11 @@ public class CentroEventosDbContext : DbContext
             .HasKey(u => u.PersonaId);
 
         modelBuilder.Entity<Usuario>()
+            .HasMany(u => u.PermisosUsuarios)
+            .WithOne(pu => pu.Usuario)
+            .HasForeignKey(pu => pu.UsuarioId);
+
+        modelBuilder.Entity<Usuario>()
             .HasOne(u => u.Persona)
             .WithOne()
             .HasForeignKey<Usuario>(u => u.PersonaId);
