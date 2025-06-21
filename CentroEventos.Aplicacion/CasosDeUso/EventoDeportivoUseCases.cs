@@ -4,31 +4,24 @@ using CentroEventos.Aplicacion.Validadores;
 using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Aplicacion.Enums;
+using CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases;
 
 namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
 {
-    public abstract class EventoDeportivoUseCase
+    public abstract class EventoDeportivoUseCase(IRepositorioEventoDeportivo repositorioEvento, IServicioAutorizacion servicioAutorizacion) : CasoDeUsoBase(servicioAutorizacion)
     {
-        protected readonly IRepositorioEventoDeportivo _repositorioEvento;
-        protected readonly IServicioAutorizacion _servicioAutorizacion;
-
-        protected EventoDeportivoUseCase(IRepositorioEventoDeportivo repositorioEvento, IServicioAutorizacion servicioAutorizacion)
-        {
-            _repositorioEvento = repositorioEvento;
-            _servicioAutorizacion = servicioAutorizacion;
-        }
+        protected readonly IRepositorioEventoDeportivo _repositorioEvento = repositorioEvento;
     }
-    public class EventoDeportivoCrearUseCase(IRepositorioEventoDeportivo repositorioEvento, IValidadorEventoDeportivo validadorEvento, IServicioAutorizacion servicioAutorizacion) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
+    public class EventoDeportivoCrearUseCase(IRepositorioEventoDeportivo repositorioEvento, IValidadorEventoDeportivo validadorEvento, IServicioAutorizacion servicioAutorizacion, PersonaObtenerPorIdUseCase personaObtenerPorId) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
     {
         protected readonly IValidadorEventoDeportivo _validadorEvento = validadorEvento;
 
         public void Ejecutar(int usuarioId, EventoDeportivo evento)
         {
-            if (!_servicioAutorizacion.Autorizar(usuarioId, Permiso.CrearEvento))
-                throw new UnauthorizedAccessException("El usuario no tiene permisos para crear eventos.");
+            ValidarPermiso(usuarioId, Permiso.CrearEvento);
             _validadorEvento.Validar(evento);
-            if (_repositorioEvento.ObtenerTodos().Any(e => e.Nombre == evento.Nombre && e.FechaHoraInicio == evento.FechaHoraInicio))
-                throw new DuplicadoException("Ya existe un evento deportivo con ese nombre y fecha.");
+            if (personaObtenerPorId.Ejecutar(evento.ResponsableId) is null)
+                throw new EntidadNotFoundException("Responsable del evento no encontrado.");
             _repositorioEvento.Agregar(evento);
         }
     }
@@ -37,7 +30,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
     {
         public void Ejecutar(int eventoId, int usuarioId)
         {
-            _servicioAutorizacion.Autorizar(usuarioId, Permiso.EliminarEvento);
+            ValidarPermiso(usuarioId, Permiso.EliminarEvento);
             if (_repositorioEvento.ObtenerPorId(eventoId) is null)
                 throw new EntidadNotFoundException("Evento no encontrado.");
             _repositorioEvento.Eliminar(eventoId);
@@ -48,7 +41,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
     {
         public EventoDeportivo Ejecutar(int usuarioId, int id)
         {
-            _servicioAutorizacion.Autorizar(usuarioId, Permiso.VerEventos);
+            ValidarPermiso(usuarioId, Permiso.VerEventos);
             return _repositorioEvento.ObtenerPorId(id) ?? throw new EntidadNotFoundException("Evento no encontrado.");
         }
     }
@@ -57,7 +50,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
     {
         public IEnumerable<EventoDeportivo> Ejecutar(int usuarioId)
         {
-            _servicioAutorizacion.Autorizar(usuarioId, Permiso.VerEventos);
+            ValidarPermiso(usuarioId, Permiso.VerEventos);
             return _repositorioEvento.ObtenerTodos();
         }
     }
@@ -66,7 +59,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
     {
         public void Ejecutar(int usuarioId, EventoDeportivo evento)
         {
-            _servicioAutorizacion.Autorizar(usuarioId, Permiso.EditarEvento);
+            ValidarPermiso(usuarioId, Permiso.EditarEvento);
             validadorEvento.Validar(evento);
             if (_repositorioEvento.ObtenerPorId(evento.Id) is null)
                 throw new EntidadNotFoundException("Evento no encontrado.");
