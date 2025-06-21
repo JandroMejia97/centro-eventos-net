@@ -41,7 +41,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         ReservaObtenerPorEventoUseCase reservaObtenerPorEvento
     ) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
     {
-        public void Ejecutar(int usuarioSolicitanteId, int eventoId, int usuarioId)
+        public void Ejecutar(int usuarioSolicitanteId, int eventoId)
         {
             ValidarPermiso(usuarioSolicitanteId, Permiso.EliminarEvento);
             if (_repositorioEvento.ObtenerPorId(eventoId) is null)
