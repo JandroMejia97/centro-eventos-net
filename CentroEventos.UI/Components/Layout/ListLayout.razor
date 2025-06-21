@@ -26,12 +26,12 @@
     <Snackbar
         Message="@MensajeDeExito"
         OnClose="@EventCallback.Factory.Create(this, CerrarSnackbarDeExito)"
-        IsVisible="@MostrarSnackbarDeExito"
+        Show="@MostrarSnackbarDeExito"
     />
     <Snackbar
         Message="@MensajeDeError"
         OnClose="@EventCallback.Factory.Create(this, CerrarSnackbarDeError)"
-        IsVisible="@MostrarSnackbarDeError"
+        Show="@MostrarSnackbarDeError"
         CssClass="bg-danger text-white"
     />
     />
