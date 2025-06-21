@@ -1,6 +1,8 @@
-@using CentroEventos.Core
-@using CentroEventos.Core.DTOs
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject EventoDeportivoObtenerTodosUseCase ObtenerEventosUseCase
+@inject PersonaObtenerTodosUseCase ObtenerPersonasUseCase
 
 <EditForm Model="ReservaModel" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -20,8 +22,12 @@
 
     <div class="mb-3">
         <label for="evento" class="form-label">Evento Deportivo:</label>
-        <InputSelect id="evento" class="form-select" @bind-Value="ReservaModel.EventoDeportivoId"
-                     disabled="@(EventosDeportivos == null || !EventosDeportivos.Any())">
+        <InputSelect 
+            id="evento"
+            class="form-select"
+            @bind-Value="ReservaModel.EventoDeportivoId"
+            disabled="@(EventosDeportivos == null || !EventosDeportivos.Any())"
+        >
             <option value="0">-- Seleccione un Evento --</option>
             @if (EventosDeportivos != null)
             {
@@ -36,8 +42,12 @@
 
     <div class="mb-3">
         <label for="persona" class="form-label">Persona:</label>
-        <InputSelect id="persona" class="form-select" @bind-Value="ReservaModel.PersonaId"
-                     disabled="@(Personas == null || !Personas.Any())">
+        <InputSelect 
+            id="persona"
+            class="form-select"
+            @bind-Value="ReservaModel.PersonaId"
+            disabled="@(Personas == null || !Personas.Any())"
+        >
             <option value="0">-- Seleccione una Persona --</option>
             @if (Personas != null)
             {
@@ -50,53 +60,144 @@
         <ValidationMessage For="@(() => ReservaModel.PersonaId)" />
     </div>
 
+    @if (ReservaAEditar != null)
+    {
+        <div class="mb-3">
+            <label for="estadoAsistencia" class="form-label">Estado de Asistencia:</label>
+            <InputSelect 
+                id="estadoAsistencia"
+                class="form-select"
+                @bind-Value="ReservaModel.EstadoAsistencia"
+            >
+                @foreach (var estado in Enum.GetValues(typeof(EstadoAsistencia)).Cast<EstadoAsistencia>())
+                {
+                    <option 
+                        value="@estado" 
+                        disabled="@estado == @EstadoAsistencia.Pendiente"
+                    >
+                        @estado.ToString()
+                    </option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => ReservaModel.EstadoAsistencia)" />
+        </div>
+        <div class="mb-3">
+            <label for="fechaReserva" class="form-label">Fecha de Reserva:</label>
+            <InputDate 
+                id="fechaReserva"
+                class="form-control"
+                disabled="true"
+                @bind-Value="ReservaModel.FechaReserva"
+                Min="@DateTime.Now.ToString("yyyy-MM-dd")"
+            />
+            <ValidationMessage For="@(() => ReservaModel.FechaReserva)" />
+        </div>
+    }
+
     <button type="submit" class="btn btn-primary" disabled="@IsSubmitDisabled()">@SubmitButtonText</button>
 
 </EditForm>
 
 @code {
-    [Parameter, EditorRequired]
-    public ReservaDTO ReservaModel { get; set; } = new();
-
     [Parameter]
-    public EventCallback<ReservaDTO> OnSubmitCallback { get; set; } // Changed to typed EventCallback
-
+    public Reserva? ReservaAEditar { get; set; }
+    [Parameter]
+    public EventCallback<Reserva> OnSubmitCallback { get; set; } 
     [Parameter]
     public string? SuccessMessage { get; set; }
-
     [Parameter]
     public string? ErrorMessage { get; set; }
-
-    [Parameter]
-    public IEnumerable<EventoDeportivo>? EventosDeportivos { get; set; }
-
-    [Parameter]
-    public IEnumerable<Persona>? Personas { get; set; }
-
     [Parameter]
     public string SubmitButtonText { get; set; } = "Guardar";
+    private ReservaDto ReservaModel { get; set; } = new();
+    private bool IsValid = true;
+    public IEnumerable<EventoDeportivo> EventosDeportivos { get; set; } = Enumerable.Empty<EventoDeportivo>();
 
-    private bool IsValid = true; // To control visibility of ValidationSummary initially
+    public IEnumerable<Persona> Personas { get; set; } = Enumerable.Empty<Persona>();
 
-    // OnInitialized removed as FechaReserva and EstadoReserva are no longer set by this form.
+    protected override void OnInitialized()
+    {
+        EventosDeportivos = ObtenerEventosUseCase.Ejecutar();
+        Personas = ObtenerPersonasUseCase.Ejecutar();
+        if (EventosDeportivos == null || !EventosDeportivos.Any())
+        {
+            ErrorMessage = "No hay eventos deportivos disponibles.";
+            IsValid = false;
+        }
+        if (Personas == null || !Personas.Any())
+        {
+            ErrorMessage = "No hay personas disponibles.";
+            IsValid = false;
+        }
+        if (EventosDeportivos != null && EventosDeportivos.Count() == 1)
+        {
+            ReservaModel.EventoDeportivoId = EventosDeportivos.First().Id;
+        }
+        if (Personas != null && Personas.Count() == 1)
+        {
+            ReservaModel.PersonaId = Personas.First().Id;
+        }
+        if (ReservaAEditar == null)
+        {
+            ReservaModel = new ReservaDto(ReservaAEditar);
+        }
+    }
 
     private async Task HandleValidSubmit()
     {
-        IsValid = true; // Assume valid if OnValidSubmit is called
+        IsValid = true;
         if (ReservaModel.EventoDeportivoId == 0 || ReservaModel.PersonaId == 0)
         {
-            IsValid = false; // Manually trigger summary if needed for 0 values not caught by Range(1,...)
-            // ErrorMessage = "Por favor, seleccione un evento y una persona."; // Or let ValidationSummary handle
+            IsValid = false;
+            ErrorMessage = "Por favor, seleccione un evento y una persona.";
             return;
         }
-        // Now invokes with the ReservaModel, which is a ReservaDTO.
-        // The parent component (ReservasAlta) will receive this DTO.
-        await OnSubmitCallback.InvokeAsync(ReservaModel);
+        Reserva ReservaAGuardar = new Reserva
+        {
+            PersonaId = ReservaModel.PersonaId,
+            EventoDeportivoId = ReservaModel.EventoDeportivoId,
+            FechaAltaReserva = ReservaModel.FechaReserva,
+            EstadoAsistencia = ReservaModel.EstadoAsistencia
+        };
+        await OnSubmitCallback.InvokeAsync(ReservaAGuardar);
     }
 
     private bool IsSubmitDisabled()
     {
         return (EventosDeportivos == null || !EventosDeportivos.Any()) ||
                (Personas == null || !Personas.Any());
+    }
+
+    public class ReservaDto
+    {
+        [Required(ErrorMessage = "Debe seleccionar una persona.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una persona válida.")]
+        public int PersonaId { get; set; }
+
+        [Required(ErrorMessage = "Debe seleccionar un evento deportivo.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un evento deportivo válido.")]
+        public int EventoDeportivoId { get; set; }
+
+        [Required(ErrorMessage = "La fecha de reserva es obligatoria.")]
+        [DataType(DataType.DateTime, ErrorMessage = "La fecha de reserva debe ser una fecha y hora válida.")]
+        public DateTime FechaReserva { get; set; } = DateTime.Now;
+
+        [Required(ErrorMessage = "El estado de asistencia es obligatorio.")]
+        [EnumDataType(typeof(EstadoAsistencia), ErrorMessage = "El estado de asistencia debe ser válido.")]
+        [Display(Name = "Estado de Asistencia")]
+        public EstadoAsistencia EstadoAsistencia { get; set; } = EstadoAsistencia.Pendiente;
+
+        public ReservaDto() {}
+
+        public ReservaDto(Reserva? reserva)
+        {
+            if (reserva != null)
+            {
+                PersonaId = reserva.PersonaId;
+                EventoDeportivoId = reserva.EventoDeportivoId;
+                FechaReserva = reserva.FechaAltaReserva;
+                EstadoAsistencia = reserva.EstadoAsistencia;
+            }
+        }
     }
 }
