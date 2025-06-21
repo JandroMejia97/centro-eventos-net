@@ -1,25 +1,19 @@
 using CentroEventos.UI.Components;
-using CentroEventos.UI;
+using Microsoft.AspNetCore.Components.Authorization;
 
 using CentroEventos.Aplicacion.Entidades;
 using CentroEventos.Aplicacion.Validadores;
 using CentroEventos.Aplicacion.Interfaces;
-
 using CentroEventos.Aplicacion.CasosDeUso;
-using CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases;
-using CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases;
-using CentroEventos.Aplicacion.CasosDeUso.EventoDeportivoUseCases;
-using CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases;
+using CentroEventos.Aplicacion.Servicios;
 
 using CentroEventos.Repositorios.Repositorios;
 using CentroEventos.Repositorios.FuentesDeDatos;
 using CentroEventos.Repositorios.Contextos;
-using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Repositorios.Servicios;
-using Microsoft.AspNetCore.Components.Authorization;
 using CentroEventos.UI.Auth;
 using CentroEventos.Repositorios;
-using CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases;
+
 
 CentroEventosSqlite.Inicializar();
 
@@ -38,7 +32,6 @@ builder.Services.AddTransient<UsuarioObtenerPorIdUseCase>();
 builder.Services.AddTransient<UsuarioObtenerTodosUseCase>();
 
 // Casos de uso - Persona
-builder.Services.AddTransient<PersonaCrearUseCase>();
 builder.Services.AddTransient<PersonaActualizarUseCase>();
 builder.Services.AddTransient<PersonaEliminarUseCase>();
 builder.Services.AddTransient<PersonaObtenerPorIdUseCase>();
@@ -52,11 +45,12 @@ builder.Services.AddTransient<EventoDeportivoObtenerPorIdUseCase>();
 builder.Services.AddTransient<EventoDeportivoObtenerTodosUseCase>();
 
 // Casos de uso - Reserva
-builder.Services.AddTransient<ReservaAltaUseCase>();
+builder.Services.AddTransient<ReservaCrearUseCase>();
 builder.Services.AddTransient<ReservaActualizarUseCase>();
 builder.Services.AddTransient<ReservaEliminarUseCase>();
 builder.Services.AddTransient<ReservaObtenerUseCase>();
-builder.Services.AddTransient<ReservaObtenerTodosUseCase>();
+builder.Services.AddTransient<ReservaObtenerPorPersonaUseCase>();
+builder.Services.AddTransient<ReservaObtenerPorEventoUseCase>();
 
 // Casos de uso - Permiso Usuario
 builder.Services.AddTransient<PermisoUsuarioAgregarUseCase>();
@@ -69,14 +63,15 @@ builder.Services.AddTransient<PermisoUsuarioObtenerTodosUseCase>();
 builder.Services.AddTransient<CentroEventosDbContext>();
 
 // Autorización
-builder.Services.AddTransient<IServicioAutorizacion, ServicioAutorizacion>();
+builder.Services.AddSingleton<IServicioAutorizacion, ServicioAutorizacion>();
+builder.Services.AddSingleton<IServicioCacheDePermisos, ServicioAutorizacion>();
 builder.Services.AddSingleton<IServicioHashContrasena, ServicioHashContrasena>();
-builder.Services.AddScoped<AuthenticationStateProvider, SessionStorageAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
 // Fuentes de datos
 builder.Services.AddSingleton<IFuenteDeDatos<Usuario>, FuenteDeDatosUsuarioEF>();
-builder.Services.AddSingleton<IFuenteDeDatos<Persona>, FuenteDeDatosPersonaEF>();
-builder.Services.AddSingleton<IFuenteDeDatos<EventoDeportivo>, FuenteDeDatosEventoDeportivoEF>();
+builder.Services.AddSingleton<IFuenteDeDatosPersona, FuenteDeDatosPersonaEF>();
+builder.Services.AddSingleton<IFuenteDeDatosEventoDeportivo, FuenteDeDatosEventoDeportivoEF>();
 builder.Services.AddSingleton<IFuenteDeDatosReserva, FuenteDeDatosReservaEF>();
 builder.Services.AddSingleton<IFuenteDeDatosPermisoUsuario, FuenteDeDatosPermisoUsuarioEF>();
 
@@ -94,7 +89,8 @@ builder.Services.AddScoped<IValidadorReserva, ValidadorReserva>();
 builder.Services.AddScoped<IValidadorUsuario, ValidadorUsuario>();
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
-builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -102,11 +98,12 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
 }
 
 
+app.UseHttpsRedirection();
 app.UseAntiforgery();
-app.UseAuthorization();
 app.UseStaticFiles();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
