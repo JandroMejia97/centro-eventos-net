@@ -72,7 +72,7 @@ else
         MensajeDeExito = null;
         MensajeDeError = null;
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        UsuarioId = customAuthenticationStateProvider.ExtractUserId();
         PermitirCambiarPermisos = ServicioAutorizacion.Autorizar(UsuarioId, Permiso.AsignarPermisos);
         try
         {

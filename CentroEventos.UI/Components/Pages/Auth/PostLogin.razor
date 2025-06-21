@@ -5,7 +5,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @inject NavigationManager NavigationManager
 
-<div class="spinner-border" role="status">
+<div class="spinner-border h-100 w-100" role="status">
     <span class="visually-hidden">Cargando...</span>
 </div>
 
@@ -13,8 +13,9 @@
     [SupplyParameterFromQuery]
     private string? Token { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        await Task.Delay(1_000);
         if (string.IsNullOrEmpty(Token))
         {
             NavigationManager.NavigateTo("/login");

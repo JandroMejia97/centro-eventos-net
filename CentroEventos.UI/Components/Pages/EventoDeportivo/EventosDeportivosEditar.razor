@@ -62,7 +62,7 @@ else
         try
         {
             var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-            UserId = customAuthenticationStateProvider.ExtractUserIdAsync();
+            UserId = customAuthenticationStateProvider.ExtractUserId();
             var evento = ObtenerEventoUseCase.Ejecutar(UserId, Id);
             if (evento != null)
             {

@@ -103,7 +103,7 @@ else
     protected override void OnInitialized()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        UsuarioId = customAuthenticationStateProvider.ExtractUserId();
         CargarPersonas();
     }
 
