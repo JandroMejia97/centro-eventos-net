@@ -25,19 +25,17 @@
         <th>Cupo Máximo</th>
         <th>Responsable</th>
         <th>Estado</th>
-        <th style="width: 200px;">Acciones</th> 
+        <th style="min-width: 230px;">Acciones</th> 
     </CabeceraDeTabla>
     <VistaMovil Context="currentEvento">
         <EventoDeportivoTarjeta 
             Dato="currentEvento"
-            SolicitarVisualizacion="VistaDeListaDeEventos.MostrarDetallesDeDato"
             SolicitarEliminacion="VistaDeListaDeEventos.MostrarConfirmacionDeEliminacion"
         />
     </VistaMovil>
     <FilaDeTabla Context="currentEvento">
         <EventoDeportivoFila
             Dato="currentEvento"
-            SolicitarVisualizacion="VistaDeListaDeEventos.MostrarDetallesDeDato"
             SolicitarEliminacion="VistaDeListaDeEventos.MostrarConfirmacionDeEliminacion"
         />
     </FilaDeTabla>
