@@ -1,13 +1,22 @@
 @using CentroEventos.UI.Auth;
 
-@inject IHttpContextAccessor HttpContextAccessor
-@inject NavigationManager NavigationManager
+@using CentroEventos.Aplicacion.Servicios
 
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IServicioCacheDePermisos PermisosCache
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager NavigationManager
 @code {
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        HttpContextAccessor.HttpContext!.Response.Cookies.Delete(AuthConstant.AuthCookieName);
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        var intUserId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+        if (intUserId != 0)
+        {
+            PermisosCache.Eliminar(intUserId);
+            await customAuthenticationStateProvider.MarkUserAsLoggedOutAsync();
+        }
         NavigationManager.NavigateTo("/login");
     }
 }

@@ -3,9 +3,12 @@
 
 @rendermode InteractiveServer
 
+@using CentroEventos.Aplicacion.Servicios
+
 @inject UsuarioLoginUseCase LoginUseCase
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
+@inject IServicioCacheDePermisos PermisosCache
 
 @using CentroEventos.UI.Components.Shared
 
@@ -30,7 +33,7 @@
         }
         else
         {
-            Iniciar sesión
+            <span>Iniciar sesión</span>
         }
     </button>
     <div class="text-center mt-3">
@@ -60,8 +63,11 @@
             {
                 showSnackbar = true;
                 var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-                var token = await customAuthenticationStateProvider.MarkUserAsAuthenticated(usuario.Id, usuario.Email, usuario.Persona, usuario.Permisos);
-                NavigationManager.NavigateTo("/postlogin?Token=" + token);
+                Persona persona = usuario.Persona;
+                var token = await customAuthenticationStateProvider.MarkUserAsAuthenticated(persona.Id, persona.Email, persona, usuario.Permisos);
+                PermisosCache.Agregar(persona.Id, usuario.Permisos);
+                string path = $"/postlogin?Token={token}";
+                Navigation.NavigateTo(path);
             }
             else
             {
@@ -87,3 +93,5 @@
         public string Password { get; set; } = string.Empty;
     }
 }
+using CentroEventos.Aplicacion.Servicios;
+#line default
