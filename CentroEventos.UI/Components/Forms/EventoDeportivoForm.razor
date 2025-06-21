@@ -1,6 +1,7 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 
+@inject AuthenticationStateProvider AuthProvider
 @inject EventoDeportivoObtenerPorIdUseCase ObtenerPorIdUseCase
 @inject UsuarioObtenerTodosUseCase ObtenerUsuariosUseCase
 
@@ -43,7 +44,7 @@
             id="responsable"
             class="form-select"
             @bind-Value="EventoDeportivo.ResponsableId"
-            @disabled="@(Responsables == null || !Responsables.Any())"
+            disabled="@(Responsables.Any() == false)"
         >
             <option value="">Seleccione un responsable</option>
             @foreach (var usuario in Responsables)
@@ -73,33 +74,32 @@
     [Parameter] public string? Mensaje { get; set; } = null;
     private IEnumerable<Usuario> Responsables = Enumerable.Empty<Usuario>();
     private DateTime MinFecha = DateTime.Now;
+    private int UsuarioId = 0;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Responsables = ObtenerUsuariosUseCase.Ejecutar();
-        if (Responsables.Count() == 1) {
-            EventoDeportivo.ResponsableId = Responsables.First().PersonaId;
-        }
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
 
-        if (Id > 0)
+        try
         {
-            try
+            UsuarioId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+            Responsables = ObtenerUsuariosUseCase.Ejecutar(UsuarioId);
+            if (Responsables.Count() == 1)
+                EventoDeportivo.ResponsableId = Responsables.First().PersonaId;
+            EventoDeportivo EventoDeportivoGuardado = ObtenerPorIdUseCase.Ejecutar(UsuarioId, Id);
+            EventoDeportivo = new EventoDeportivoDto
             {
-                EventoDeportivo EventoDeportivoGuardado = ObtenerPorIdUseCase.Ejecutar(Id);
-                EventoDeportivo = new EventoDeportivoDto
-                {
-                    Nombre = EventoDeportivoGuardado.Nombre,
-                    Descripcion = EventoDeportivoGuardado.Descripcion,
-                    DuracionHoras = EventoDeportivoGuardado.DuracionHoras,
-                    FechaHoraInicio = EventoDeportivoGuardado.FechaHoraInicio,
-                    CupoMaximo = EventoDeportivoGuardado.CupoMaximo,
-                    ResponsableId = EventoDeportivoGuardado.ResponsableId
-                };
-            }
-            catch (Exception ex)
-            {
-                Error = $"Error al obtener el evento: {ex.Message}";
-            }
+                Nombre = EventoDeportivoGuardado.Nombre,
+                Descripcion = EventoDeportivoGuardado.Descripcion,
+                DuracionHoras = EventoDeportivoGuardado.DuracionHoras,
+                FechaHoraInicio = EventoDeportivoGuardado.FechaHoraInicio,
+                CupoMaximo = EventoDeportivoGuardado.CupoMaximo,
+                ResponsableId = EventoDeportivoGuardado.ResponsableId
+            };
+        }
+        catch (Exception ex)
+        {
+            Error = $"Error al obtener el evento: {ex.Message}";
         }
     }
 

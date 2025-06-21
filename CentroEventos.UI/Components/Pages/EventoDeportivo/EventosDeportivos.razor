@@ -5,6 +5,7 @@
 @using CentroEventos.UI.Components.Shared
 
 @inject EventoDeportivoObtenerTodosUseCase ObtenerEventos
+@inject AuthenticationStateProvider AuthProvider
 @inject EventoDeportivoEliminarUseCase EliminarEventoUseCase
 
 <PageTitle>Eventos Deportivos</PageTitle>
@@ -16,7 +17,7 @@
 </div>
 
 <ConfirmDialog 
-    @ref="confirmDialog"
+    @ref="ConfirmarEliminacion"
     Title="Eliminar Evento"
     CancelText="No, cancelar"
     ConfirmText="Sí, eliminar"
@@ -26,33 +27,32 @@
 />
 <Snackbar
     Duration="2000"
-    Show="@showSnackbar"
-    CssClass="bg-danger text-white"
-    OnClose="@(() => showSnackbar = false)"
+    Show="@MostrarSnackbar"
+    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
     Message="¡Evento eliminado exitosamente!"
 />
 <Snackbar 
     Duration="3000"
-    Message="@error"
+    Message="@MensajeDeError"
     Title="¡Ocurrió un error!"
-    OnClose="@(() => error = null)"
+    OnClose="@EventCallback.Factory.Create(this, () => MensajeDeError = null)"
     CssClass="bg-danger text-white"
-    Show="@(!string.IsNullOrEmpty(error))" 
+    Show="@(!string.IsNullOrEmpty(MensajeDeError))" 
 />
 
 
-@if (eventos is null)
+@if (ListaDeEventos is null)
 {
     <div class="text-center"><div class="spinner-border" role="status"></div></div>
 }
-else if (!eventos.Any())
+else if (!ListaDeEventos.Any())
 {
     <div class="alert alert-info text-center">No hay eventos deportivos registrados.</div>
 }
 else
 {
     <div class="row d-lg-none">
-        @foreach (var e in eventos)
+        @foreach (var e in ListaDeEventos)
         {
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm">
@@ -98,7 +98,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var e in eventos)
+                @foreach (var e in ListaDeEventos)
                 {
                     <tr>
                         <td>@e.Nombre</td>
@@ -129,42 +129,45 @@ else
 }
 
 @code {
-    private List<EventoDeportivo>? eventos;
+    private IEnumerable<EventoDeportivo> ListaDeEventos = null!;
 
-    private EventoDeportivo eventoSeleccionado = null!;
+    private EventoDeportivo? EventoAEliminar = null!;
 
-    private ConfirmDialog confirmDialog = null!;
+    private ConfirmDialog ConfirmarEliminacion = null!;
 
-    private string? error;
+    private string? MensajeDeError;
 
-    private bool showSnackbar = false;
+    private bool MostrarSnackbar = false;
 
-    protected override void OnInitialized()
+    private int UsuarioId = 0;
+
+    protected override async Task OnInitializedAsync()
     {
-        eventos = ObtenerEventos.Ejecutar().ToList();
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        UsuarioId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+        ListaDeEventos = ObtenerEventos.Ejecutar(UsuarioId);
     }
 
     private void OnDelete(EventoDeportivo evento)
     {
-        eventoSeleccionado = evento;
-        confirmDialog.Show();
+        EventoAEliminar = evento;
+        ConfirmarEliminacion.Show();
     }
 
     private void OnConfirmDelete()
     {
-        if (eventoSeleccionado != null)
+        if (EventoAEliminar != null)
         {
             try
             {
-                EliminarEventoUseCase.Ejecutar(eventoSeleccionado.Id, 1);
-                eventos.Remove(eventoSeleccionado);
-                eventoSeleccionado = null;
-                showSnackbar = true;
+                EliminarEventoUseCase.Ejecutar(UsuarioId, EventoAEliminar.Id);
+                ListaDeEventos = ListaDeEventos.Where(e => e.Id != EventoAEliminar.Id);
+                EventoAEliminar = null;
+                MostrarSnackbar = true;
             }
             catch (Exception ex)
             {
-                // Manejo de errores, por ejemplo, mostrar un mensaje al usuario
-                error = $"Error al eliminar el evento: {ex.Message}";
+                MensajeDeError = $"Error al eliminar el evento: {ex.Message}";
             }
         }
     }

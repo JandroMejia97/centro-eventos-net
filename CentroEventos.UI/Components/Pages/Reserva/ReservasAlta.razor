@@ -1,114 +1,71 @@
-@page "/reservas/agregar"
+@page "/eventos/{EventoId:int}/reservas/agregar"
 
-@using CentroEventos.UI.DTOs
+@using CentroEventos.UI.Components.Forms
 
+@inject AuthenticationStateProvider AuthProvider
 @inject ReservaCrearUseCase ReservaAltaUseCase
-@inject EventoDeportivoObtenerTodosUseCase EventoDeportivoObtenerTodosUseCase
-@inject PersonaObtenerTodosUseCase PersonaObtenerTodosUseCase
 @inject NavigationManager NavigationManager
 
 <PageTitle>Alta de Reserva</PageTitle>
 
 <h3>Alta de Reserva</h3>
 
-@if (loadingLists)
-{
-    <p><em>Cargando datos necesarios para el formulario (eventos, personas)...</em></p>
-}
-else if (!string.IsNullOrEmpty(loadListsErrorMessage))
-{
-    <div class="alert alert-danger">@loadListsErrorMessage</div>
-}
-else
-{
-    <ReservaForm ReservaModel="reservaDto"
-                 EventosDeportivos="eventos"
-                 Personas="personas"
-                 OnSubmitCallback="GuardarReserva"
-                 SubmitButtonText="Crear Reserva"
-                 SuccessMessage="@successMessage"
-                 ErrorMessage="@errorMessage" />
-}
+<ReservaForm
+    UsuarioId="@UsuarioId"
+    GuardarCambios="GuardarReserva"
+    SubmitButtonText="Crear Reserva"
+    MensajeDeError="@MensajeDeError"
+    GuardandoCambios="@Guardando"
+/>
+<Snackbar
+    Show="@MostrarSnackbar"
+    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
+    Message="Reserva creada con éxito"
+/>
 
 @code {
-    private ReservaDto reservaDto = new ReservaDto();
-    private IEnumerable<EventoDeportivo>? eventos;
-    private IEnumerable<Persona>? personas;
 
-    private bool loadingLists = true; // For initial data load
-    private string? loadListsErrorMessage;
-
-    private string? successMessage;
-    private string? errorMessage;
-    private bool isSaving = false; // To disable button during save
+    [Parameter]
+    public int EventoId { get; set; }
+    private string? MensajeDeError;
+    private bool Guardando = false;
+    private int UsuarioId = 0;
+    private bool MostrarSnackbar = false;
 
     protected override async Task OnInitializedAsync()
     {
-        loadingLists = true;
-        loadListsErrorMessage = null;
-        try
-        {
-            eventos = EventoDeportivoObtenerTodosUseCase.Ejecutar();
-            personas = PersonaObtenerTodosUseCase.Ejecutar();
-
-            if (eventos == null || !eventos.Any())
-            {
-                loadListsErrorMessage = "No hay eventos deportivos disponibles para crear una reserva.";
-            }
-            if (personas == null || !personas.Any())
-            {
-                loadListsErrorMessage = (loadListsErrorMessage ?? "") + " No hay personas disponibles para crear una reserva.";
-            }
-        }
-        catch (Exception ex)
-        {
-            loadListsErrorMessage = $"Error cargando listas necesarias: {ex.Message}";
-            Console.WriteLine(loadListsErrorMessage); // Log for debugging
-        }
-        finally
-        {
-            loadingLists = false;
-        }
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        UsuarioId = await customAuthenticationStateProvider.ExtractUserIdAsync();
     }
 
-    // Method signature changed to accept ReservaDto from the form callback
-    private async Task GuardarReserva(ReservaDto submittedDto)
+    private async Task GuardarReserva(Reserva submittedDto)
     {
-        if (isSaving) return;
+        if (Guardando) return;
 
-        isSaving = true;
-        successMessage = null;
-        errorMessage = null;
+        Guardando = true;
+        MensajeDeError = null;
 
         try
         {
-            // The DTO from the form (submittedDto) contains PersonaId and EventoDeportivoId.
-            // FechaReserva and EstadoReserva are handled by the use case/constructor.
-            // Hardcoded usuarioId: 1 as per requirement.
-            var nuevaReservaId = ReservaAltaUseCase.Ejecutar(
-                usuarioId: 1, // Hardcoded as per requirement
-                personaId: submittedDto.PersonaId,
-                eventoId: submittedDto.EventoDeportivoId
+            ReservaAltaUseCase.Ejecutar(
+                UsuarioId,
+                submittedDto.PersonaId,
+                submittedDto.EventoDeportivoId
             );
-            // Assuming EjecutarAsync returns the ID of the new reserva or the full entity.
-            // If it returns the entity, you might use nuevaReserva.Id
-            successMessage = $"Reserva creada con éxito (ID: {nuevaReservaId}). Redirigiendo a la lista de reservas...";
+            MostrarSnackbar = true;
 
-            // Optionally, reset the form model if staying on the page:
-            // reservaDto = new ReservaDto();
-
-            await Task.Delay(2500); // Wait for message visibility
-            NavigationManager.NavigateTo("/reservas");
+            await Task.Delay(1_000);
+            NavigationManager.NavigateTo($"/eventos/{EventoId}/reservas");
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error al guardar la reserva: {ex.Message}";
-            Console.WriteLine($"Error en GuardarReserva: {ex}"); // Full exception for debugging
+            MensajeDeError = $"Error al guardar la reserva: {ex.Message}";
+            Console.WriteLine($"Error en GuardarReserva: {ex}");
         }
         finally
         {
-            isSaving = false;
-            // StateHasChanged() is important to update UI with messages or if form needs reset
+            Guardando = false;
+
             StateHasChanged();
         }
     }

@@ -6,6 +6,7 @@
 
 @inject EventoDeportivoObtenerPorIdUseCase ObtenerEventoUseCase
 @inject EventoDeportivoActualizarUseCase ActualizarEventoUseCase
+@inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Navigation
 
 <PageTitle>
@@ -25,7 +26,7 @@ else if (loadError)
     <div class="alert alert-danger">@errorMessage</div>
     <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
 }
-else if (Evento == null) // Should be covered by isLoading or loadError initially
+else if (Evento == null) 
 {
     <p><em>No se encontró el evento o no se pudo cargar el formulario.</em></p>
      <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
@@ -34,7 +35,7 @@ else
 {
     <EventoDeportivoForm
         EventoAEditar="Evento"
-        OnSubmitCallback="Guardars"
+        OnSubmitCallback="Guardar"
         SuccessMessage="@successMessage"
         ErrorMessage="@errorMessage"
         SubmitButtonText="Guardar Cambios"
@@ -49,21 +50,23 @@ else
     private bool loadError = false;
     private string? successMessage;
     private string? errorMessage;
-    private Titulo { get; set; } = "Editar Evento Deportivo";
+    private string Titulo { get; set; } = "Editar Evento Deportivo";
+    private int UserId = 0;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         isLoading = true;
         loadError = false;
         successMessage = null;
         errorMessage = null;
-
         try
         {
-            var evento = EventoObtenerPorIdUseCase.Ejecutar(Id);
+            var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+            UserId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+            var evento = ObtenerEventoUseCase.Ejecutar(UserId, Id);
             if (evento != null)
             {
-                EventoAEditar = evento;
+                Evento = evento;
                 Titulo = $"Editar Evento Deportivo: {evento.Nombre}";
             }
             else
@@ -87,16 +90,16 @@ else
     {
         try
         {
-            ActualizarEventoUseCase.Ejecutar(EventoAGuardar);
-            Mensaje = "Evento guardado correctamente.";
-            Error = null;
-            await Task.Delay(1_000);
-            await Task.Run(() => Navigation.NavigateTo("/eventos"));
+            ActualizarEventoUseCase.Ejecutar(UserId, EventoAGuardar);
+            successMessage = "Evento guardado correctamente.";
+            errorMessage = null;
+            await Task.Delay(1000);
+            Navigation.NavigateTo("/eventos");
         }
         catch (Exception ex)
         {
-            Error = ex.Message;
-            Mensaje = null;
+            errorMessage = ex.Message;
+            successMessage = null;
         }
     }
 }
