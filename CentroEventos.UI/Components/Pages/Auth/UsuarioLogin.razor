@@ -44,7 +44,11 @@
         <div class="alert alert-danger mt-3">@error</div>
     }
 </EditForm>
-<Snackbar Message="¡Inicio de sesión exitoso!" Duration="2000" Show="@showSnackbar" OnClose="@(() => showSnackbar = false)" />
+<Snackbar 
+    Message="¡Inicio de sesión exitoso!"
+    Duration="2000"
+    Show="@showSnackbar"
+    OnClose="@EventCallback.Factory.Create(this, () => showSnackbar = false)"/>
 
 @code {
     private LoginModel loginModel = new();
@@ -93,5 +97,3 @@
         public string Password { get; set; } = string.Empty;
     }
 }
-using CentroEventos.Aplicacion.Servicios;
-#line default
