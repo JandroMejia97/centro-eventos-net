@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CentroEventos.Repositorios.FuentesDeDatos;
 
-public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatos<EventoDeportivo>
+public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatosEventoDeportivo
 {
     private readonly CentroEventosDbContext _context;
 
@@ -44,5 +44,14 @@ public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatos<EventoDeportivo>
     public IEnumerable<EventoDeportivo> ObtenerTodos()
     {
         return _context.EventosDeportivos.Include(e => e.Responsable).AsNoTracking().ToList();
+    }
+
+    public IEnumerable<EventoDeportivo> ObtenerPorFechaYDuracion(DateTime fechaHoraInicio, double duracionHoras)
+    {
+        DateTime FechaFinal = fechaHoraInicio.Date.AddHours(duracionHoras);
+        return [.. _context.EventosDeportivos
+            .Include(e => e.Responsable)
+            .Where(e => e.FechaHoraInicio >= fechaHoraInicio && e.FechaHoraInicio <= FechaFinal)
+            .AsNoTracking()];
     }
 }
