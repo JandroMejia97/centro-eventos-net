@@ -1,3 +1,5 @@
+@rendermode InteractiveServer
+
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 
@@ -74,7 +76,7 @@
             disabled="@(EventoPasado || Responsables.Any() == false)"
             @bind-Value="EventoDeportivo.ResponsableId"
         >
-            <option value="">Seleccione un responsable</option>
+            <option value="0">Seleccione un responsable</option>
             @foreach (var usuario in Responsables)
             {
                 <option value="@usuario.PersonaId">@usuario.Persona.NombreCompleto</option>
@@ -83,7 +85,13 @@
         <ValidationMessage For="@(() => EventoDeportivo.ResponsableId)" />
     </div>
 
-    <button type="submit" disabled="@EventoPasado" class="btn btn-primary w-100">@TextoBoton</button>
+    <button type="submit" disabled="@(EventoPasado || GuardandoCambios)" class="btn btn-primary w-100">
+        @if (GuardandoCambios)
+        {
+            <span class="spinner-border spinner-border-sm mx-2" role="status" aria-hidden="true"></span>
+        }
+        @TextoBoton
+    </button>
 
     @if (!string.IsNullOrEmpty(MensajeDeError))
     {
@@ -99,6 +107,7 @@
     [Parameter] public string? MensajeDeError { get; set; } = null;
     [Parameter] public string? MensajeDeExito { get; set; } = null;
     [Parameter] public int UsuarioId { get; set; } = 0;
+    public bool GuardandoCambios { get; set; } = false;
     private bool EventoPasado = false;
     private IEnumerable<Usuario> Responsables = Enumerable.Empty<Usuario>();
     private DateTime MinFecha = DateTime.Now;
@@ -141,7 +150,7 @@
                 MensajeDeExito = null;
                 return;
             }
-
+            GuardandoCambios = true;
             var evento = new EventoDeportivo(
                 EventoDeportivo.Nombre,
                 EventoDeportivo.Descripcion,

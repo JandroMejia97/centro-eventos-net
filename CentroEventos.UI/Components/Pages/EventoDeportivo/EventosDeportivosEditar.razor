@@ -12,35 +12,42 @@
 <PageTitle>
     @Titulo
 </PageTitle>
-
-<h3>
-    @Titulo
-</h3>
-
-@if (isLoading)
-{
-    <p><em>Cargando datos del evento...</em></p>
-}
-else if (loadError)
-{
-    <div class="alert alert-danger">@errorMessage</div>
-    <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
-}
-else if (Evento == null) 
-{
-    <p><em>No se encontró el evento o no se pudo cargar el formulario.</em></p>
-     <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
-}
-else
-{
-    <EventoDeportivoForm
-        EventoAEditar="Evento"
-        OnSubmitCallback="Guardar"
-        SuccessMessage="@successMessage"
-        ErrorMessage="@errorMessage"
-        SubmitButtonText="Guardar Cambios"
-    />
-}
+<div class="container-md mt-4" style="max-width: 600px;">
+    <header class="row justify-content-between align-items-center">
+        <h3 class="mb-0 col">@Titulo</h3>
+        <a href="/eventos/@Id/reservas" class="btn btn-outline-primary col-auto">
+            <span class="oi oi-plus" aria-hidden="true"></span>
+            Ver Reservas
+        </a>
+    </header>
+    <main>
+        @if (isLoading)
+        {
+            <p><em>Cargando datos del evento...</em></p>
+        }
+        else if (loadError)
+        {
+            <div class="alert alert-danger">@MensajeDeError</div>
+            <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
+        }
+        else if (Evento == null) 
+        {
+            <p><em>No se encontró el evento o no se pudo cargar el formulario.</em></p>
+            <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
+        }
+        else
+        {
+            <EventoDeportivoForm
+                UsuarioId="@UserId"
+                EventoAEditar="Evento"
+                MensajeDeExito="@MensajeDeExito"
+                MensajeDeError="@MensajeDeError"
+                GuardarCambiosDelegado="Guardar"
+                TextoBoton="Guardar Cambios"
+            />
+        }
+    </main>
+</div>
 
 @code {
     [Parameter]
@@ -48,8 +55,8 @@ else
     private EventoDeportivo? Evento { get; set; } = null;
     private bool isLoading = true;
     private bool loadError = false;
-    private string? successMessage;
-    private string? errorMessage;
+    private string? MensajeDeExito;
+    private string? MensajeDeError;
     private string Titulo { get; set; } = "Editar Evento Deportivo";
     private int UserId = 0;
 
@@ -57,8 +64,8 @@ else
     {
         isLoading = true;
         loadError = false;
-        successMessage = null;
-        errorMessage = null;
+        MensajeDeExito = null;
+        MensajeDeError = null;
         try
         {
             var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
@@ -67,39 +74,39 @@ else
             if (evento != null)
             {
                 Evento = evento;
-                Titulo = $"Editar Evento Deportivo: {evento.Nombre}";
+                Titulo = $"Editar: {evento.Nombre}";
             }
             else
             {
                 loadError = true;
-                errorMessage = $"Evento con ID {Id} no encontrado.";
+                MensajeDeError = $"Evento con ID {Id} no encontrado.";
             }
         }
         catch (Exception ex)
         {
             loadError = true;
-            errorMessage = $"Error al cargar el evento: {ex.Message}";
-            Console.WriteLine(errorMessage);
+            MensajeDeError = $"Error al cargar el evento: {ex.Message}";
+            Console.WriteLine(MensajeDeError);
         }
         finally
         {
             isLoading = false;
         }
     }
-    private async Task Guardar(EventoDeportivo EventoAGuardar)
+    private void Guardar(EventoDeportivo EventoAGuardar)
     {
         try
         {
+            EventoAGuardar.Id = Id;
             ActualizarEventoUseCase.Ejecutar(UserId, EventoAGuardar);
-            successMessage = "Evento guardado correctamente.";
-            errorMessage = null;
-            await Task.Delay(1000);
+            MensajeDeExito = "Evento guardado correctamente.";
+            MensajeDeError = null;
             Navigation.NavigateTo("/eventos");
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
-            successMessage = null;
+            MensajeDeError = ex.Message;
+            MensajeDeExito = null;
         }
     }
 }
