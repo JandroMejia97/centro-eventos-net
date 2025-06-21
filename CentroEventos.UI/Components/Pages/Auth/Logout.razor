@@ -1,0 +1,13 @@
+@using CentroEventos.UI.Auth;
+
+@inject IHttpContextAccessor HttpContextAccessor
+@inject NavigationManager NavigationManager
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        HttpContextAccessor.HttpContext!.Response.Cookies.Delete(AuthConstant.AuthCookieName);
+        NavigationManager.NavigateTo("/login");
+    }
+}

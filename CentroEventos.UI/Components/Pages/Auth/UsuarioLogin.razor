@@ -22,7 +22,17 @@
         <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
         <ValidationMessage For="@(() => loginModel.Password)" />
     </div>
-    <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+    <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
+        @if (isLoading)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span class="sr-only">Cargando...</span>
+        }
+        else
+        {
+            Iniciar sesión
+        }
+    </button>
     <div class="text-center mt-3">
         <a href="/registro">¿No tienes cuenta? Regístrate</a>
     </div>
@@ -37,17 +47,21 @@
     private LoginModel loginModel = new();
     private string? error;
     private bool showSnackbar = false;
+    private bool isLoading = false;
 
     private async Task OnLogin()
     {
         error = null;
+        isLoading = true;
         try
         {
             var usuario = LoginUseCase.Ejecutar(loginModel.Email, loginModel.Password);
             if (usuario != null)
             {
                 showSnackbar = true;
-                Navigation.NavigateTo("/");
+                var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+                var token = await customAuthenticationStateProvider.MarkUserAsAuthenticated(usuario.Id, usuario.Email, usuario.Persona, usuario.Permisos);
+                NavigationManager.NavigateTo("/postlogin?Token=" + token);
             }
             else
             {
@@ -57,6 +71,10 @@
         catch (Exception ex)
         {
             error = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
