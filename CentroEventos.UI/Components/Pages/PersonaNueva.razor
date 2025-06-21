@@ -14,32 +14,32 @@
     <DataAnnotationsValidator />
 
     <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre</label>
-        <InputText id="nombre" class="form-control" @bind-Value="personaModel.Nombre" />
+        <label class="form-label">Nombre</label>
+        <InputText class="form-control" @bind-Value="personaModel.Nombre" />
         <ValidationMessage For="@(() => personaModel.Nombre)" />
     </div>
 
     <div class="mb-3">
-        <label for="apellido" class="form-label">Apellido</label>
-        <InputText id="apellido" class="form-control" @bind-Value="personaModel.Apellido" />
+        <label class="form-label">Apellido</label>
+        <InputText class="form-control" @bind-Value="personaModel.Apellido" />
         <ValidationMessage For="@(() => personaModel.Apellido)" />
     </div>
 
     <div class="mb-3">
-        <label for="dni" class="form-label">DNI</label>
-        <InputText id="dni" class="form-control" @bind-Value="personaModel.DNI" />
+        <label class="form-label">DNI</label>
+        <InputText class="form-control" @bind-Value="personaModel.DNI" />
         <ValidationMessage For="@(() => personaModel.DNI)" />
     </div>
 
     <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <InputText id="email" class="form-control" @bind-Value="personaModel.Email" />
+        <label class="form-label">Email</label>
+        <InputText class="form-control" @bind-Value="personaModel.Email" />
         <ValidationMessage For="@(() => personaModel.Email)" />
     </div>
 
     <div class="mb-3">
-        <label for="telefono" class="form-label">Teléfono</label>
-        <InputText id="telefono" class="form-control" @bind-Value="personaModel.Telefono" />
+        <label class="form-label">Teléfono</label>
+        <InputText class="form-control" @bind-Value="personaModel.Telefono" />
         <ValidationMessage For="@(() => personaModel.Telefono)" />
     </div>
 
@@ -65,41 +65,40 @@
         try
         {
             var persona = new Persona(
-                personaModel.DNI,
                 personaModel.Nombre,
                 personaModel.Apellido,
+                personaModel.DNI,
                 personaModel.Email,
                 personaModel.Telefono
             );
 
-            CrearUseCase.Ejecutar(persona, "usuarioActual");
-            mensaje = "Persona guardada correctamente.";
-            error = null;
-            personaModel = new(); // limpiar formulario
+            CrearUseCase.Ejecutar(persona, "usuario");
+            mensaje = "Persona registrada correctamente.";
+            Navigation.NavigateTo("/personas");
         }
         catch (Exception ex)
         {
             error = ex.Message;
-            mensaje = null;
         }
     }
 
+    // Define PersonaModel if it does not exist elsewhere
     public class PersonaModel
     {
-        [Required(ErrorMessage = "El nombre es obligatorio.")]
+        [Required(ErrorMessage = "El nombre es obligatorio")]
         public string Nombre { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El apellido es obligatorio.")]
+        [Required(ErrorMessage = "El apellido es obligatorio")]
         public string Apellido { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El DNI es obligatorio.")]
+        [Required(ErrorMessage = "El DNI es obligatorio")]
         public string DNI { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El email es obligatorio.")]
-        [EmailAddress(ErrorMessage = "El email no es válido.")]
+        [Required(ErrorMessage = "El email es obligatorio")]
+        [EmailAddress(ErrorMessage = "El email no es válido")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El teléfono es obligatorio.")]
+        [Required(ErrorMessage = "El teléfono es obligatorio")]
         public string Telefono { get; set; } = string.Empty;
     }
 }

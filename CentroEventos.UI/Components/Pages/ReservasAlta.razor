@@ -47,31 +47,24 @@
     {
         try
         {
-            var reserva = new Reserva(
-                reservaModel.PersonaId,
-                reservaModel.EventoDeportivoId
-            );
-
             AltaUseCase.Ejecutar(reservaModel.PersonaId, reservaModel.EventoDeportivoId);
-            mensaje = "Reserva creada correctamente.";
-            reservaModel = new(); // limpiar formulario
-            error = null;
+            mensaje = "Reserva registrada correctamente.";
+            Navigation.NavigateTo("/reservas");
         }
         catch (Exception ex)
         {
             error = ex.Message;
-            mensaje = null;
         }
     }
 
     public class ReservaModel
     {
         [Required(ErrorMessage = "El ID de Persona es obligatorio.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Debe ser un ID válido.")]
+        [Range(1, 9999, ErrorMessage = "Debe ser un número válido.")]
         public int PersonaId { get; set; }
 
         [Required(ErrorMessage = "El ID de Evento Deportivo es obligatorio.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Debe ser un ID válido.")]
+        [Range(1, 9999, ErrorMessage = "Debe ser un número válido.")]
         public int EventoDeportivoId { get; set; }
     }
 }
