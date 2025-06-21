@@ -67,7 +67,7 @@ else
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
         try
         {
-            UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+            UsuarioId = customAuthenticationStateProvider.ExtractUserId();
             var Reserva = ObtenerReservaUseCase.Ejecutar(UsuarioId, PersonaId, EventoId);
             if (Reserva != null)
             {

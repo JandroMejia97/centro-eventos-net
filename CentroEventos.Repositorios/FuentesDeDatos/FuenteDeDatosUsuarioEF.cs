@@ -38,11 +38,11 @@ public class FuenteDeDatosUsuarioEF : IFuenteDeDatos<Usuario>
 
     public Usuario? ObtenerPorId(int id)
     {
-        return _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.PersonaId == id);
+        return _context.Usuarios.Include(u => u.Persona).Include(u => u.PermisosUsuarios).FirstOrDefault(u => u.PersonaId == id);
     }
 
     public IEnumerable<Usuario> ObtenerTodos()
     {
-        return _context.Usuarios.Include(u => u.Persona).AsNoTracking();
+        return _context.Usuarios.Include(u => u.Persona).Include(u => u.PermisosUsuarios).AsNoTracking();
     }
 }

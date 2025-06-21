@@ -2,173 +2,65 @@
 @rendermode InteractiveServer
 @layout MainLayout
 
-@using CentroEventos.UI.Components.Shared
-
 @inject EventoDeportivoObtenerTodosUseCase ObtenerEventos
 @inject AuthenticationStateProvider AuthProvider
 @inject EventoDeportivoEliminarUseCase EliminarEventoUseCase
 
-<PageTitle>Eventos Deportivos</PageTitle>
-<div class="d-flex justify-content-between align-items-center my-4">
-    <h3 class="mb-0 text-center">Eventos Deportivos</h3>
-    <a class="btn btn-success" href="/eventos/agregar">
-        <span class="bi bi-calendar-plus-fill"></span> Crear nuevo evento
-    </a>
-</div>
-
-<ConfirmDialog 
-    @ref="ConfirmarEliminacion"
-    Title="Eliminar Evento"
-    CancelText="No, cancelar"
-    ConfirmText="Sí, eliminar"
-    OnConfirm="OnConfirmDelete"
-    ConfirmButtonClass="btn-danger"
-    Message="¿Estás seguro de que deseas eliminar este evento?"
-/>
-<Snackbar
-    Duration="2000"
-    Show="@MostrarSnackbar"
-    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
-    Message="¡Evento eliminado exitosamente!"
-/>
-<Snackbar 
-    Duration="3000"
-    Message="@MensajeDeError"
-    Title="¡Ocurrió un error!"
-    OnClose="@EventCallback.Factory.Create(this, () => MensajeDeError = null)"
-    CssClass="bg-danger text-white"
-    Show="@(!string.IsNullOrEmpty(MensajeDeError))" 
-/>
-
-
-@if (ListaDeEventos is null)
-{
-    <div class="text-center"><div class="spinner-border" role="status"></div></div>
-}
-else if (!ListaDeEventos.Any())
-{
-    <div class="alert alert-info text-center">No hay eventos deportivos registrados.</div>
-}
-else
-{
-    <div class="row d-lg-none">
-        @foreach (var e in ListaDeEventos)
-        {
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">@e.Nombre</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">@e.FechaHoraInicio.ToString("g")</h6>
-                        <p class="card-text flex-grow-1">@e.Descripcion</p>
-                        <ul class="list-unstyled mb-2">
-                            <li><strong>Duración:</strong> @e.DuracionHoras h</li>
-                            <li><strong>Cupo máximo:</strong> @e.CupoMaximo</li>
-                            <li><strong>Responsable:</strong>
-                                @if (e.Responsable is null)
-                                {
-                                    <span class="text-muted">@e.ResponsableId</span>
-                                }
-                                else
-                                {
-                                    @e.Responsable?.NombreCompleto
-                                }
-                            </li>
-                        </ul>
-                        <div class="d-flex gap-2 mt-auto">
-                            <a class="btn btn-outline-primary btn-sm" href="/eventos/@e.Id">Ver</a>
-                            <a class="btn btn-outline-secondary btn-sm" href="/eventos/editar/@e.Id">Editar</a>
-                            <button class="btn btn-outline-danger btn-sm" @onclick="() => OnDelete(e)">Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-    <div class="d-none d-lg-block mt-4">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Fecha y Hora</th>
-                    <th>Duración (h)</th>
-                    <th>Cupo</th>
-                    <th>Responsable</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var e in ListaDeEventos)
-                {
-                    <tr>
-                        <td>@e.Nombre</td>
-                        <td>@e.Descripcion</td>
-                        <td>@e.FechaHoraInicio.ToString("g")</td>
-                        <td>@e.DuracionHoras</td>
-                        <td>@e.CupoMaximo</td>
-                        <td>
-                            @if (e.Responsable is null)
-                            {
-                                <span class="text-muted">@e.ResponsableId</span>
-                            }
-                            else
-                            {
-                                @e.Responsable?.NombreCompleto
-                            }
-                        </td>
-                        <td class="d-flex gap-2">
-                            <a class="btn btn-outline-primary" href="/eventos/@e.Id">Ver</a>
-                            <a class="btn btn-outline-secondary" href="/eventos/editar/@e.Id">Editar</a>
-                            <button class="btn btn-outline-danger btn-sm" @onclick="() => OnDelete(e)">Eliminar</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+<ListLayout 
+    TItem="EventoDeportivo" 
+    @ref="VistaDeListaDeEventos"
+    Titulo="Eventos Deportivos"
+    NombreDeEntidades="Eventos Deportivos"
+    NombreDeEntidad="Evento Deportivo"
+    RutaCrearNuevo="/eventos/agregar" 
+    TextoCrearNuevo="Crear Nuevo Evento"
+    CargaDeDatosDelegado="@CargarEventos"
+    EliminarDatoDelegado="@EliminarEvento"
+    ExtraerNombreDelDato="@ObtenerNombreDelEvento">
+    <CabeceraDeTabla>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Fecha y Hora</th>
+        <th>Duración (h)</th>
+        <th>Cupo Máximo</th>
+        <th>Responsable</th>
+        <th>Estado</th>
+        <th style="width: 150px;">Acciones</th> 
+    </CabeceraDeTabla>
+    <VistaMovil Context="currentEvento">
+        <EventoDeportivoTarjeta 
+            Dato="currentEvento"
+            SolicitarVisualizacion="VistaDeListaDeEventos.MostrarDetallesDeDato"
+            SolicitarEliminacion="VistaDeListaDeEventos.MostrarConfirmacionDeEliminacion"
+        />
+    </VistaMovil>
+    <FilaDeTabla Context="currentEvento">
+        <EventoDeportivoFila
+            Dato="currentEvento"
+            SolicitarVisualizacion="VistaDeListaDeEventos.MostrarDetallesDeDato"
+            SolicitarEliminacion="VistaDeListaDeEventos.MostrarConfirmacionDeEliminacion"
+        />
+    </FilaDeTabla>
+</ListLayout>
 
 @code {
-    private IEnumerable<EventoDeportivo> ListaDeEventos = null!;
-
-    private EventoDeportivo? EventoAEliminar = null!;
-
-    private ConfirmDialog ConfirmarEliminacion = null!;
-
-    private string? MensajeDeError;
-
-    private bool MostrarSnackbar = false;
-
+    private ListLayout<EventoDeportivo> VistaDeListaDeEventos = null!;
     private int UsuarioId = 0;
 
-    protected override void OnInitialized()
+    protected IEnumerable<EventoDeportivo> CargarEventos()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
-        ListaDeEventos = ObtenerEventos.Ejecutar(UsuarioId);
+        UsuarioId = customAuthenticationStateProvider.ExtractUserId();
+        return ObtenerEventos.Ejecutar(UsuarioId);
     }
 
-    private void OnDelete(EventoDeportivo evento)
+    private void EliminarEvento(EventoDeportivo EventoAEliminar)
     {
-        EventoAEliminar = evento;
-        ConfirmarEliminacion.Show();
+        if (EventoAEliminar == null) return;
+        EliminarEventoUseCase.Ejecutar(UsuarioId, EventoAEliminar.Id);
+        if (VistaDeListaDeEventos.Datos == null) return;
+        VistaDeListaDeEventos.Datos = VistaDeListaDeEventos.Datos.Where(e => e.Id != EventoAEliminar.Id);
     }
 
-    private void OnConfirmDelete()
-    {
-        if (EventoAEliminar != null)
-        {
-            try
-            {
-                EliminarEventoUseCase.Ejecutar(UsuarioId, EventoAEliminar.Id);
-                ListaDeEventos = ListaDeEventos.Where(e => e.Id != EventoAEliminar.Id);
-                EventoAEliminar = null;
-                MostrarSnackbar = true;
-            }
-            catch (Exception ex)
-            {
-                MensajeDeError = $"Error al eliminar el evento: {ex.Message}";
-            }
-        }
-    }
+    private string ObtenerNombreDelEvento(EventoDeportivo dato) => dato.Nombre;
 }

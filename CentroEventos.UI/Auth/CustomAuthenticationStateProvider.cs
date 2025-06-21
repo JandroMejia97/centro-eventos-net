@@ -92,7 +92,7 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         return tokenString;
     }
 
-    public int ExtractUserIdAsync()
+    public int ExtractUserId()
     {
         var Token = _httpContextAccessor.HttpContext!.Request.Cookies[AuthConstant.AuthCookieName];
         if (string.IsNullOrEmpty(Token))
@@ -123,7 +123,7 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         return 0;
     }
 
-    public void MarkUserAsLoggedOutAsync()
+    public void MarkUserAsLoggedOut()
     {
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal())));
         _httpContextAccessor.HttpContext!.Response.Cookies.Delete(AuthConstant.AuthCookieName);

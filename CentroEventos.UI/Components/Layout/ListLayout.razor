@@ -1,0 +1,237 @@
+@typeparam TItem
+@using CentroEventos.UI.Components.Shared
+
+<div class="container-fluid mt-4">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <PageTitle>@Titulo</PageTitle>
+            <h1>@NombreDeEntidades</h1>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(RutaCrearNuevo))
+        {
+            <div>
+                <a href="@RutaCrearNuevo" class="btn btn-primary">
+                    <span class="oi oi-plus" aria-hidden="true"></span> @TextoCrearNuevo
+                </a>
+            </div>
+        }
+    </header>
+
+    <ConfirmDialog
+        @ref="DialogoDeConfirmacion" 
+        Title="@DialogoDeConfirmacionTitulo"
+        Message="@DialogoDeConfirmacionMensaje"
+        OnConfirm="ManejarEliminacion"
+        ConfirmButtonClass="btn-outline-danger"
+    />
+    <Snackbar
+        Message="@MensajeDeExito"
+        OnClose="@EventCallback.Factory.Create(this, CerrarSnackbarDeExito)"
+        Show="@MostrarSnackbarDeExito"
+    />
+    <Snackbar
+        Message="@MensajeDeError"
+        OnClose="@EventCallback.Factory.Create(this, CerrarSnackbarDeError)"
+        Show="@MostrarSnackbarDeError"
+        CssClass="bg-danger text-white"
+    />
+
+    @if (Cargando)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando @NombreDeEntidades.ToLower()...</span>
+            </div>
+            <p>Cargando @NombreDeEntidades.ToLower()...</p>
+        </div>
+    }
+    else if (ConError)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> @MensajeDeError
+        </div>
+    }
+    else if (Datos == null || !Datos.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            No hay @NombreDeEntidades.ToLower() registrados.
+        </div>
+    }
+    else
+    {
+        @* Mobile View *@
+        <div class="d-lg-none">
+            <div class="row">
+                @foreach (var item in Datos)
+                {
+                    <div class="col-12 mb-3" @key="item">
+                        @VistaMovil(item)
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* Desktop View *@
+        <div class="d-none d-lg-block">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        @CabeceraDeTabla
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Datos)
+                    {
+                        <tr @key="item">
+                            @FilaDeTabla(item)
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Titulo { get; set; } = "Listado";
+
+    [Parameter]
+    public string NombreDeEntidades { get; set; } = "Elementos";
+
+    [Parameter]
+    public string NombreDeEntidad { get; set; } = "Elemento";
+
+    [Parameter]
+    public string? RutaCrearNuevo { get; set; }
+
+    [Parameter]
+    public string TextoCrearNuevo { get; set; } = "Crear Nuevo";
+
+    [Parameter, EditorRequired]
+    public Func<IEnumerable<TItem>> CargaDeDatosDelegado { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public Action<TItem> EliminarDatoDelegado { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public RenderFragment<TItem> VistaMovil { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public RenderFragment CabeceraDeTabla { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public RenderFragment<TItem> FilaDeTabla { get; set; } = null!;
+    
+    [Parameter]
+    public Func<TItem, string> ExtraerNombreDelDato { get; set; } = item => item?.ToString() ?? "el elemento seleccionado";
+
+    public IEnumerable<TItem>? Datos { get; set; }
+    private bool Cargando = true;
+    private bool ConError = false;
+    private bool MostrarSnackbarDeError = false;
+    private string? MensajeDeError;
+
+    private ConfirmDialog DialogoDeConfirmacion = null!;
+    private string DialogoDeConfirmacionTitulo = "";
+    private string DialogoDeConfirmacionMensaje = "";
+    private TItem? DatoABorrar;
+
+    private bool MostrarSnackbarDeExito = false;
+    private string MensajeDeExito = "";
+
+    protected override void OnInitialized()
+    {
+        CargarDatosYManejoDeEstado();
+    }
+
+    public void CargarDatosYManejoDeEstado()
+    {
+        Cargando = true;
+        ConError = false;
+        MensajeDeError = null;
+        Datos = null;
+        StateHasChanged();
+
+        try
+        {
+            var loadedItems = CargaDeDatosDelegado();
+            Datos = loadedItems;
+        }
+        catch (Exception ex)
+        {
+            ConError = true;
+            MensajeDeError = ex.Message;
+            Datos = null;
+            Console.WriteLine($"Error loading items in ListLayout: {ex}");
+        }
+        finally
+        {
+            Cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    public void MostrarConfirmacionDeEliminacion(TItem item)
+    {
+        if (DialogoDeConfirmacion != null)
+        {
+            DatoABorrar = item;
+            DialogoDeConfirmacionTitulo = $"Eliminar {NombreDeEntidad}";
+            DialogoDeConfirmacionMensaje = $"¿Estás seguro de que deseas eliminar este {NombreDeEntidad.ToLower()}: \"{ExtraerNombreDelDato(item)}\"? Esta acción no se puede deshacer.";
+            DialogoDeConfirmacion.Show();
+        }
+        else
+        {
+            Console.WriteLine("ConfirmDialog is null. Cannot show delete confirmation.");
+            MensajeDeError = "No se pudo mostrar la confirmación de eliminación. Intente de nuevo.";
+            MostrarSnackbarDeError = true;
+        }
+    }
+
+    public void MostrarDetallesDeDato(TItem item)
+    {
+        Console.WriteLine($"Showing details for {NombreDeEntidad}: {ExtraerNombreDelDato(item)}");
+    }
+
+    private void ManejarEliminacion()
+    {
+        if (DatoABorrar == null) return;
+
+
+        try
+        {
+            EliminarDatoDelegado(DatoABorrar);
+            MensajeDeExito = $"{NombreDeEntidad} '{ExtraerNombreDelDato(DatoABorrar!)}' eliminado exitosamente.";
+            MostrarSnackbarDeExito = true;
+            DatoABorrar = default;
+        }
+        catch (Exception ex)
+        {
+            // Use 'errorMessage' for the snackbar as well.
+            MensajeDeError = $"Error al eliminar {NombreDeEntidad.ToLower()} '{ExtraerNombreDelDato(DatoABorrar!)}': {ex.Message}";
+            MostrarSnackbarDeError = true;
+            Console.WriteLine($"Error deleting item in ListLayout: {ex}");
+        }
+        finally
+        {
+            // isDeleting = false;
+            DatoABorrar = default; // Ensure it's cleared even if delete failed before refresh
+            StateHasChanged();
+        }
+    }
+
+    private void CerrarSnackbarDeExito()
+    {
+        MostrarSnackbarDeExito = false;
+        MensajeDeExito = "";
+        StateHasChanged();
+    }
+
+    private void CerrarSnackbarDeError()
+    {
+        MostrarSnackbarDeError = false;
+        MensajeDeError = "";
+        StateHasChanged();
+    }
+}

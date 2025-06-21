@@ -35,7 +35,7 @@
     protected override void OnInitialized()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        UsuarioId = customAuthenticationStateProvider.ExtractUserId();
     }
 
     private async Task GuardarReserva(Reserva submittedDto)

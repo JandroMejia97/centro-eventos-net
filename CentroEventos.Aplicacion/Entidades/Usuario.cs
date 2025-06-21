@@ -8,11 +8,11 @@ public class Usuario
     public Persona Persona { get; set; } = null!;
     public string ContrasenaHash { get; set; } = string.Empty;
 
-    public IEnumerable<PermisoUsuario> PermisosUsuarios
+    public List<PermisoUsuario> PermisosUsuarios
     {
         get;
         set;
-    } = Array.Empty<PermisoUsuario>();
+    } = new();
     public IEnumerable<Permiso> Permisos { get => PermisosUsuarios.Select(pu => pu.Permiso); }
 
     public Usuario(Persona persona)
@@ -32,7 +32,7 @@ public class Usuario
     public Usuario(Persona persona, string contrasenaHash, IEnumerable<PermisoUsuario> permisos)
         : this(persona, contrasenaHash)
     {
-        PermisosUsuarios = permisos;
+        PermisosUsuarios = permisos.ToList() ?? [];
     }
 
     protected Usuario() { }

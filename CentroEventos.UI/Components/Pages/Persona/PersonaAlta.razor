@@ -36,7 +36,7 @@
     protected override void OnInitialized()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        UsuarioId = customAuthenticationStateProvider.ExtractUserId();
         PermitirCambiarPermisos = ServicioAutorizacion.Autorizar(UsuarioId, Permiso.AsignarPermisos);
     }
 

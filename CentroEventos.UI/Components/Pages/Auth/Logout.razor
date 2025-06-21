@@ -1,3 +1,4 @@
+@page "/logout"
 @using CentroEventos.UI.Auth;
 
 @using CentroEventos.Aplicacion.Servicios
@@ -11,11 +12,11 @@
     protected override void OnInitialized()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        var intUserId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        var intUserId = customAuthenticationStateProvider.ExtractUserId();
         if (intUserId != 0)
         {
             PermisosCache.Eliminar(intUserId);
-            customAuthenticationStateProvider.MarkUserAsLoggedOutAsync();
+            customAuthenticationStateProvider.MarkUserAsLoggedOut();
         }
         NavigationManager.NavigateTo("/login");
     }
