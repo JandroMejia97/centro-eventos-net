@@ -1,0 +1,74 @@
+@using CentroEventos.Aplicacion.Entidades
+
+<div class="card h-100 shadow-sm">
+    <div class="card-body d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="card-title mb-0 text-wrap">@Dato.Nombre</h5>
+            <span class="badge @ClaseEstado">@EstadoEvento</span>
+        </div>
+        <h6 class="card-subtitle mb-2 text-muted">@Dato.FechaHoraInicio.ToString("g")</h6>
+        <p class="card-text flex-grow-1">@Dato.Descripcion</p>
+        <ul class="list-unstyled mb-2">
+            <li><strong>Duración:</strong> @Dato.DuracionHoras h</li>
+            <li><strong>Cupo máximo:</strong> @Dato.CupoMaximo</li>
+            <li><strong>Responsable:</strong>
+                @if (Dato.Responsable is null)
+                {
+                    <span class="text-muted">@Dato.ResponsableId</span>
+                }
+                else
+                {
+                    @Dato.Responsable?.NombreCompleto
+                }
+            </li>
+        </ul>
+        <div class="d-flex gap-2 mt-auto">
+            <button class="btn btn-outline-primary btn-sm" @onclick="() => SolicitarVisualizacion.InvokeAsync(Dato)">Ver</button>
+            <a class="btn btn-outline-secondary btn-sm" href="/eventos/@Dato.Id">Editar</a>
+            <button class="btn btn-outline-danger btn-sm" @onclick="() => SolicitarEliminacion.InvokeAsync(Dato)">Eliminar</button>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter, EditorRequired]
+    public EventoDeportivo Dato { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public EventCallback<EventoDeportivo> SolicitarEliminacion { get; set; }
+    [Parameter, EditorRequired]
+    public EventCallback<EventoDeportivo> SolicitarVisualizacion { get; set; }
+    private string EstadoEvento = string.Empty;
+    private string ClaseEstado = string.Empty;
+    protected override void OnInitialized()
+    {
+        EstadoEvento = ObtenerEstadoEvento(Dato);
+        ClaseEstado = ObtenerClaseEstado();
+    }
+
+    private string ObtenerEstadoEvento(EventoDeportivo evento)
+    {
+        var ahora = DateTime.Now;
+        var inicio = evento.FechaHoraInicio;
+        var fin = inicio.AddHours(evento.DuracionHoras);
+        if (ahora < inicio)
+            return "Próximo";
+        if (ahora >= inicio && ahora <= fin)
+            return "En curso";
+        return "Finalizado";
+    }
+
+    private string ObtenerClaseEstado()
+    {
+        switch (EstadoEvento)
+        {
+            case "Próximo":
+                return "bg-info text-dark";
+            case "En curso":
+                return "bg-success";
+            case "Finalizado":
+                return "bg-secondary";
+            default:
+                return "bg-light";
+        }
+    }
+}

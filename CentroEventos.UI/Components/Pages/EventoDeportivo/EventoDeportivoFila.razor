@@ -1,0 +1,69 @@
+@using CentroEventos.Aplicacion.Entidades
+
+<td>@Dato.Nombre</td>
+<td>@Dato.Descripcion</td>
+<td>@Dato.FechaHoraInicio.ToString("g")</td>
+<td>@Dato.DuracionHoras</td>
+<td>@Dato.CupoMaximo</td>
+<td>
+    @if (Dato.Responsable is null)
+    {
+        <span class="text-muted">ID: @Dato.ResponsableId</span>
+    }
+    else
+    {
+        @Dato.Responsable?.NombreCompleto
+    }
+</td>
+<td>
+    <span class="badge @ClaseEstado">@EstadoEvento</span>
+</td>
+<td>
+    <button class="btn btn-outline-primary btn-sm" @onclick="() => SolicitarVisualizacion.InvokeAsync(Dato)">Ver</button>
+    <a class="btn btn-outline-secondary btn-sm" href="/eventos/@Dato.Id">Editar</a>
+    <button class="btn btn-outline-danger btn-sm" @onclick="() => SolicitarEliminacion.InvokeAsync(Dato)">Eliminar</button>
+</td>
+
+@code {
+    [Parameter, EditorRequired]
+    public EventoDeportivo Dato { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public EventCallback<EventoDeportivo> SolicitarEliminacion { get; set; }
+    [Parameter, EditorRequired]
+    public EventCallback<EventoDeportivo> SolicitarVisualizacion { get; set; }
+    private string EstadoEvento = string.Empty;
+    private string ClaseEstado = string.Empty;
+    protected override void OnInitialized()
+    {
+        EstadoEvento = ObtenerEstadoEvento(Dato);
+        ClaseEstado = ObtenerClaseEstado();
+    }
+
+    private string ObtenerEstadoEvento(EventoDeportivo evento)
+    {
+        var ahora = DateTime.Now;
+        var inicio = evento.FechaHoraInicio;
+        var fin = inicio.AddHours(evento.DuracionHoras);
+        if (ahora < inicio)
+            return "Próximo";
+        if (ahora >= inicio && ahora <= fin)
+            return "En curso";
+        return "Finalizado";
+    }
+
+    private string ObtenerClaseEstado()
+    {
+        switch (EstadoEvento)
+        {
+            case "Próximo":
+                return "bg-info text-dark";
+            case "En curso":
+                return "bg-success";
+            case "Finalizado":
+                return "bg-secondary";
+            default:
+                return "bg-light";
+        }
+    }
+}
