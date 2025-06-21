@@ -82,7 +82,7 @@
 
         try
         {
-            UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+            UsuarioId = customAuthenticationStateProvider.ExtractUserId();
             Responsables = ObtenerUsuariosUseCase.Ejecutar(UsuarioId);
             if (Responsables.Count() == 1)
                 EventoDeportivo.ResponsableId = Responsables.First().PersonaId;
