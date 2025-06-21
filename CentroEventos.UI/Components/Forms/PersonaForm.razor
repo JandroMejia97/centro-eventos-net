@@ -15,66 +15,58 @@
     }
     <ValidationSummary class="text-danger" />
 
-    @if (PersonaAEditar != null)
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <InputText id="nombre" class="form-control" @bind-Value="PersonaModel.Nombre" />
+        <ValidationMessage For="@(() => PersonaModel.Nombre)" />
+    </div>
+    <div class="mb-3">
+        <label for="apellido" class="form-label">Apellido</label>
+        <InputText id="apellido" class="form-control" @bind-Value="PersonaModel.Apellido" />
+        <ValidationMessage For="@(() => PersonaModel.Apellido)" />
+    </div>
+    <div class="mb-3">
+        <label for="dni" class="form-label">DNI</label>
+        <InputText id="dni" class="form-control" @bind-Value="PersonaModel.DNI" />
+        <ValidationMessage For="@(() => PersonaModel.DNI)" />
+    </div>
+    <div class="mb-3">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <InputText id="telefono" class="form-control" @bind-Value="PersonaModel.Telefono" />
+        <ValidationMessage For="@(() => PersonaModel.Telefono)" />
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Correo electrónico</label>
+        <InputText id="email" class="form-control" @bind-Value="PersonaModel.Email" />
+        <ValidationMessage For="@(() => PersonaModel.Email)" />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="PersonaModel.Password" />
+        <ValidationMessage For="@(() => PersonaModel.Password)" />
+    </div>
+    @if (PermitirCambiarPermisos)
     {
         <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre</label>
-            <InputText id="nombre" class="form-control" @bind-Value="PersonaModel.Nombre" />
-            <ValidationMessage For="@(() => PersonaModel.Nombre)" />
+            <label for="permisos" class="form-label">Permisos:</label>
+            <InputSelect 
+                id="permisos"
+                multiple="true"
+                class="form-select"
+                @bind-Value="PersonaModel.Permisos"
+            >
+                @foreach (var permiso in Enum.GetValues(typeof(Permiso)).Cast<Permiso>())
+                {
+                    <option value="@permiso">
+                        @permiso.ToString()
+                    </option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => PersonaModel.Permisos)" />
         </div>
-        <div class="mb-3">
-            <label for="apellido" class="form-label">Apellido</label>
-            <InputText id="apellido" class="form-control" @bind-Value="PersonaModel.Apellido" />
-            <ValidationMessage For="@(() => PersonaModel.Apellido)" />
-        </div>
-        <div class="mb-3">
-            <label for="dni" class="form-label">DNI</label>
-            <InputText id="dni" class="form-control" @bind-Value="PersonaModel.DNI" />
-            <ValidationMessage For="@(() => PersonaModel.DNI)" />
-        </div>
-        <div class="mb-3">
-            <label for="telefono" class="form-label">Teléfono</label>
-            <InputText id="telefono" class="form-control" @bind-Value="PersonaModel.Telefono" />
-            <ValidationMessage For="@(() => PersonaModel.Telefono)" />
-        </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">Correo electrónico</label>
-            <InputText id="email" class="form-control" @bind-Value="PersonaModel.Email" />
-            <ValidationMessage For="@(() => PersonaModel.Email)" />
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Contraseña</label>
-            <InputText id="password" type="password" class="form-control" @bind-Value="PersonaModel.Password" />
-            <ValidationMessage For="@(() => PersonaModel.Password)" />
-        </div>
-        @if (PermitirAgregarPermisos)
-        {
-            <div class="mb-3">
-                <label for="permisos" class="form-label">Permisos:</label>
-                <InputSelect 
-                    id="permisos"
-                    multiple="true"
-                    class="form-select"
-                    @bind-Value="PersonaModel.Permisos"
-                >
-                    @foreach (var permiso in Enum.GetValues(typeof(Permiso)).Cast<Permiso>())
-                    {
-                        <option value="@permiso">
-                            @permiso.ToString()
-                        </option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => PersonaModel.Permisos)" />
-            </div>
-        }
-
-        <button type="submit" class="btn btn-primary">@SubmitButtonText</button>
-    }
-    else
-    {
-        <p><em>Cargando datos de la persona...</em></p>
     }
 
+    <button type="submit" class="btn btn-primary">@SubmitButtonText</button>
 </EditForm>
 
 @code {
@@ -89,7 +81,7 @@
     [Parameter]
     public string SubmitButtonText { get; set; } = "Guardar Cambios";
     [Parameter]
-    public bool PermitirAgregarPermisos { get; set; } = false;
+    public bool PermitirCambiarPermisos { get; set; } = false;
     public PersonaDto PersonaModel { get; set; } = new();
     private IEnumerable<Permiso> PermisosPorDefecto = new List<Permiso> { Permiso.VerEventos, Permiso.VerReservas, Permiso.VerUsuarios };
 
