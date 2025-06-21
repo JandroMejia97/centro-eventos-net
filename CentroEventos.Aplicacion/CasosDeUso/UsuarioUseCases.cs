@@ -7,16 +7,9 @@ using CentroEventos.Aplicacion.Enums;
 
 namespace CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases
 {
-    public abstract class UsuarioUseCase
+    public abstract class UsuarioUseCase(IRepositorioUsuario repositorioUsuario, IServicioAutorizacion servicioAutorizacion) : CasoDeUsoBase(servicioAutorizacion)
     {
-        protected readonly IRepositorioUsuario repositorioUsuario;
-        protected readonly IServicioAutorizacion servicioAutorizacion;
-
-        protected UsuarioUseCase(IRepositorioUsuario repositorioUsuario, IServicioAutorizacion servicioAutorizacion)
-        {
-            this.repositorioUsuario = repositorioUsuario;
-            this.servicioAutorizacion = servicioAutorizacion;
-        }
+        protected readonly IRepositorioUsuario repositorioUsuario = repositorioUsuario;
     }
 
     public class UsuarioActualizarUseCase(
@@ -28,8 +21,8 @@ namespace CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases
     {
         public void Ejecutar(int usuarioId, Usuario usuario, string? contrasenaPlano = null)
         {
-            if (usuarioId != usuario.PersonaId || !servicioAutorizacion.Autorizar(usuarioId, Permiso.EditarUsuario))
-                throw new UnauthorizedAccessException("No se puede actualizar el usuario de otro usuario.");
+            if (usuarioId != usuario.PersonaId)
+                ValidarPermiso(usuarioId, Permiso.EditarUsuario);
             if (contrasenaPlano != null)
             {
                 usuario.ContrasenaHash = servicioHash.Hashear(contrasenaPlano);
@@ -45,18 +38,19 @@ namespace CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases
     public class UsuarioCrearUseCase(
         IRepositorioUsuario repositorioUsuario,
         IServicioAutorizacion servicioAutorizacion,
+        IRepositorioPersona repositorioPersona,
         IValidadorUsuario validadorUsuario,
         IServicioHashContrasena servicioHash
     ) : UsuarioUseCase(repositorioUsuario, servicioAutorizacion)
     {
         public void Ejecutar(Usuario usuario, string contrasenaPlano, int? usuarioId = null)
         {
-            if (usuarioId.HasValue && !servicioAutorizacion.Autorizar(usuarioId.Value, Permiso.CrearUsuario))
-                throw new UnauthorizedAccessException("El usuario no tiene permisos para crear otros usuarios.");
-            if (usuario.PersonaId != 0)
-                throw new ArgumentException("El ID de la persona no debe ser especificado al crear un usuario nuevo.");
-            if (repositorioUsuario.ObtenerPorEmail(usuario.Persona.Email) is not null)
+            if (usuarioId.HasValue)
+                ValidarPermiso(usuarioId.Value, Permiso.CrearUsuario);
+            if (repositorioPersona.ObtenerPorEmail(usuario.Persona.Email).Any())
                 throw new DuplicadoException("Ya existe un usuario con ese email.");
+            if (repositorioPersona.ObtenerPorDni(usuario.Persona.DNI).Any())
+                throw new DuplicadoException("Ya existe un usuario con ese DNI.");
             validadorUsuario.Validar(usuario);
             usuario.ContrasenaHash = servicioHash.Hashear(contrasenaPlano);
             repositorioUsuario.Agregar(usuario);
@@ -67,11 +61,8 @@ namespace CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases
     {
         public void Ejecutar(int usuarioSolicitanteId, int usuarioId)
         {
-            if (
-                usuarioId != usuarioSolicitanteId
-                && !servicioAutorizacion.Autorizar(usuarioSolicitanteId, Permiso.EliminarUsuario)
-            )
-                throw new UnauthorizedAccessException("El usuario no tiene permisos para eliminar otros usuarios.");
+            if (usuarioId != usuarioSolicitanteId)
+                ValidarPermiso(usuarioSolicitanteId, Permiso.EliminarUsuario);
             if (repositorioUsuario.ObtenerPorId(usuarioId) is null)
                 throw new EntidadNotFoundException("Usuario no encontrado.");
             repositorioUsuario.Eliminar(usuarioId);
@@ -94,11 +85,8 @@ namespace CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases
     {
         public Usuario Ejecutar(int usuarioSolicitanteId, int usuarioId)
         {
-            if (
-                usuarioId != usuarioSolicitanteId
-                && !servicioAutorizacion.Autorizar(usuarioSolicitanteId, Permiso.VerUsuarios)
-            )
-                throw new UnauthorizedAccessException("El usuario no tiene permisos para ver otros usuarios.");
+            if (usuarioId != usuarioSolicitanteId)
+                ValidarPermiso(usuarioSolicitanteId, Permiso.VerUsuarios);
             return repositorioUsuario.ObtenerPorId(usuarioId) ?? throw new EntidadNotFoundException("Usuario no encontrado.");
         }
     }
@@ -107,8 +95,7 @@ namespace CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases
     {
         public IEnumerable<Usuario> Ejecutar(int usuarioSolicitanteId)
         {
-            if (!servicioAutorizacion.Autorizar(usuarioSolicitanteId, Permiso.VerUsuarios))
-                throw new UnauthorizedAccessException("El usuario no tiene permisos para ver la lista de usuarios.");
+            ValidarPermiso(usuarioSolicitanteId, Permiso.VerUsuarios);
             return repositorioUsuario.ObtenerTodos();
         }
     }
