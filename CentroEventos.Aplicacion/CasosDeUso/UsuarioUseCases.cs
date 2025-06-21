@@ -5,7 +5,7 @@ using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Aplicacion.Enums;
 
-namespace CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases
+namespace CentroEventos.Aplicacion.CasosDeUso
 {
     public abstract class UsuarioUseCase(IRepositorioUsuario repositorioUsuario, IServicioAutorizacion servicioAutorizacion) : CasoDeUsoBase(servicioAutorizacion)
     {

@@ -2,7 +2,7 @@ using CentroEventos.Aplicacion.Entidades;
 using CentroEventos.Aplicacion.Enums;
 using CentroEventos.Aplicacion.Interfaces;
 
-namespace CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases
+namespace CentroEventos.Aplicacion.CasosDeUso
 {
     public class PermisoUsuarioAgregarUseCase
     {

@@ -4,9 +4,8 @@ using CentroEventos.Aplicacion.Validadores;
 using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Aplicacion.Enums;
-using CentroEventos.Aplicacion.CasosDeUso.UsuarioUseCases;
 
-namespace CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases
+namespace CentroEventos.Aplicacion.CasosDeUso
 {
     public abstract class ReservaUseCase(
         IRepositorioReserva repositorioReserva,

@@ -4,10 +4,8 @@ using CentroEventos.Aplicacion.Validadores;
 using CentroEventos.Aplicacion.Excepciones;
 using CentroEventos.Aplicacion.Servicios;
 using CentroEventos.Aplicacion.Enums;
-using CentroEventos.Aplicacion.CasosDeUso.PersonaUseCases;
-using CentroEventos.Aplicacion.CasosDeUso.ReservaUseCases;
 
-namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
+namespace CentroEventos.Aplicacion.CasosDeUso
 {
     public abstract class EventoDeportivoUseCase(
         IRepositorioEventoDeportivo repositorioEvento,
