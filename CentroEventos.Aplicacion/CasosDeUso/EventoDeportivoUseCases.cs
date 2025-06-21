@@ -34,7 +34,10 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
         }
     }
 
-    public class EventoDeportivoEliminarUseCase(IRepositorioEventoDeportivo repositorioEvento, IServicioAutorizacion servicioAutorizacion) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
+    public class EventoDeportivoEliminarUseCase(
+        IRepositorioEventoDeportivo repositorioEvento,
+        IServicioAutorizacion servicioAutorizacion
+    ) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
     {
         public void Ejecutar(int eventoId, int usuarioId)
         {
@@ -45,7 +48,10 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
         }
     }
 
-    public class EventoDeportivoObtenerPorIdUseCase(IRepositorioEventoDeportivo repositorioEvento, IServicioAutorizacion servicioAutorizacion) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
+    public class EventoDeportivoObtenerPorIdUseCase(
+        IRepositorioEventoDeportivo repositorioEvento,
+        IServicioAutorizacion servicioAutorizacion
+    ) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
     {
         public EventoDeportivo Ejecutar(int usuarioId, int id)
         {
@@ -54,7 +60,10 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
         }
     }
 
-    public class EventoDeportivoObtenerTodosUseCase(IRepositorioEventoDeportivo repositorioEvento, IServicioAutorizacion servicioAutorizacion) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
+    public class EventoDeportivoObtenerTodosUseCase(
+        IRepositorioEventoDeportivo repositorioEvento,
+        IServicioAutorizacion servicioAutorizacion
+    ) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
     {
         public IEnumerable<EventoDeportivo> Ejecutar(int usuarioId)
         {
@@ -63,14 +72,22 @@ namespace CentroEventos.Aplicacion.CasosDeUso.EventoDeportivos
         }
     }
 
-    public class EventoDeportivoActualizarUseCase(IRepositorioEventoDeportivo repositorioEvento, IServicioAutorizacion servicioAutorizacion, IValidadorEventoDeportivo validadorEvento) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
+    public class EventoDeportivoActualizarUseCase(
+        IRepositorioEventoDeportivo repositorioEvento,
+        IServicioAutorizacion servicioAutorizacion,
+        IValidadorEventoDeportivo validadorEvento,
+        PersonaObtenerPorIdUseCase personaObtenerPorId
+    ) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
     {
         public void Ejecutar(int usuarioId, EventoDeportivo evento)
         {
             ValidarPermiso(usuarioId, Permiso.EditarEvento);
             validadorEvento.Validar(evento);
-            if (_repositorioEvento.ObtenerPorId(evento.Id) is null)
-                throw new EntidadNotFoundException("Evento no encontrado.");
+            EventoDeportivo existente = _repositorioEvento.ObtenerPorId(evento.Id) ?? throw new EntidadNotFoundException("Evento no encontrado.");
+            if (existente.FechaHoraInicio != evento.FechaHoraInicio && existente.FechaHoraInicio <= DateTime.Now)
+                throw new OperacionInvalidaException("No se puede modificar la fecha de un evento pasado.");
+            if (existente.ResponsableId != evento.ResponsableId && personaObtenerPorId.Ejecutar(usuarioId, evento.ResponsableId) is null)
+                throw new EntidadNotFoundException("Responsable del evento no encontrado.");
             if (_repositorioEvento.ObtenerTodos().Any(e => e.Nombre == evento.Nombre && e.FechaHoraInicio == evento.FechaHoraInicio && e.Id != evento.Id))
                 throw new DuplicadoException("Ya existe un evento deportivo con ese nombre y fecha.");
             _repositorioEvento.Modificar(evento);
