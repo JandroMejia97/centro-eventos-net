@@ -1,0 +1,27 @@
+@using CentroEventos.Aplicacion.Entidades
+
+<div class="card h-100 shadow-sm">
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-1">@Dato.NombreCompleto</h5>
+        <h6 class="card-subtitle mb-2 text-muted">DNI: @Dato.DNI</h6>
+        <p class="card-text flex-grow-1">Email: @Dato.Email</p>
+        <ul class="list-unstyled mb-2">
+            <li><strong>Teléfono:</strong> @Dato.Telefono</li>
+        </ul>
+        <div class="d-flex gap-2 mt-auto">
+            <button class="btn btn-outline-primary btn-sm" @onclick="() => SolicitarVisualizacion.InvokeAsync(Dato)">Ver</button>
+            <a class="btn btn-outline-secondary btn-sm" href="/personas/@Dato.Id">Editar</a>
+            <button class="btn btn-outline-danger btn-sm" @onclick="() => SolicitarEliminacion.InvokeAsync(Dato)">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Persona Dato { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public EventCallback<Persona> SolicitarEliminacion { get; set; }
+    [Parameter, EditorRequired]
+    public EventCallback<Persona> SolicitarVisualizacion { get; set; }
+}
