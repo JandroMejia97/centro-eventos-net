@@ -33,10 +33,10 @@
     private int UsuarioId { get; set; } = 0;
     private bool PermitirCambiarPermisos = false;
     private string MensajeDeExito = string.Empty;
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        UsuarioId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
         PermitirCambiarPermisos = ServicioAutorizacion.Autorizar(UsuarioId, Permiso.AsignarPermisos);
     }
 

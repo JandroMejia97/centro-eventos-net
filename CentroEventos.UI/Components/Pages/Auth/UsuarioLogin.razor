@@ -25,8 +25,8 @@
         <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
         <ValidationMessage For="@(() => loginModel.Password)" />
     </div>
-    <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
-        @if (isLoading)
+    <button type="submit" class="btn btn-primary w-100" disabled="@Cargando">
+        @if (Cargando)
         {
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             <span class="sr-only">Cargando...</span>
@@ -54,12 +54,12 @@
     private LoginModel loginModel = new();
     private string? error;
     private bool showSnackbar = false;
-    private bool isLoading = false;
+    private bool Cargando = false;
 
-    private async Task OnLogin()
+    private void OnLogin()
     {
         error = null;
-        isLoading = true;
+        Cargando = true;
         try
         {
             var usuario = LoginUseCase.Ejecutar(loginModel.Email, loginModel.Password);
@@ -68,7 +68,7 @@
                 showSnackbar = true;
                 var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
                 Persona persona = usuario.Persona;
-                var token = await customAuthenticationStateProvider.MarkUserAsAuthenticated(persona.Id, persona.Email, persona, usuario.Permisos);
+                var token = customAuthenticationStateProvider.MarkUserAsAuthenticated(persona.Id, persona.Email, persona, usuario.Permisos);
                 PermisosCache.Agregar(persona.Id, usuario.Permisos);
                 string path = $"/postlogin?Token={token}";
                 Navigation.NavigateTo(path);
@@ -84,7 +84,7 @@
         }
         finally
         {
-            isLoading = false;
+            Cargando = false;
         }
     }
 

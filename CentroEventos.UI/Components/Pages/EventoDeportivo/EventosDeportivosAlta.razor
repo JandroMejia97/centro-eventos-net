@@ -22,10 +22,10 @@
     private string? Mensaje { get; set; } = null;
     private int userId = 0;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        userId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+        userId = customAuthenticationStateProvider.ExtractUserIdAsync();
     }
 
     private async Task Guardar(EventoDeportivo evento)

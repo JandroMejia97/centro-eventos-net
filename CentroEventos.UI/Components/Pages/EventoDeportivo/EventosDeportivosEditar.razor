@@ -53,7 +53,7 @@ else
     private string Titulo { get; set; } = "Editar Evento Deportivo";
     private int UserId = 0;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         isLoading = true;
         loadError = false;
@@ -62,7 +62,7 @@ else
         try
         {
             var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-            UserId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+            UserId = customAuthenticationStateProvider.ExtractUserIdAsync();
             var evento = ObtenerEventoUseCase.Ejecutar(UserId, Id);
             if (evento != null)
             {

@@ -141,10 +141,10 @@ else
 
     private int UsuarioId = 0;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        UsuarioId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
         ListaDeEventos = ObtenerEventos.Ejecutar(UsuarioId);
     }
 

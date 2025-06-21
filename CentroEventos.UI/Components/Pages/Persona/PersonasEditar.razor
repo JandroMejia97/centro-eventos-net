@@ -65,14 +65,14 @@ else
     private int UsuarioId = 0;
     private bool PermitirCambiarPermisos = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Cargando = true;
         ErrorDeCarga = false;
         MensajeDeExito = null;
         MensajeDeError = null;
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-        UsuarioId = await customAuthenticationStateProvider.ExtractUserIdAsync();
+        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
         PermitirCambiarPermisos = ServicioAutorizacion.Autorizar(UsuarioId, Permiso.AsignarPermisos);
         try
         {
@@ -126,14 +126,13 @@ else
                 .Where(p => PermisosAGuardar.Contains(p) == false)
                 .ToList();
             var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
-            var intUserId = await customAuthenticationStateProvider.ExtractUserIdAsync();
-            var isCurrentUser = intUserId != 0 && intUserId == UsuarioAEditar!.PersonaId;
+            var isCurrentUser = UsuarioId != 0 && UsuarioId == UsuarioAEditar!.PersonaId;
             if (PermisosNuevos.Any())
             {
                 PermisoUsuarioAgregarUseCase.Ejecutar(UsuarioAEditar!.PersonaId, PermisosNuevos);
                 if (isCurrentUser)
                 {
-                    PermisosCache.Agregar(intUserId, PermisosNuevos);
+                    PermisosCache.Agregar(UsuarioId, PermisosNuevos);
                 }
             }
             if (PermisosEliminados.Any())
@@ -141,7 +140,7 @@ else
                 PermisoUsuarioEliminarUseCase.Ejecutar(UsuarioAEditar!.PersonaId, PermisosEliminados);
                 if (isCurrentUser)
                 {
-                    PermisosCache.Eliminar(intUserId, PermisosEliminados);
+                    PermisosCache.Eliminar(UsuarioId, PermisosEliminados);
                 }
             }
 
