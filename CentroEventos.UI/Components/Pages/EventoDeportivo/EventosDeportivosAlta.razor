@@ -1,12 +1,12 @@
 @page "/eventos/agregar"
-@layout MainLayout
-
 @rendermode InteractiveServer
+@layout MainLayout
 
 @using CentroEventos.UI.Components.Forms
 
 @inject EventoDeportivoCrearUseCase CrearUseCase
 @inject PersonaObtenerTodosUseCase ObtenerPersonasUseCase
+@inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Navigation
 
 <h4 class="text-center my-4">Alta de Evento Deportivo</h4>
@@ -20,15 +20,22 @@
 @code {
     private string? Error { get; set; } = null;
     private string? Mensaje { get; set; } = null;
+    private int userId = 0;
+
+    protected override void OnInitialized()
+    {
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        userId = customAuthenticationStateProvider.ExtractUserIdAsync();
+    }
 
     private async Task Guardar(EventoDeportivo evento)
     {
         try
         {
-            CrearUseCase.Ejecutar(evento);
+            CrearUseCase.Ejecutar(userId, evento);
             Mensaje = "Evento guardado correctamente.";
             Error = null;
-            await Task.Delay(1000);
+            await Task.Delay(1_000);
             await Task.Run(() => Navigation.NavigateTo("/eventos"));
         }
         catch (Exception ex)

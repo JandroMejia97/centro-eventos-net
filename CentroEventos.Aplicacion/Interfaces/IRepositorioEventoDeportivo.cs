@@ -9,4 +9,5 @@ public interface IRepositorioEventoDeportivo
     void Eliminar(int id);
     EventoDeportivo? ObtenerPorId(int id);
     IEnumerable<EventoDeportivo> ObtenerTodos();
+    IEnumerable<EventoDeportivo> ObtenerPorFechaYDuracion(DateTime fechaHoraInicio, double duracionHoras);
 }

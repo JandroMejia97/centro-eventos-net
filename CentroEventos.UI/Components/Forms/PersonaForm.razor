@@ -1,0 +1,152 @@
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using CentroEventos.Aplicacion.Enums
+
+<EditForm Model="PersonaAEditar" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    @if (!string.IsNullOrEmpty(SuccessMessage))
+    {
+        <div class="alert alert-success" role="alert">@SuccessMessage</div>
+    }
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">@ErrorMessage</div>
+    }
+    <ValidationSummary class="text-danger" />
+
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <InputText id="nombre" class="form-control" @bind-Value="PersonaModel.Nombre" />
+        <ValidationMessage For="@(() => PersonaModel.Nombre)" />
+    </div>
+    <div class="mb-3">
+        <label for="apellido" class="form-label">Apellido</label>
+        <InputText id="apellido" class="form-control" @bind-Value="PersonaModel.Apellido" />
+        <ValidationMessage For="@(() => PersonaModel.Apellido)" />
+    </div>
+    <div class="mb-3">
+        <label for="dni" class="form-label">DNI</label>
+        <InputText id="dni" class="form-control" @bind-Value="PersonaModel.DNI" />
+        <ValidationMessage For="@(() => PersonaModel.DNI)" />
+    </div>
+    <div class="mb-3">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <InputText id="telefono" class="form-control" @bind-Value="PersonaModel.Telefono" />
+        <ValidationMessage For="@(() => PersonaModel.Telefono)" />
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Correo electrónico</label>
+        <InputText id="email" class="form-control" @bind-Value="PersonaModel.Email" />
+        <ValidationMessage For="@(() => PersonaModel.Email)" />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="PersonaModel.Password" />
+        <ValidationMessage For="@(() => PersonaModel.Password)" />
+    </div>
+    @if (PermitirCambiarPermisos)
+    {
+        <div class="mb-3">
+            <label for="permisos" class="form-label">Permisos:</label>
+            <InputSelect 
+                id="permisos"
+                multiple="true"
+                class="form-select"
+                @bind-Value="PersonaModel.Permisos"
+            >
+                @foreach (var permiso in Enum.GetValues(typeof(Permiso)).Cast<Permiso>())
+                {
+                    <option value="@permiso">
+                        @permiso.ToString()
+                    </option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => PersonaModel.Permisos)" />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">@SubmitButtonText</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Usuario? PersonaAEditar { get; set; }
+    [Parameter]
+    public EventCallback<Usuario> OnSubmitCallback { get; set; }
+    [Parameter]
+    public string? SuccessMessage { get; set; }
+    [Parameter]
+    public string? ErrorMessage { get; set; }
+    [Parameter]
+    public string SubmitButtonText { get; set; } = "Guardar Cambios";
+    [Parameter]
+    public bool PermitirCambiarPermisos { get; set; } = false;
+    public PersonaDto PersonaModel { get; set; } = new();
+    private IEnumerable<Permiso> PermisosPorDefecto = new List<Permiso> { Permiso.VerEventos, Permiso.VerReservas, Permiso.VerUsuarios };
+
+    private async Task HandleValidSubmit()
+    {
+        Persona PersonaAGuardar = new Persona(
+            PersonaModel.DNI,
+            PersonaModel.Nombre,
+            PersonaModel.Apellido,
+            PersonaModel.Email,
+            PersonaModel.Telefono
+        );
+        Usuario usuario = new Usuario(PersonaAGuardar, PersonaModel.Password);
+        await OnSubmitCallback.InvokeAsync(usuario);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (PersonaAEditar != null)
+        {
+            PersonaModel = new PersonaDto
+            {
+                Nombre = PersonaAEditar.Persona.Nombre,
+                Apellido = PersonaAEditar.Persona.Apellido,
+                DNI = PersonaAEditar.Persona.DNI,
+                Email = PersonaAEditar.Persona.Email,
+                Telefono = PersonaAEditar.Persona.Telefono,
+                Password = string.Empty,
+                Permisos = PersonaAEditar.Permisos ?? new List<Permiso>()
+            };
+        }
+        else
+        {
+            PersonaModel = new PersonaDto();
+            PersonaModel.Permisos = PermisosPorDefecto;
+        }
+    }
+
+    public class PersonaDto
+    {
+        [Required(ErrorMessage = "El nombre es obligatorio.")]
+        [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
+        public string Nombre { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El apellido es obligatorio.")]
+        [StringLength(100, ErrorMessage = "El apellido no puede exceder los 100 caracteres.")]
+        public string Apellido { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El DNI es obligatorio.")]
+        [StringLength(9, ErrorMessage = "El DNI no puede exceder los 9 caracteres.")]
+        [RegularExpression(@"^\d{9}$", ErrorMessage = "El formato del DNI no es válido.")]
+        public string DNI { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
+        [EmailAddress(ErrorMessage = "El correo electrónico no es válido.")]
+        public string Email { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El teléfono es obligatorio.")]
+        [Phone(ErrorMessage = "El formato del teléfono no es válido.")]
+        [StringLength(20, ErrorMessage = "El teléfono no puede exceder los 20 caracteres.")]
+        [RegularExpression(@"^\+?[0-9\s]+$", ErrorMessage = "El teléfono solo puede contener números y espacios.")]
+        public string Telefono { get; set; } = string.Empty;
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
+        [StringLength(100, ErrorMessage = "La contraseña no puede exceder los 100 caracteres.")]
+        public string Password { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Los permisos son obligatorios.")]
+        [EnumDataType(typeof(Permiso), ErrorMessage = "Los permisos deben ser válidos.")]
+        [MinLength(1, ErrorMessage = "Debe seleccionar al menos un permiso.")]
+        public IEnumerable<Permiso> Permisos { get; set; } = new List<Permiso>();
+    }
+}

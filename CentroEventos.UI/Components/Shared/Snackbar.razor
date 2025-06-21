@@ -4,21 +4,21 @@
     [Parameter] public int Duration { get; set; } = 3000;
     [Parameter] public bool Show { get; set; }
     [Parameter] public string? CssClass { get; set; } = "bg-success text-white";
-    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback? OnClose { get; set; } = null;
 
     override protected async Task OnInitializedAsync()
     {
         if (Duration > 0)
         {
             await Task.Delay(Duration);
-            await Close();
+            Close();
         }
     }
 
-    private async Task Close()
+    private void Close()
     {
         Show = false;
-        await OnClose.InvokeAsync();
+        OnClose?.InvokeAsync();
         StateHasChanged();
     }
 }

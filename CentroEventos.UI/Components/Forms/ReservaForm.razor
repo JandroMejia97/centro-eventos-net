@@ -1,0 +1,231 @@
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject EventoDeportivoObtenerTodosUseCase ObtenerEventosUseCase
+@inject PersonaObtenerTodosUseCase ObtenerPersonasUseCase
+
+@if (CargandoLista) {
+    <p><em>Cargando datos necesarios para el formulario (eventos, personas)...</em></p>
+} else if (!string.IsNullOrEmpty(MensajeDeError)) {
+    <div class="alert alert-danger">@MensajeDeError</div>
+} else {
+
+    <EditForm Model="ReservaModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        @if (!string.IsNullOrEmpty(MensajeDeExito))
+        {
+            <div class="alert alert-success">@MensajeDeExito</div>
+        }
+        @if (!string.IsNullOrEmpty(MensajeDeError))
+        {
+            <div class="alert alert-danger">@MensajeDeError</div>
+        }
+        @if (!EsValido)
+        {
+            <ValidationSummary class="alert alert-danger" />
+        }
+
+        <div class="mb-3">
+            <label for="evento" class="form-label">Evento Deportivo:</label>
+            <InputSelect 
+                id="evento"
+                class="form-select"
+                @bind-Value="ReservaModel.EventoDeportivoId"
+                disabled="@(ReservaAEditar != null || EventosDeportivos == null || !EventosDeportivos.Any())"
+            >
+                <option value="0">-- Seleccione un Evento --</option>
+                @if (EventosDeportivos != null)
+                {
+                    @foreach (var evento in EventosDeportivos)
+                    {
+                        <option value="@evento.Id">@evento.Nombre</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => ReservaModel.EventoDeportivoId)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="persona" class="form-label">Persona:</label>
+            <InputSelect 
+                id="persona"
+                class="form-select"
+                @bind-Value="ReservaModel.PersonaId"
+                disabled="@(ReservaAEditar != null || Personas == null || !Personas.Any())"
+            >
+                <option value="0">-- Seleccione una Persona --</option>
+                @if (Personas != null)
+                {
+                    @foreach (var persona in Personas)
+                    {
+                        <option value="@persona.Id">@persona.NombreCompleto</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => ReservaModel.PersonaId)" />
+        </div>
+
+        @if (ReservaAEditar != null)
+        {
+            <div class="mb-3">
+                <label for="estadoAsistencia" class="form-label">Estado de Asistencia:</label>
+                <InputSelect 
+                    id="estadoAsistencia"
+                    class="form-select"
+                    @bind-Value="ReservaModel.EstadoAsistencia"
+                >
+                    @foreach (var estado in Enum.GetValues(typeof(EstadoAsistencia)).Cast<EstadoAsistencia>())
+                    {
+                        <option 
+                            value="@estado" 
+                            disabled="@estado == @EstadoAsistencia.Pendiente"
+                        >
+                            @estado.ToString()
+                        </option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => ReservaModel.EstadoAsistencia)" />
+            </div>
+            <div class="mb-3">
+                <label for="fechaReserva" class="form-label">Fecha de Reserva:</label>
+                <InputDate 
+                    id="fechaReserva"
+                    class="form-control"
+                    disabled="true"
+                    @bind-Value="ReservaModel.FechaReserva"
+                    Min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                />
+                <ValidationMessage For="@(() => ReservaModel.FechaReserva)" />
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary" disabled="@IsSubmitDisabled()">
+            @if (GuardandoCambios)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="sr-only">
+                    Guardando cambios...
+                </span>
+            }
+            else
+            {
+                @SubmitButtonText
+            }
+        </button>
+        <a class="btn btn-secondary" href="/eventos/@EventoId" role="button">
+            Cancelar
+        </a>
+
+    </EditForm>
+}
+
+@code {
+    [CascadingParameter]
+    public int EventoId { get; set; }
+    [Parameter]
+    public Reserva? ReservaAEditar { get; set; }
+    [Parameter]
+    public EventCallback<Reserva> GuardarCambios { get; set; } 
+    [Parameter]
+    public string? MensajeDeExito { get; set; }
+    [Parameter]
+    public string? MensajeDeError { get; set; }
+    [Parameter]
+    public string SubmitButtonText { get; set; } = "Guardar";
+    [Parameter, RequiredAttribute]
+    public int UsuarioId { get; set; }
+    [Parameter]
+    public bool GuardandoCambios { get; set; } = false;
+    private ReservaDto ReservaModel { get; set; } = new();
+    private bool EsValido = true;
+    private bool CargandoLista = true;
+    public IEnumerable<EventoDeportivo> EventosDeportivos { get; set; } = Enumerable.Empty<EventoDeportivo>();
+    public IEnumerable<Persona> Personas { get; set; } = Enumerable.Empty<Persona>();
+
+    protected override void OnInitialized()
+    {
+        EventosDeportivos = ObtenerEventosUseCase.Ejecutar(UsuarioId);
+        Personas = ObtenerPersonasUseCase.Ejecutar(UsuarioId);
+        if (EventosDeportivos == null || !EventosDeportivos.Any())
+        {
+            MensajeDeError = "No hay eventos deportivos disponibles.";
+            EsValido = false;
+        }
+        if (Personas == null || !Personas.Any())
+        {
+            MensajeDeError = "No hay personas disponibles.";
+            EsValido = false;
+        }
+        if (EventosDeportivos != null && EventosDeportivos.Count() == 1)
+        {
+            ReservaModel.EventoDeportivoId = EventosDeportivos.First().Id;
+        }
+        if (Personas != null && Personas.Count() == 1)
+        {
+            ReservaModel.PersonaId = Personas.First().Id;
+        }
+        if (ReservaAEditar == null)
+        {
+            ReservaModel = new ReservaDto(ReservaAEditar);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        EsValido = true;
+        if (ReservaModel.EventoDeportivoId == 0 || ReservaModel.PersonaId == 0)
+        {
+            EsValido = false;
+            MensajeDeError = "Por favor, seleccione un evento y una persona.";
+            return;
+        }
+        Reserva ReservaAGuardar = new Reserva
+        {
+            PersonaId = ReservaModel.PersonaId,
+            EventoDeportivoId = ReservaModel.EventoDeportivoId,
+            FechaAltaReserva = ReservaModel.FechaReserva,
+            EstadoAsistencia = ReservaModel.EstadoAsistencia
+        };
+        await GuardarCambios.InvokeAsync(ReservaAGuardar);
+    }
+
+    private bool IsSubmitDisabled()
+    {
+        return (EventosDeportivos == null || !EventosDeportivos.Any()) ||
+               (Personas == null || !Personas.Any());
+    }
+
+    public class ReservaDto
+    {
+        [Required(ErrorMessage = "Debe seleccionar una persona.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una persona válida.")]
+        public int PersonaId { get; set; }
+
+        [Required(ErrorMessage = "Debe seleccionar un evento deportivo.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un evento deportivo válido.")]
+        public int EventoDeportivoId { get; set; }
+
+        [Required(ErrorMessage = "La fecha de reserva es obligatoria.")]
+        [DataType(DataType.DateTime, ErrorMessage = "La fecha de reserva debe ser una fecha y hora válida.")]
+        public DateTime FechaReserva { get; set; } = DateTime.Now;
+
+        [Required(ErrorMessage = "El estado de asistencia es obligatorio.")]
+        [EnumDataType(typeof(EstadoAsistencia), ErrorMessage = "El estado de asistencia debe ser válido.")]
+        [Display(Name = "Estado de Asistencia")]
+        public EstadoAsistencia EstadoAsistencia { get; set; } = EstadoAsistencia.Pendiente;
+
+        public ReservaDto() {}
+
+        public ReservaDto(Reserva? reserva)
+        {
+            if (reserva != null)
+            {
+                PersonaId = reserva.PersonaId;
+                EventoDeportivoId = reserva.EventoDeportivoId;
+                FechaReserva = reserva.FechaAltaReserva;
+                EstadoAsistencia = reserva.EstadoAsistencia;
+            }
+        }
+    }
+}

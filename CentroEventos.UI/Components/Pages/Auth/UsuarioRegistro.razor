@@ -1,0 +1,50 @@
+@page "/registro"
+@layout AuthLayout
+
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Components.Forms
+@using CentroEventos.UI.Components.Shared
+@inject UsuarioCrearUseCase CrearUsuarioUC
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthProvider
+
+<h4 class="text-center mb-4">Registro de usuario</h4>
+<PersonaForm
+    OnSubmitCallback="OnRegister"
+    ErrorMessage="@MensajeDeError"
+/>
+<div class="text-center mt-3">
+    <a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
+</div>
+@if (!string.IsNullOrEmpty(MensajeDeError))
+{
+    <div class="alert alert-danger mt-3">@MensajeDeError</div>
+}
+<Snackbar
+    Show="@MostrarSnackbar"
+    SubmitButtonText="Registrarme"
+    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
+    Message="¡Registro exitoso! Ahora puedes iniciar sesión."
+/>
+
+@code {
+    private string? MensajeDeError;
+    private bool MostrarSnackbar = false;
+
+    private async Task OnRegister(Usuario usuario)
+    {
+        MensajeDeError = null;
+        try
+        {
+            CrearUsuarioUC.Ejecutar(usuario, usuario.ContrasenaHash);
+            MostrarSnackbar = true;
+            await Task.Delay(1_000);
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = ex.Message;
+        }
+    }
+}

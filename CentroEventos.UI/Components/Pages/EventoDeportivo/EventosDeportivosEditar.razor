@@ -1,0 +1,105 @@
+@page "/eventos/{Id:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+
+@using CentroEventos.UI.Components.Forms
+
+@inject EventoDeportivoObtenerPorIdUseCase ObtenerEventoUseCase
+@inject EventoDeportivoActualizarUseCase ActualizarEventoUseCase
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Navigation
+
+<PageTitle>
+    @Titulo
+</PageTitle>
+
+<h3>
+    @Titulo
+</h3>
+
+@if (isLoading)
+{
+    <p><em>Cargando datos del evento...</em></p>
+}
+else if (loadError)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+    <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
+}
+else if (Evento == null) 
+{
+    <p><em>No se encontró el evento o no se pudo cargar el formulario.</em></p>
+     <p><a href="/eventos" class="btn btn-link">Volver a la lista</a></p>
+}
+else
+{
+    <EventoDeportivoForm
+        EventoAEditar="Evento"
+        OnSubmitCallback="Guardar"
+        SuccessMessage="@successMessage"
+        ErrorMessage="@errorMessage"
+        SubmitButtonText="Guardar Cambios"
+    />
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private EventoDeportivo? Evento { get; set; } = null;
+    private bool isLoading = true;
+    private bool loadError = false;
+    private string? successMessage;
+    private string? errorMessage;
+    private string Titulo { get; set; } = "Editar Evento Deportivo";
+    private int UserId = 0;
+
+    protected override void OnInitialized()
+    {
+        isLoading = true;
+        loadError = false;
+        successMessage = null;
+        errorMessage = null;
+        try
+        {
+            var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+            UserId = customAuthenticationStateProvider.ExtractUserIdAsync();
+            var evento = ObtenerEventoUseCase.Ejecutar(UserId, Id);
+            if (evento != null)
+            {
+                Evento = evento;
+                Titulo = $"Editar Evento Deportivo: {evento.Nombre}";
+            }
+            else
+            {
+                loadError = true;
+                errorMessage = $"Evento con ID {Id} no encontrado.";
+            }
+        }
+        catch (Exception ex)
+        {
+            loadError = true;
+            errorMessage = $"Error al cargar el evento: {ex.Message}";
+            Console.WriteLine(errorMessage);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    private async Task Guardar(EventoDeportivo EventoAGuardar)
+    {
+        try
+        {
+            ActualizarEventoUseCase.Ejecutar(UserId, EventoAGuardar);
+            successMessage = "Evento guardado correctamente.";
+            errorMessage = null;
+            await Task.Delay(1000);
+            Navigation.NavigateTo("/eventos");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            successMessage = null;
+        }
+    }
+}

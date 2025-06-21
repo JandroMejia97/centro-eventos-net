@@ -6,9 +6,9 @@ namespace CentroEventos.Repositorios.Repositorios;
 
 public class RepositorioPersona : IRepositorioPersona
 {
-    private readonly IFuenteDeDatos<Persona> _fuenteDeDatos;
+    private readonly IFuenteDeDatosPersona _fuenteDeDatos;
 
-    public RepositorioPersona(IFuenteDeDatos<Persona> fuenteDeDatos)
+    public RepositorioPersona(IFuenteDeDatosPersona fuenteDeDatos)
     {
         _fuenteDeDatos = fuenteDeDatos;
     }
@@ -50,5 +50,15 @@ public class RepositorioPersona : IRepositorioPersona
     public IEnumerable<Persona> ObtenerTodos()
     {
         return _fuenteDeDatos.ObtenerTodos();
+    }
+
+    public IEnumerable<Persona> ObtenerPorEmail(string email)
+    {
+        return _fuenteDeDatos.ObtenerPorEmail(email);
+    }
+
+    public IEnumerable<Persona> ObtenerPorDni(string dni)
+    {
+        return _fuenteDeDatos.ObtenerPorDni(dni);
     }
 }

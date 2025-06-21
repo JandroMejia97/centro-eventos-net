@@ -9,4 +9,6 @@ public interface IRepositorioPersona
     void Eliminar(int id);
     Persona? ObtenerPorId(int id);
     IEnumerable<Persona> ObtenerTodos();
+    IEnumerable<Persona> ObtenerPorEmail(string email);
+    IEnumerable<Persona> ObtenerPorDni(string dni);
 }

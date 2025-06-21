@@ -1,0 +1,162 @@
+@page "/personas/{Id:int}"
+@layout MainLayout
+@rendermode InteractiveServer
+
+@using CentroEventos.Aplicacion.Enums
+@using CentroEventos.Aplicacion.Servicios
+@using CentroEventos.UI.Components.Forms
+
+@inject UsuarioObtenerPorIdUseCase UsuarioObtenerPorIdUseCase
+@inject UsuarioActualizarUseCase UsuarioActualizarUseCase
+@inject PersonaActualizarUseCase PersonaActualizarUseCase
+@inject PermisoUsuarioAgregarUseCase PermisoUsuarioAgregarUseCase
+@inject PermisoUsuarioEliminarUseCase PermisoUsuarioEliminarUseCase
+@inject IServicioAutorizacion ServicioAutorizacion
+@inject IServicioCacheDePermisos PermisosCache
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>
+    @Titulo
+</PageTitle>
+
+<h3>
+    @Titulo
+</h3>
+
+@if (Cargando)
+{
+    <p><em>Cargando datos de la persona...</em></p>
+}
+else if (ErrorDeCarga)
+{
+    <div class="alert alert-danger">@MensajeDeError</div>
+    <p><a href="/personas" class="btn btn-link">Volver a la lista</a></p>
+}
+else if (UsuarioAEditar == null) // Should be covered by isLoading or loadError initially
+{
+    <p><em>No se encontró la persona o no se pudo cargar el formulario.</em></p>
+     <p><a href="/personas" class="btn btn-link">Volver a la lista</a></p>
+}
+else
+{
+    <PersonaForm 
+        PersonaAEditar="UsuarioAEditar"
+        OnSubmitCallback="GuardarCambios"
+        SuccessMessage="@MensajeDeExito"
+        ErrorMessage="@MensajeDeError"
+        SubmitButtonText="Guardar Cambios"
+        PermitirCambiarPermisos="@PermitirCambiarPermisos"
+    />
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Usuario? UsuarioAEditar { get; set; } = null;
+
+    private bool Cargando = true;
+    private bool ErrorDeCarga = false;
+    private string? MensajeDeExito;
+    private string? MensajeDeError;
+    private bool Guardando = false;
+    private string Titulo = "Editar Persona";
+    private int UsuarioId = 0;
+    private bool PermitirCambiarPermisos = false;
+
+    protected override void OnInitialized()
+    {
+        Cargando = true;
+        ErrorDeCarga = false;
+        MensajeDeExito = null;
+        MensajeDeError = null;
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        PermitirCambiarPermisos = ServicioAutorizacion.Autorizar(UsuarioId, Permiso.AsignarPermisos);
+        try
+        {
+            var usuario = UsuarioObtenerPorIdUseCase.Ejecutar(UsuarioId, Id);
+            if (usuario != null)
+            {
+                UsuarioAEditar = usuario;
+                Titulo = $"Editar Persona: {usuario.Persona.NombreCompleto}";
+            }
+            else
+            {
+                ErrorDeCarga = true;
+                MensajeDeError = $"Persona con ID {Id} no encontrada.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorDeCarga = true;
+            MensajeDeError = $"Error al cargar la persona: {ex.Message}";
+            Console.WriteLine($"Error en OnParametersSetAsync: {ex}");
+        }
+        finally
+        {
+            Cargando = false;
+        }
+    }
+
+    private async Task GuardarCambios(Usuario UsuarioAGuardar)
+    {
+        if (Guardando || UsuarioAGuardar == null) return;
+
+        Guardando = true;
+        MensajeDeExito = null;
+        MensajeDeError = null;
+
+        try
+        {
+            Persona PersonaAGuardar = UsuarioAGuardar.Persona;
+
+            PersonaActualizarUseCase.Ejecutar(UsuarioId, PersonaAGuardar);
+            if (string.IsNullOrEmpty(UsuarioAGuardar.ContrasenaHash) == false)
+            {
+                UsuarioActualizarUseCase.Ejecutar(UsuarioId, UsuarioAGuardar, UsuarioAGuardar.ContrasenaHash);
+            }
+            IEnumerable<Permiso> PermisosActuales = UsuarioAEditar?.Permisos ?? Enumerable.Empty<Permiso>();
+            IEnumerable<Permiso> PermisosAGuardar = UsuarioAGuardar.Permisos ?? Enumerable.Empty<Permiso>();
+            IEnumerable<Permiso> PermisosNuevos = PermisosAGuardar
+                .Where(p => PermisosActuales.Contains(p) == false)
+                .ToList();
+            IEnumerable<Permiso> PermisosEliminados = PermisosActuales
+                .Where(p => PermisosAGuardar.Contains(p) == false)
+                .ToList();
+            var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+            var isCurrentUser = UsuarioId != 0 && UsuarioId == UsuarioAEditar!.PersonaId;
+            if (PermisosNuevos.Any())
+            {
+                PermisoUsuarioAgregarUseCase.Ejecutar(UsuarioAEditar!.PersonaId, PermisosNuevos);
+                if (isCurrentUser)
+                {
+                    PermisosCache.Agregar(UsuarioId, PermisosNuevos);
+                }
+            }
+            if (PermisosEliminados.Any())
+            {
+                PermisoUsuarioEliminarUseCase.Ejecutar(UsuarioAEditar!.PersonaId, PermisosEliminados);
+                if (isCurrentUser)
+                {
+                    PermisosCache.Eliminar(UsuarioId, PermisosEliminados);
+                }
+            }
+
+            MensajeDeExito = "Cambios guardados con éxito. Redirigiendo...";
+
+            await Task.Delay(1_5000);
+            NavigationManager.NavigateTo("/personas");
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = $"Error al guardar los cambios: {ex.Message}";
+        }
+        finally
+        {
+            Guardando = false;
+            StateHasChanged();
+        }
+    }
+}

@@ -1,0 +1,72 @@
+@page "/eventos/{EventoId:int}/reservas/agregar"
+
+@using CentroEventos.UI.Components.Forms
+
+@inject AuthenticationStateProvider AuthProvider
+@inject ReservaCrearUseCase ReservaAltaUseCase
+@inject NavigationManager NavigationManager
+
+<PageTitle>Alta de Reserva</PageTitle>
+
+<h3>Alta de Reserva</h3>
+
+<ReservaForm
+    UsuarioId="@UsuarioId"
+    GuardarCambios="GuardarReserva"
+    SubmitButtonText="Crear Reserva"
+    MensajeDeError="@MensajeDeError"
+    GuardandoCambios="@Guardando"
+/>
+<Snackbar
+    Show="@MostrarSnackbar"
+    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
+    Message="Reserva creada con éxito"
+/>
+
+@code {
+
+    [Parameter]
+    public int EventoId { get; set; }
+    private string? MensajeDeError;
+    private bool Guardando = false;
+    private int UsuarioId = 0;
+    private bool MostrarSnackbar = false;
+
+    protected override void OnInitialized()
+    {
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+    }
+
+    private async Task GuardarReserva(Reserva submittedDto)
+    {
+        if (Guardando) return;
+
+        Guardando = true;
+        MensajeDeError = null;
+
+        try
+        {
+            ReservaAltaUseCase.Ejecutar(
+                UsuarioId,
+                submittedDto.PersonaId,
+                submittedDto.EventoDeportivoId
+            );
+            MostrarSnackbar = true;
+
+            await Task.Delay(1_000);
+            NavigationManager.NavigateTo($"/eventos/{EventoId}/reservas");
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = $"Error al guardar la reserva: {ex.Message}";
+            Console.WriteLine($"Error en GuardarReserva: {ex}");
+        }
+        finally
+        {
+            Guardando = false;
+
+            StateHasChanged();
+        }
+    }
+}

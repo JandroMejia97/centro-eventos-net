@@ -1,0 +1,166 @@
+@page "/personas"
+@layout MainLayout
+@rendermode InteractiveServer
+
+@using CentroEventos.UI.Components.Shared
+
+@inject AuthenticationStateProvider AuthProvider
+@inject PersonaObtenerTodosUseCase PersonaObtenerTodosUseCase
+@inject PersonaEliminarUseCase PersonaEliminarUseCase
+@inject NavigationManager NavigationManager
+
+<PageTitle>Personas</PageTitle>
+<div class="d-flex justify-content-between align-items-center my-4">
+    <h3 class="mb-0 text-center">Personas</h3>
+    <a disabled="@Borrando" class="btn btn-success" href="/personas/agregar">
+        <span class="bi bi-calendar-plus-fill"></span> Crear nueva persona
+    </a>
+</div>
+
+@if (ListaDePersonas is null)
+{
+    <p><em>Cargando personas...</em></p>
+}
+else if (!ListaDePersonas.Any())
+{
+    <p><em>No hay personas registradas.</em></p>
+    @if (Cargando)
+    {
+        <p><em>Actualizando...</em></p>
+    }
+}
+else
+{
+    if (Cargando)
+    {
+        <p><em>Actualizando lista de personas...</em></p>
+    }
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre Completo</th>
+                <th>DNI</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var persona in ListaDePersonas)
+            {
+                <tr>
+                    <td>@persona.Id</td>
+                    <td>@persona.NombreCompleto</td>
+                    <td>@persona.DNI</td>
+                    <td>@persona.Email</td>
+                    <td>
+                        <button disabled="@Borrando" class="btn btn-sm btn-info" @onclick="() => VerPersona(persona.Id)" title="Ver Detalles">Ver</button>
+                        <a disabled="@Borrando" href="/personas/@persona.Id" class="btn btn-sm btn-warning" title="Editar Persona">Editar</a>
+                        <button disabled="@Borrando" class="btn btn-sm btn-danger" @onclick="() => ShowDeleteConfirmation(persona)" title="Eliminar Persona">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<ConfirmDialog 
+    @ref="ConfirmarEliminacion"
+    Title="Eliminar Evento"
+    CancelText="No, cancelar"
+    ConfirmText="Sí, eliminar"
+    ConfirmButtonClass="btn-danger"
+    OnConfirm="EliminacionConfirmada"
+    OnClose="@EventCallback.Factory.Create(this, () => PersonaAEliminar = null)"
+    Message="¿Estás seguro de que deseas eliminar este evento?"
+/>
+<Snackbar
+    Duration="2000"
+    Show="@MostrarSnackbar"
+    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
+    Message="@MensajeDeBorrado"
+/>
+<Snackbar 
+    Duration="3000"
+    Message="@MensajeDeError"
+    Title="¡Ocurrió un error!"
+    OnClose="@EventCallback.Factory.Create(this, () => MensajeDeError = string.Empty)"
+    CssClass="bg-danger text-white"
+    Show="@(!string.IsNullOrEmpty(MensajeDeError))" 
+/>
+
+@code {
+    private IEnumerable<Persona> ListaDePersonas = null!;
+    private ConfirmDialog ConfirmarEliminacion = null!;
+    private bool Cargando = true;
+    private bool Borrando = false;
+    private string MensajeDeError = string.Empty;
+    private string MensajeDeBorrado = string.Empty;
+    private bool MostrarSnackbar = false;
+    private Persona? PersonaAEliminar { get; set; } = null;
+    private int UsuarioId = 0;
+
+    protected override void OnInitialized()
+    {
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        CargarPersonas();
+    }
+
+    private void CargarPersonas()
+    {
+        Cargando = true;
+        try
+        {
+            ListaDePersonas = PersonaObtenerTodosUseCase.Ejecutar(UsuarioId);
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = $"Ocurrió un error al cargar la lista de personas: {ex.Message}. Por favor, intente recargar la página.";
+            Console.WriteLine($"Error en LoadPersonas: {ex}");
+        }
+        finally
+        {
+            Cargando = false;
+        }
+    }
+
+    private void VerPersona(int personaId)
+    {
+        Console.WriteLine($"Ver detalles de persona ID: {personaId}");
+    }
+
+
+    private void ShowDeleteConfirmation(Persona persona)
+    {
+        PersonaAEliminar = persona;
+        ConfirmarEliminacion.Show();
+        MensajeDeError = string.Empty;
+    }
+
+
+    private void EliminacionConfirmada()
+    {
+        if (PersonaAEliminar == null) return;
+
+        Borrando = true;
+
+        try
+        {
+            PersonaEliminarUseCase.Ejecutar(UsuarioId, PersonaAEliminar.Id);
+            ListaDePersonas = ListaDePersonas.Where(p => p.Id != PersonaAEliminar.Id);
+            PersonaAEliminar = null;
+            MensajeDeBorrado = $"Se eliminó a \"{PersonaAEliminar!.NombreCompleto}\" correctamente.";
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = $"Error al eliminar a \"{PersonaAEliminar!.NombreCompleto}\": {ex.Message}.";
+            Console.WriteLine($"Error en DeletePersonaConfirmed: {ex}");
+        }
+        finally
+        {
+            Borrando = false;
+            StateHasChanged();
+        }
+    }
+}

@@ -3,9 +3,12 @@
 
 @rendermode InteractiveServer
 
+@using CentroEventos.Aplicacion.Servicios
+
 @inject UsuarioLoginUseCase LoginUseCase
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
+@inject IServicioCacheDePermisos PermisosCache
 
 @using CentroEventos.UI.Components.Shared
 
@@ -22,7 +25,17 @@
         <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
         <ValidationMessage For="@(() => loginModel.Password)" />
     </div>
-    <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+    <button type="submit" class="btn btn-primary w-100" disabled="@Cargando">
+        @if (Cargando)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span class="sr-only">Cargando...</span>
+        }
+        else
+        {
+            <span>Iniciar sesión</span>
+        }
+    </button>
     <div class="text-center mt-3">
         <a href="/registro">¿No tienes cuenta? Regístrate</a>
     </div>
@@ -31,23 +44,34 @@
         <div class="alert alert-danger mt-3">@error</div>
     }
 </EditForm>
-<Snackbar Message="¡Inicio de sesión exitoso!" Duration="2000" Show="@showSnackbar" OnClose="@(() => showSnackbar = false)" />
+<Snackbar 
+    Message="¡Inicio de sesión exitoso!"
+    Duration="2000"
+    Show="@showSnackbar"
+    OnClose="@EventCallback.Factory.Create(this, () => showSnackbar = false)"/>
 
 @code {
     private LoginModel loginModel = new();
     private string? error;
     private bool showSnackbar = false;
+    private bool Cargando = false;
 
-    private async Task OnLogin()
+    private void OnLogin()
     {
         error = null;
+        Cargando = true;
         try
         {
             var usuario = LoginUseCase.Ejecutar(loginModel.Email, loginModel.Password);
             if (usuario != null)
             {
                 showSnackbar = true;
-                Navigation.NavigateTo("/");
+                var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+                Persona persona = usuario.Persona;
+                var token = customAuthenticationStateProvider.MarkUserAsAuthenticated(persona.Id, persona.Email, persona, usuario.Permisos);
+                PermisosCache.Agregar(persona.Id, usuario.Permisos);
+                string path = $"/postlogin?Token={token}";
+                Navigation.NavigateTo(path);
             }
             else
             {
@@ -57,6 +81,10 @@
         catch (Exception ex)
         {
             error = ex.Message;
+        }
+        finally
+        {
+            Cargando = false;
         }
     }
 

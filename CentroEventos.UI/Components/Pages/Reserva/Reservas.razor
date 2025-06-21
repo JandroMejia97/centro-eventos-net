@@ -1,0 +1,152 @@
+@rendermode InteractiveServer
+
+@using CentroEventos.UI.Components.Shared
+
+@inject ReservaObtenerPorEventoUseCase ReservasPorEventoUseCase
+@inject ReservaEliminarUseCase ReservaEliminarUseCase
+@inject NavigationManager NavigationManager
+
+<PageTitle>Reservas</PageTitle>
+
+<h1>Reservas</h1>
+
+<p>
+    <button class="btn btn-primary" @onclick="CrearNuevaReserva">Crear nueva reserva</button>
+</p>
+
+@if (Cargando)
+{
+    <p><em>Cargando...</em></p>
+}
+else if (ConError)
+{
+    <p class="text-danger"><em>@errorMessage</em></p>
+}
+else if (!ListaDeReservas.Any())
+{
+    <p><em>No hay reservas disponibles.</em></p>
+}
+else
+{
+    <h4>Lista de reservas para el evento</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Persona</th>
+                <th>Fecha de Reserva</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var (reserva, index) in ListaDeReservas.Select((item, index) => (item, index + 1)))
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@(reserva.Persona?.NombreCompleto ?? reserva.PersonaId.ToString())</td>
+                    <td>@reserva.EstadoAsistencia.ToString()</td>
+                    <td>
+                        <button disabled class="btn btn-sm btn-info" @onclick="() => VerReserva(reserva)">Ver</button>
+                        <a class="btn btn-sm btn-warning" href="/eventos/@EventoId/reservas/@reserva.PersonaId">Editar</a>
+                        <button class="btn btn-sm btn-danger" @onclick="() => MostrarConfirmacion(reserva)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<ConfirmDialog 
+    @ref="ConfirmarEliminarReserva"
+    Title="Confirmar Eliminación"
+    CancelText="No, cancelar"
+    ConfirmText="Sí, eliminar"
+    OnConfirm="DeleteReservaConfirmed"
+    OnClose="@EventCallback.Factory.Create(this, () => ReservaABorrar = null)"
+    ConfirmButtonClass="btn-danger"
+    Message="¿Estás seguro de que deseas eliminar la reserva?"
+/>
+
+@code {
+    [Parameter, RequiredAttribute]
+    public int EventoId { get; set; }
+    [Parameter, RequiredAttribute]
+    public int UsuarioId { get; set; } = 1;
+    private ConfirmDialog ConfirmarEliminarReserva = null!;
+    private IEnumerable<Reserva> ListaDeReservas = Enumerable.Empty<Reserva>();
+    private bool Cargando = true;
+    private bool ConError = false;
+    private string errorMessage = "Ocurrió un error al procesar su solicitud.";
+
+    private Reserva? ReservaABorrar;
+
+    protected override void OnInitialized()
+    {
+        Cargando = true;
+        ConError = false;
+        try
+        {
+            ListaDeReservas = ReservasPorEventoUseCase.Ejecutar(EventoId, UsuarioId);
+        }
+        catch (Exception ex)
+        {
+            ConError = true;
+            errorMessage = $"Ocurrió un error al cargar las reservas: {ex.Message}. Por favor, intente de nuevo más tarde.";
+            Console.WriteLine(errorMessage);
+        }
+        finally
+        {
+            Cargando = false;
+        }
+    }
+
+    private void CrearNuevaReserva()
+    {
+        NavigationManager.NavigateTo("/reservas/agregar");
+    }
+
+    private void VerReserva(Reserva reserva)
+    {
+        NavigationManager.NavigateTo($"/eventos/{EventoId}/reservas/{reserva.PersonaId}");
+    }
+
+    private void MostrarConfirmacion(Reserva reserva)
+    {
+        ReservaABorrar = reserva;
+        ConfirmarEliminarReserva.Show();
+        errorMessage = string.Empty;
+    }
+
+    private Task DeleteReservaConfirmed()
+    {
+        if (ReservaABorrar == null) return Task.CompletedTask;
+
+        Cargando = true;
+        ConError = false;
+        try
+        {
+            ReservaEliminarUseCase.Ejecutar(
+                UsuarioId,
+                ReservaABorrar.PersonaId,
+                ReservaABorrar.EventoDeportivoId
+            );
+
+            var tempList = ListaDeReservas.ToList();
+            tempList.RemoveAll(r => r.PersonaId == ReservaABorrar.PersonaId);
+            ListaDeReservas = tempList;
+        }
+        catch (Exception ex)
+        {
+            ConError = true;
+            errorMessage = $"Error al eliminar la reserva: {ex.Message}. Por favor, intente de nuevo.";
+            Console.WriteLine(errorMessage);
+        }
+        finally
+        {
+            Cargando = false;
+            StateHasChanged();
+        }
+        return Task.CompletedTask;
+    }
+}

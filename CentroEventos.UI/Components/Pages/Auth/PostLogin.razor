@@ -1,0 +1,35 @@
+@page "/postlogin"
+
+@using CentroEventos.UI.Auth;
+
+@inject IHttpContextAccessor HttpContextAccessor
+@inject NavigationManager NavigationManager
+
+<div class="spinner-border" role="status">
+    <span class="visually-hidden">Cargando...</span>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private string? Token { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(Token))
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            HttpContextAccessor.HttpContext!.Response.Cookies.Append(AuthConstant.AuthCookieName, Token, new CookieOptions
+            {
+                    HttpOnly = true,
+                    Expires = DateTimeOffset.Now.AddHours(2),
+                    IsEssential = true,
+                    SameSite = SameSiteMode.Strict
+            });
+
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

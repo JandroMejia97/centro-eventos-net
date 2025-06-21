@@ -1,0 +1,60 @@
+@page "/personas/agregar"
+@layout AuthLayout
+
+@rendermode InteractiveServer
+
+@using CentroEventos.Aplicacion.Servicios
+@using CentroEventos.Aplicacion.Enums
+@using CentroEventos.UI.Components.Forms
+
+@inject IServicioAutorizacion ServicioAutorizacion
+@inject AuthenticationStateProvider AuthProvider
+@inject UsuarioCrearUseCase CrearUsuarioUseCase
+@inject NavigationManager Navigation
+
+<h4 class="text-center mb-4">Alta de Persona</h4>
+<PersonaForm
+    SubmitButtonText="Guardar"
+    ErrorMessage="@MensajeDeError"
+    OnSubmitCallback="CrearPersona"
+    PermitirCambiarPermisos="@PermitirCambiarPermisos"
+/>
+
+<Snackbar
+    Show="@MostrarSnackbar"
+    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
+    Message="@MensajeDeExito"
+/>
+
+@code {
+    private string? MensajeDeError;
+    private bool MostrarSnackbar = false;
+    private Usuario UsuarioACrear { get; set; } = null!;
+    private int UsuarioId { get; set; } = 0;
+    private bool PermitirCambiarPermisos = false;
+    private string MensajeDeExito = string.Empty;
+    protected override void OnInitialized()
+    {
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        UsuarioId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        PermitirCambiarPermisos = ServicioAutorizacion.Autorizar(UsuarioId, Permiso.AsignarPermisos);
+    }
+
+    private async Task CrearPersona(Usuario usuario)
+    {
+        MensajeDeError = null;
+        UsuarioACrear = usuario;
+        try
+        {
+            CrearUsuarioUseCase.Ejecutar(usuario, usuario.ContrasenaHash);
+            MensajeDeExito = $"Se créo {@UsuarioACrear!.Persona.NombreCompleto} con éxito.";
+            MostrarSnackbar = true;
+            await Task.Delay(1_000);
+            Navigation.NavigateTo("/personas");
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = ex.Message;
+        }
+    }
+}

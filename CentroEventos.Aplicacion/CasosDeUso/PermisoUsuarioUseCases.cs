@@ -2,7 +2,7 @@ using CentroEventos.Aplicacion.Entidades;
 using CentroEventos.Aplicacion.Enums;
 using CentroEventos.Aplicacion.Interfaces;
 
-namespace CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases
+namespace CentroEventos.Aplicacion.CasosDeUso
 {
     public class PermisoUsuarioAgregarUseCase
     {
@@ -14,6 +14,14 @@ namespace CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases
         public void Ejecutar(PermisoUsuario permiso)
         {
             _repo.Agregar(permiso);
+        }
+        public void Ejecutar(int usuarioId, IEnumerable<Permiso> permisos)
+        {
+            _repo.Agregar(usuarioId, permisos);
+        }
+        public void Ejecutar(IEnumerable<PermisoUsuario> permisos)
+        {
+            _repo.Agregar(permisos);
         }
     }
 
@@ -27,6 +35,18 @@ namespace CentroEventos.Aplicacion.CasosDeUso.PermisoUsuarioUseCases
         public void Ejecutar(int usuarioId, Permiso permiso)
         {
             _repo.Eliminar(usuarioId, permiso);
+        }
+        public void Ejecutar(PermisoUsuario permisoUsuario)
+        {
+            _repo.Eliminar(permisoUsuario);
+        }
+        public void Ejecutar(int usuarioId, IEnumerable<Permiso> permisos)
+        {
+            _repo.Eliminar(usuarioId, permisos);
+        }
+        public void Ejecutar(IEnumerable<PermisoUsuario> permisos)
+        {
+            _repo.Eliminar(permisos);
         }
     }
 

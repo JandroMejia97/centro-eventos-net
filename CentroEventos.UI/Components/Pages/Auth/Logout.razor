@@ -1,0 +1,22 @@
+@using CentroEventos.UI.Auth;
+
+@using CentroEventos.Aplicacion.Servicios
+
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IServicioCacheDePermisos PermisosCache
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager NavigationManager
+@code {
+
+    protected override void OnInitialized()
+    {
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        var intUserId = customAuthenticationStateProvider.ExtractUserIdAsync();
+        if (intUserId != 0)
+        {
+            PermisosCache.Eliminar(intUserId);
+            customAuthenticationStateProvider.MarkUserAsLoggedOutAsync();
+        }
+        NavigationManager.NavigateTo("/login");
+    }
+}
