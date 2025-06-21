@@ -21,6 +21,17 @@ namespace CentroEventos.Repositorios.FuentesDeDatos
             _context.SaveChanges();
         }
 
+        public void Agregar(int usuarioId, IEnumerable<Permiso> permisos)
+        {
+            var permisoUsuarios = permisos.Select(p => new PermisoUsuario(usuarioId, p));
+            Agregar(permisoUsuarios);
+        }
+        public void Agregar(IEnumerable<PermisoUsuario> permisos)
+        {
+            _context.PermisosUsuarios.AddRange(permisos);
+            _context.SaveChanges();
+        }
+
         public void Eliminar(int usuarioId, Permiso permiso)
         {
             var permisoUsuario = _context.PermisosUsuarios
@@ -30,6 +41,23 @@ namespace CentroEventos.Repositorios.FuentesDeDatos
                 _context.PermisosUsuarios.Remove(permisoUsuario);
                 _context.SaveChanges();
             }
+        }
+
+        public void Eliminar(PermisoUsuario permiso)
+        {
+            _context.PermisosUsuarios.Remove(permiso);
+            _context.SaveChanges();
+        }
+
+        public void Eliminar(int usuarioId, IEnumerable<Permiso> permisos)
+        {
+            var permisoUsuarios = permisos.Select(p => new PermisoUsuario(usuarioId, p));
+            Eliminar(permisoUsuarios);
+        }
+        public void Eliminar(IEnumerable<PermisoUsuario> permisos)
+        {
+            _context.PermisosUsuarios.RemoveRange(permisos);
+            _context.SaveChanges();
         }
 
         public PermisoUsuario? Obtener(int usuarioId, Permiso permiso)
