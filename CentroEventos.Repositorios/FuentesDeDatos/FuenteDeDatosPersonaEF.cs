@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CentroEventos.Repositorios.FuentesDeDatos;
 
-public class FuenteDeDatosPersonaEF : IFuenteDeDatos<Persona>
+public class FuenteDeDatosPersonaEF : IFuenteDeDatosPersona
 {
     private readonly CentroEventosDbContext _context;
 
@@ -44,5 +44,15 @@ public class FuenteDeDatosPersonaEF : IFuenteDeDatos<Persona>
     public IEnumerable<Persona> ObtenerTodos()
     {
         return _context.Personas.AsNoTracking().ToList();
+    }
+
+    public IEnumerable<Persona> ObtenerPorEmail(string email)
+    {
+        return [.. _context.Personas.AsNoTracking().Where(p => p.Email == email)];
+    }
+
+    public IEnumerable<Persona> ObtenerPorDni(string dni)
+    {
+        return [.. _context.Personas.AsNoTracking().Where(p => p.DNI == dni)];
     }
 }
