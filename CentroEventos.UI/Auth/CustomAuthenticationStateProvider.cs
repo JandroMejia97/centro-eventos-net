@@ -50,7 +50,7 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         }
     }
 
-    public Task<string> MarkUserAsAuthenticated(int userId, string userName, Persona persona, IEnumerable<Permiso> permisos)
+    public string MarkUserAsAuthenticated(int userId, string userName, Persona persona, IEnumerable<Permiso> permisos)
     {
         DateTime expiresAt = DateTime.UtcNow.AddHours(2);
         var claims = new List<Claim>
@@ -89,27 +89,43 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(Task.FromResult(authState));
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-        return Task.FromResult(tokenString);
+        return tokenString;
     }
 
-    public Task<int> ExtractUserIdAsync()
+    public int ExtractUserIdAsync()
     {
-        var user = _httpContextAccessor.HttpContext!.User;
+        var Token = _httpContextAccessor.HttpContext!.Request.Cookies[AuthConstant.AuthCookieName];
+        if (string.IsNullOrEmpty(Token))
+        {
+            return 0; // No user is authenticated
+        }
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadToken(Token) as JwtSecurityToken;
+        if (jsonToken is null)
+        {
+            return 0; // Invalid token
+        }
+        var user = new ClaimsPrincipal(new ClaimsIdentity(jsonToken.Claims, "jwt"));
+        if (user.Identity is null)
+        {
+            return 0; // No user identity found
+        }
+
+        Console.WriteLine($"User: {user.Identity?.Name}, Authenticated: {user.Identity?.IsAuthenticated}");
         if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
             var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim is not null && int.TryParse(userIdClaim.Value, out int userId))
             {
-                return Task.FromResult(userId);
+                return userId;
             }
         }
-        return Task.FromResult(0);
+        return 0;
     }
 
-    public Task MarkUserAsLoggedOutAsync()
+    public void MarkUserAsLoggedOutAsync()
     {
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal())));
         _httpContextAccessor.HttpContext!.Response.Cookies.Delete(AuthConstant.AuthCookieName);
-        return Task.CompletedTask;
     }
 }

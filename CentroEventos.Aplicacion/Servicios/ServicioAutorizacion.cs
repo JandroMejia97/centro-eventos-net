@@ -16,6 +16,7 @@ public class ServicioAutorizacion : IServicioAutorizacion, IServicioCacheDePermi
     }
     public bool Autorizar(int usuarioId, Permiso accion)
     {
+        Console.WriteLine($"Verificando permiso '{accion}' para usuario ID {usuarioId}.");
         if (usuarioId <= 0)
             throw new ValidacionException("ID de usuario inválido.");
         var permisosPorUsuario = _permisosPorUsuario.FirstOrDefault(p => p.Key == usuarioId).Value;
