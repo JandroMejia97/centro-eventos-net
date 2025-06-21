@@ -1,0 +1,30 @@
+<Snackbar
+    Message="@MensajeDeExito"
+    OnClose="@EventCallback.Factory.Create(this, CerrarSnackbarDeExito)"
+    Show="@(string.IsNullOrEmpty(MensajeDeExito) == false)"
+/>
+<Snackbar
+    Message="@MensajeDeError"
+    OnClose="@EventCallback.Factory.Create(this, CerrarSnackbarDeError)"
+    Show="@(string.IsNullOrEmpty(MensajeDeError) == false)"
+    CssClass="bg-danger text-white"
+/>
+
+@code {
+    [Parameter]
+    public string MensajeDeError { get; set; } = string.Empty;
+    [Parameter]
+    public string MensajeDeExito { get; set; } = string.Empty;
+
+    private void CerrarSnackbarDeExito()
+    {
+        MensajeDeExito = "";
+        StateHasChanged();
+    }
+
+    private void CerrarSnackbarDeError()
+    {
+        MensajeDeError = "";
+        StateHasChanged();
+    }
+}
