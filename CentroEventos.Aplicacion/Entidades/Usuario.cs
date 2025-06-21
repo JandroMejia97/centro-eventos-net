@@ -1,4 +1,5 @@
 using CentroEventos.Aplicacion.Enums;
+using CentroEventos.Aplicacion.Excepciones;
 
 namespace CentroEventos.Aplicacion.Entidades;
 
@@ -23,9 +24,9 @@ public class Usuario
     public Usuario(Persona persona, string contrasenaHash): this(persona)
     {
         if (string.IsNullOrWhiteSpace(contrasenaHash))
-            throw new ArgumentException("La contraseña no puede estar vacía.", nameof(contrasenaHash));
+            throw new ValidacionException("La contraseña no puede estar vacía.");
         if (contrasenaHash.Length < 8)
-            throw new ArgumentException("La contraseña debe tener al menos 8 caracteres.", nameof(contrasenaHash));
+            throw new ValidacionException("La contraseña debe tener al menos 8 caracteres.");
         ContrasenaHash = contrasenaHash;
     }
 
