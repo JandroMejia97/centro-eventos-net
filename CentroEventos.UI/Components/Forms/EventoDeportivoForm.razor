@@ -13,6 +13,11 @@
 <EditForm Model="EventoDeportivo" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
 
+    @if (!string.IsNullOrEmpty(MensajeDeError))
+    {
+        <div class="alert alert-danger mt-3">@MensajeDeError</div>
+    }
+
     <div class="mb-3">
         <label class="form-label">Nombre</label>
         <InputText
@@ -92,11 +97,6 @@
         }
         @TextoBoton
     </button>
-
-    @if (!string.IsNullOrEmpty(MensajeDeError))
-    {
-        <div class="alert alert-danger mt-3">@MensajeDeError</div>
-    }
 </EditForm>
 @code {
     [Parameter] public int Id { get; set; }
