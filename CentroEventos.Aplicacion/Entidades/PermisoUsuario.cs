@@ -13,6 +13,12 @@ namespace CentroEventos.Aplicacion.Entidades
             Usuario = usuario;
         }
 
+        public PermisoUsuario(Permiso permiso, Usuario usuario)
+            : this(usuario.PersonaId, permiso)
+        {
+            Usuario = usuario;
+        }
+
         public override string ToString()
         {
             return $"PermisoUsuario: UsuarioId={UsuarioId}, Permiso={Permiso}, Usuario={Usuario}";
