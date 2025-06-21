@@ -6,9 +6,9 @@ namespace CentroEventos.Repositorios.Repositorios;
 
 public class RepositorioEventoDeportivo : IRepositorioEventoDeportivo
 {
-    private readonly IFuenteDeDatos<EventoDeportivo> _fuenteDeDatos;
+    private readonly IFuenteDeDatosEventoDeportivo _fuenteDeDatos;
 
-    public RepositorioEventoDeportivo(IFuenteDeDatos<EventoDeportivo> fuenteDeDatos)
+    public RepositorioEventoDeportivo(IFuenteDeDatosEventoDeportivo fuenteDeDatos)
     {
         _fuenteDeDatos = fuenteDeDatos;
     }
@@ -50,5 +50,10 @@ public class RepositorioEventoDeportivo : IRepositorioEventoDeportivo
     public IEnumerable<EventoDeportivo> ObtenerTodos()
     {
         return _fuenteDeDatos.ObtenerTodos();
+    }
+
+    public IEnumerable<EventoDeportivo> ObtenerPorFechaYDuracion(DateTime fechaHoraInicio, double duracionHoras)
+    {
+        return _fuenteDeDatos.ObtenerPorFechaYDuracion(fechaHoraInicio, duracionHoras);
     }
 }
