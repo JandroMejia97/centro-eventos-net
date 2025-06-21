@@ -10,4 +10,5 @@ public interface IRepositorioEventoDeportivo
     EventoDeportivo? ObtenerPorId(int id);
     IEnumerable<EventoDeportivo> ObtenerTodos();
     IEnumerable<EventoDeportivo> ObtenerPorFechaYDuracion(DateTime fechaHoraInicio, double duracionHoras);
+    IEnumerable<EventoDeportivo> ObtenerAPartirDeFecha(DateTime fechaHoraInicio);
 }

@@ -76,6 +76,18 @@ namespace CentroEventos.Aplicacion.CasosDeUso
         }
     }
 
+    public class EventoDeportivoObtenerProximosUseCase(
+        IRepositorioEventoDeportivo repositorioEvento,
+        IServicioAutorizacion servicioAutorizacion
+    ) : EventoDeportivoUseCase(repositorioEvento, servicioAutorizacion)
+    {
+        public IEnumerable<EventoDeportivo> Ejecutar(int usuarioId, DateTime? dateTime = null)
+        {
+            ValidarPermiso(usuarioId, Permiso.VerEventos);
+            return _repositorioEvento.ObtenerAPartirDeFecha(dateTime ?? DateTime.Now);
+        }
+    }
+
     public class EventoDeportivoActualizarUseCase(
         IRepositorioEventoDeportivo repositorioEvento,
         IServicioAutorizacion servicioAutorizacion,

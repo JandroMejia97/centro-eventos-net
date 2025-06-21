@@ -56,4 +56,9 @@ public class RepositorioEventoDeportivo : IRepositorioEventoDeportivo
     {
         return _fuenteDeDatos.ObtenerPorFechaYDuracion(fechaHoraInicio, duracionHoras);
     }
+
+    public IEnumerable<EventoDeportivo> ObtenerAPartirDeFecha(DateTime fechaHoraInicio)
+    {
+        return _fuenteDeDatos.ObtenerAPartirDeFecha(fechaHoraInicio);
+    }
 }

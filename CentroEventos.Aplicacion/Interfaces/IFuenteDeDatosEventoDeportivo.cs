@@ -5,4 +5,5 @@ namespace CentroEventos.Aplicacion.Interfaces;
 public interface IFuenteDeDatosEventoDeportivo : IFuenteDeDatos<EventoDeportivo>
 {
     IEnumerable<EventoDeportivo> ObtenerPorFechaYDuracion(DateTime fechaHoraInicio, double duracionHoras);
+    IEnumerable<EventoDeportivo> ObtenerAPartirDeFecha(DateTime fechaHoraInicio);
 }

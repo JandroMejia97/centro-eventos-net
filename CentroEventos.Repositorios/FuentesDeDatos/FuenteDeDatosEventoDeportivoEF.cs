@@ -54,4 +54,13 @@ public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatosEventoDeportivo
             .Where(e => e.FechaHoraInicio >= fechaHoraInicio && e.FechaHoraInicio <= FechaFinal)
             .AsNoTracking()];
     }
+
+    public IEnumerable<EventoDeportivo> ObtenerAPartirDeFecha(DateTime fechaHoraInicio)
+    {
+        return [.. _context.EventosDeportivos
+            .Include(e => e.Responsable)
+            .Where(e => e.FechaHoraInicio.Date >= fechaHoraInicio.Date)
+            .OrderBy(e => e.FechaHoraInicio)
+            .AsNoTracking()];
+    }
 }

@@ -43,6 +43,7 @@ builder.Services.AddTransient<EventoDeportivoActualizarUseCase>();
 builder.Services.AddTransient<EventoDeportivoEliminarUseCase>();
 builder.Services.AddTransient<EventoDeportivoObtenerPorIdUseCase>();
 builder.Services.AddTransient<EventoDeportivoObtenerTodosUseCase>();
+builder.Services.AddTransient<EventoDeportivoObtenerProximosUseCase>();
 
 // Casos de uso - Reserva
 builder.Services.AddTransient<ReservaCrearUseCase>();
