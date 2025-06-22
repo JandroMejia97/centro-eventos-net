@@ -32,7 +32,10 @@ else if (ReservaAEditar == null)
 else
 {
     <ReservaForm
+        EventoId="@EventoId"
+        PersonaId="@PersonaId"
         UsuarioId="@UsuarioId"
+        ReservaAEditar="@ReservaAEditar"
         GuardarCambios="GuardarReserva"
         SubmitButtonText="Crear Reserva"
         MensajeDeExito="@MensajeDeExito"

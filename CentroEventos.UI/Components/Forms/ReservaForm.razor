@@ -1,8 +1,10 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 
-@inject EventoDeportivoObtenerTodosUseCase ObtenerEventosUseCase
+@inject EventoDeportivoObtenerProximosUseCase ObtenerProximosEventosUseCase
+@inject EventoDeportivoObtenerPorIdUseCase ObtenerEventoPorIdUseCase
 @inject PersonaObtenerTodosUseCase ObtenerPersonasUseCase
+@inject PersonaObtenerPorIdUseCase ObtenerPersonaPorIdUseCase
 
 @if (CargandoLista) {
     <p><em>Cargando datos necesarios para el formulario (eventos, personas)...</em></p>
@@ -32,7 +34,7 @@
                 id="evento"
                 class="form-select"
                 @bind-Value="ReservaModel.EventoDeportivoId"
-                disabled="@(ReservaAEditar != null || EventosDeportivos == null || !EventosDeportivos.Any())"
+                disabled="@(EventoId > 0  || ReservaAEditar != null || EventosDeportivos == null || !EventosDeportivos.Any())"
             >
                 <option value="0">-- Seleccione un Evento --</option>
                 @if (EventosDeportivos != null)
@@ -52,7 +54,7 @@
                 id="persona"
                 class="form-select"
                 @bind-Value="ReservaModel.PersonaId"
-                disabled="@(ReservaAEditar != null || Personas == null || !Personas.Any())"
+                disabled="@(PersonaId > 0  || ReservaAEditar != null || Personas == null || !Personas.Any())"
             >
                 <option value="0">-- Seleccione una Persona --</option>
                 @if (Personas != null)
@@ -79,7 +81,7 @@
                     {
                         <option 
                             value="@estado" 
-                            disabled="@estado == @EstadoAsistencia.Pendiente"
+                            disabled="@(estado == EstadoAsistencia.Pendiente)"
                         >
                             @estado.ToString()
                         </option>
@@ -90,11 +92,11 @@
             <div class="mb-3">
                 <label for="fechaReserva" class="form-label">Fecha de Reserva:</label>
                 <InputDate 
+                    disabled="true"
                     id="fechaReserva"
                     class="form-control"
-                    disabled="true"
+                    Type="InputDateType.DateTimeLocal"
                     @bind-Value="ReservaModel.FechaReserva"
-                    Min="@DateTime.Now.ToString("yyyy-MM-dd")"
                 />
                 <ValidationMessage For="@(() => ReservaModel.FechaReserva)" />
             </div>
@@ -121,8 +123,10 @@
 }
 
 @code {
-    [CascadingParameter]
+    [Parameter]
     public int EventoId { get; set; }
+    [Parameter]
+    public int PersonaId { get; set; }
     [Parameter]
     public Reserva? ReservaAEditar { get; set; }
     [Parameter]
@@ -145,30 +149,97 @@
 
     protected override void OnInitialized()
     {
-        EventosDeportivos = ObtenerEventosUseCase.Ejecutar(UsuarioId);
-        Personas = ObtenerPersonasUseCase.Ejecutar(UsuarioId);
+        try
+        {
+            CargandoLista = true;
+            EsValido = true;
+            MensajeDeError = string.Empty;
+            InicializarDatos();
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = $"Error al cargar los datos: {ex.Message}";
+            EsValido = false;
+        }
+        finally
+        {
+            CargandoLista = false;
+        }
+    }
+    private void InicializarDatos()
+    {
+        ReservaModel = new ReservaDto(ReservaAEditar);
+        InicializarListaDeEventos();
+        InicializarListaDePersonas();
         if (EventosDeportivos == null || !EventosDeportivos.Any())
         {
             MensajeDeError = "No hay eventos deportivos disponibles.";
             EsValido = false;
         }
-        if (Personas == null || !Personas.Any())
+        if (string.IsNullOrEmpty(MensajeDeError) && (Personas == null || !Personas.Any()))
         {
             MensajeDeError = "No hay personas disponibles.";
             EsValido = false;
         }
-        if (EventosDeportivos != null && EventosDeportivos.Count() == 1)
+    }
+
+    private void InicializarListaDePersonas()
+    {
+        if (ReservaAEditar != null && ReservaAEditar?.Persona is not null)
         {
-            ReservaModel.EventoDeportivoId = EventosDeportivos.First().Id;
+            Personas = new List<Persona> { ReservaAEditar.Persona };
         }
+        else if (PersonaId > 0)
+        {
+            Persona Persona = ObtenerPersonaPorIdUseCase.Ejecutar(UsuarioId, PersonaId);
+            if (Persona == null)
+            {
+                MensajeDeError = "La persona seleccionada no existe o no está disponible.";
+                EsValido = false;
+                CargandoLista = false;
+                return;
+            }
+            Personas = new List<Persona> { Persona };
+        }
+        else 
+        {
+            Personas = ObtenerPersonasUseCase.Ejecutar(UsuarioId);
+        }
+
         if (Personas != null && Personas.Count() == 1)
         {
             ReservaModel.PersonaId = Personas.First().Id;
         }
-        if (ReservaAEditar == null)
+    }
+
+    private void InicializarListaDeEventos()
+    {
+        if (ReservaAEditar != null && ReservaAEditar?.EventoDeportivo is not null)
         {
-            ReservaModel = new ReservaDto(ReservaAEditar);
+            EventosDeportivos = new List<EventoDeportivo> { ReservaAEditar.EventoDeportivo };
         }
+        else if (EventoId > 0)
+        {
+            EventoDeportivo Evento = ObtenerEventoPorIdUseCase.Ejecutar(UsuarioId, EventoId);
+            if (Evento == null)
+            {
+                MensajeDeError = "El evento deportivo seleccionado no existe o no está disponible.";
+                EsValido = false;
+                CargandoLista = false;
+                return;
+            }
+            EventosDeportivos = new List<EventoDeportivo> { Evento };
+        }
+        else 
+        {
+            EventosDeportivos = ObtenerProximosEventosUseCase.Ejecutar(UsuarioId, null);
+        }
+
+        if (EventosDeportivos != null && EventosDeportivos.Count() == 1)
+        {
+            ReservaModel.EventoDeportivoId = EventosDeportivos.First().Id;
+        }
+        
     }
 
     private async Task HandleValidSubmit()

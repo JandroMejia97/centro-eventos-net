@@ -11,6 +11,8 @@
 <h3>Alta de Reserva</h3>
 
 <ReservaForm
+    EventoId="@EventoId"
+    PersonaId="@PersonaId"
     UsuarioId="@UsuarioId"
     GuardarCambios="GuardarReserva"
     SubmitButtonText="Crear Reserva"
@@ -27,6 +29,8 @@
 
     [Parameter]
     public int EventoId { get; set; }
+    [Parameter]
+    public int PersonaId { get; set; } = 0;
     private string? MensajeDeError;
     private bool Guardando = false;
     private int UsuarioId = 0;
