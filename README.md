@@ -1,127 +1,127 @@
 # CentroEventos
 
-CentroEventos es una solución desarrollada en .NET que permite gestionar eventos deportivos, personas y reservas. La solución está estructurada en varios proyectos para mantener una separación clara de responsabilidades y facilitar su mantenimiento y escalabilidad.
+CentroEventos es una solución desarrollada en .NET que permite gestionar eventos deportivos, personas y reservas. La solución está estructurada bajo los principios de Clean Architecture, separando claramente las responsabilidades en capas de Aplicación, Repositorios y UI, lo que facilita el mantenimiento, la escalabilidad y la extensibilidad.
 
-## Estructura del Proyecto
+---
 
-La solución está compuesta por los siguientes proyectos:
+## Arquitectura y Estructura del Proyecto
+
+La solución está compuesta por los siguientes proyectos principales:
 
 ### 1. CentroEventos.Aplicacion
 
-Este proyecto contiene:
-
-- **Entidades**: Representan los modelos principales del dominio, como `Persona`, `EventoDeportivo` y `Reserva`.
-- **Excepciones**: Define excepciones personalizadas como `EntidadNotFoundException`, `CupoExcedidoException`, entre otras, para manejar errores específicos del dominio.
-- **Interfaces**: Define contratos para repositorios y fuentes de datos, como `IFuenteDeDatos` y `IRepositorioPersona`.
-- **Casos de Uso**: Implementa la lógica de negocio, como el caso de uso `ReservaAltaUseCase` para gestionar reservas.
+- **Entidades**: Modelos de dominio (`Persona`, `EventoDeportivo`, `Reserva`, `Usuario`, `PermisoUsuario`).
+- **Excepciones**: Manejo de errores específicos del dominio (`EntidadNotFoundException`, `CupoExcedidoException`, etc.).
+- **Interfaces**: Contratos para repositorios y fuentes de datos (por ejemplo, `IRepositorioPersona`, `IFuenteDeDatosEventoDeportivo`).
+- **Casos de Uso**: Lógica de negocio agrupada en clases de casos de uso (por ejemplo, `EventoDeportivoUseCases`, `ReservaUseCases`).
+- **Servicios y Validadores**: Servicios de autorización, hashing de contraseñas y validadores de entidades.
 
 ### 2. CentroEventos.Repositorios
 
-Este proyecto implementa:
+- **Contextos**: Configuración de EF Core y DbContext (`CentroEventosDbContext`).
+- **Fuentes de Datos**: Implementaciones para persistencia con Entity Framework y SQLite (`FuenteDeDatosEventoDeportivoEF`, etc.).
+- **Repositorios**: Implementaciones concretas de los repositorios del dominio.
 
-- **Fuentes de Datos**: Clases como `FuenteDeDatosCsv` y `FuenteDeDatosAtributoPorLinea` para manejar la persistencia de datos en diferentes formatos.
-- **Repositorios**: Implementaciones de repositorios como `RepositorioPersona`, `RepositorioEventoDeportivo` y `RepositorioReserva` que interactúan con las fuentes de datos.
+### 3. CentroEventos.UI
 
-### 3. CentroEventos.Consola
+- **Frontend Blazor**: Interfaz de usuario desarrollada con Blazor Server, con migración progresiva a Blazor WASM.
+- **Componentes**: Formularios reutilizables, layouts, páginas de entidad, badges de estado, diálogos de confirmación y notificaciones.
+- **Autenticación y Autorización**: Implementación personalizada basada en SessionStorage, Claims y control de permisos por roles.
+- **Configuración**: Archivos de configuración (`appsettings.json`, `appsettings.Development.json`).
 
-Este proyecto es una aplicación de consola que actúa como punto de entrada para interactuar con la solución. Permite:
+---
 
-- Crear datos iniciales (personas, eventos, reservas).
-- Ejecutar casos de uso como la creación de reservas.
-- Mostrar información almacenada.
+## Tecnologías y Herramientas
 
-## Requisitos Previos
+- **.NET 8.0+**
+- **Blazor Server/WASM**
+- **Entity Framework Core** (con SQLite)
+- **Cookie y SessionStorage** para autenticación
+- **DTOs y validaciones**
+- **Diseño responsive**
 
-- **.NET SDK**: Asegúrate de tener instalado el SDK de .NET 8.0 o superior.
-- **Sistema Operativo**: Compatible con Linux, Windows y macOS.
+---
 
-## Configuración y Ejecución
+## Patrones y Buenas Prácticas
 
-Sigue estos pasos para ejecutar la solución:
+- **Clean Architecture**: Separación estricta de capas y dependencias.
+- **Repository y Data Source**: Abstracción de acceso a datos y persistencia.
+- **Use Case**: Lógica de negocio encapsulada en casos de uso.
+- **DTOs**: Separación entre entidades de dominio y datos expuestos a la UI.
+- **Validadores**: Validación centralizada y reutilizable.
+- **UI Unificada**: Formularios y layouts reutilizables, badges de estado, manejo de errores y notificaciones.
 
-### 1. Clonar el Repositorio
+---
 
-Clona el repositorio en tu máquina local:
+## Seguridad
 
-```bash
-git clone https://github.com/JandroMejia97/centro-eventos-net
-cd CentroEventos
-```
+- **Hashing de contraseñas**: Implementación de hashing seguro en el registro y autenticación de usuarios.
+- **Autenticación y Autorización**: Uso de Claims, SessionStorage y control de permisos por roles.
+- **Control de sesión**: Expiración y validación de sesión en frontend.
+- **Manejo de errores**: Excepciones personalizadas y feedback visual en la UI.
 
-### 2. Restaurar Paquetes NuGet
+---
 
-Restaura las dependencias necesarias:
+## Base de Datos y Persistencia
 
-```bash
-dotnet restore
-```
+- **EF Core + SQLite**: Persistencia relacional, migraciones y configuración de claves compuestas.
+- **Migraciones**: Soporte para actualización incremental del esquema.
+- **Relaciones**: Navegación y restricciones entre entidades (por ejemplo, reservas asociadas a personas y eventos).
 
-### 3. Compilar la Solución
+---
 
-Compila la solución para asegurarte de que no hay errores:
+## Interfaz de Usuario (UI)
 
-```bash
-dotnet build
-```
+- **Blazor Components**: Formularios unificados, layouts reutilizables (`ListLayout`), páginas de alta/edición/listado.
+- **Responsive Design**: Adaptación a dispositivos móviles y escritorio.
+- **Badges de estado**: Visualización de estados y permisos.
+- **Validaciones**: Validación en frontend y backend, mensajes de error claros.
+- **Notificaciones y diálogos**: Componentes de Snackbar y ConfirmDialog para feedback y confirmaciones.
 
-### 4. Ejecutar la Aplicación
+---
 
-Ejecuta el proyecto de consola:
+## Diferencias y Mejoras respecto a la Documentación Anterior
 
-```bash
-dotnet run --project CentroEventos.Consola
-```
+- Se reemplazó la aplicación de consola por una UI web moderna basada en Blazor.
+- Se migró la persistencia a EF Core con SQLite, abandonando el uso de archivos CSV.
+- Se implementó autenticación y autorización robusta basada en Claims y SessionStorage.
+- Se mejoró la experiencia de usuario con formularios unificados, validaciones y diseño responsive.
+- Se agregaron servicios de hashing de contraseñas y control de sesión.
+- Se centralizó la lógica de negocio en casos de uso y validadores reutilizables.
 
-### 5. Probar la Aplicación
+---
 
-La aplicación de consola:
+## Ejecución y Desarrollo
 
-- Crea datos iniciales (una persona y un evento deportivo).
-- Intenta realizar una reserva para la persona en el evento.
-- Muestra las reservas creadas o errores si ocurren.
+1. **Clonar el repositorio**
 
-## Estructura de Archivos
+   ```bash
+   git clone https://github.com/JandroMejia97/centro-eventos-net
+   cd CentroEventos
+   ```
 
-- **CentroEventos.Aplicacion**: Contiene la lógica de negocio y las definiciones del dominio.
-- **CentroEventos.Repositorios**: Implementa la persistencia de datos.
-- **CentroEventos.Consola**: Proporciona una interfaz de usuario basada en consola.
+2. **Restaurar dependencias**
 
-## Patrones de Diseño Utilizados
+   ```bash
+   dotnet restore
+   ```
 
-La solución implementa varios patrones de diseño para garantizar una arquitectura limpia, modular y fácil de mantener. A continuación, se describen los principales patrones utilizados:
+3. **Compilar la solución**
 
-### 1. Patrón Repository
+   ```bash
+   dotnet build
+   ```
 
-Este patrón se utiliza para abstraer la lógica de acceso a datos y proporcionar una interfaz uniforme para interactuar con las entidades del dominio. Los repositorios implementados incluyen:
+4. **Ejecutar la UI**
 
-- `RepositorioPersona`
-- `RepositorioEventoDeportivo`
-- `RepositorioReserva`
+   ```bash
+   dotnet run --project CentroEventos.UI
+   ```
 
-Estos repositorios delegan la persistencia de datos a las fuentes de datos, lo que permite cambiar la implementación de almacenamiento sin afectar la lógica de negocio.
+---
 
-### 2. Patrón Data Source
+## Contribuciones y Licencia
 
-Las fuentes de datos encapsulan la lógica de persistencia en diferentes formatos de almacenamiento, como archivos CSV. Este patrón permite centralizar la lógica de acceso a datos y reutilizarla en múltiples repositorios.
+Las contribuciones son bienvenidas. Por favor, crea un fork, realiza tus cambios y envía un pull request.
 
-Por ejemplo, `FuenteDeDatosCsv` maneja la lectura y escritura de datos en archivos CSV, mientras que `FuenteDeDatosAtributoPorLinea` permite almacenar datos en un formato más estructurado.
-
-### 3. Patrón Use Case
-
-El patrón de caso de uso organiza la lógica de negocio en clases específicas que representan acciones o procesos del dominio. Por ejemplo, el caso de uso `ReservaAltaUseCase` encapsula la lógica para crear una nueva reserva, incluyendo validaciones y manejo de excepciones.
-
-Además, se implementan otros casos de uso como `ReservaBajaUseCase` y `ConsultaReservasUseCase` para gestionar la eliminación y consulta de reservas, respectivamente.
-
-## Notas Adicionales
-
-- Los datos se almacenan en archivos CSV en el directorio raíz del proyecto.
-- Los IDs únicos para las entidades se generan automáticamente y se almacenan en archivos separados (`ids_persona.txt`, `ids_evento.txt`, `ids_reserva.txt`).
-- La solución utiliza excepciones personalizadas para manejar errores específicos del dominio.
-
-## Contribuciones
-
-Si deseas contribuir a este proyecto, por favor crea un fork del repositorio, realiza tus cambios y envía un pull request.
-
-## Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+Este proyecto está bajo la Licencia MIT.
