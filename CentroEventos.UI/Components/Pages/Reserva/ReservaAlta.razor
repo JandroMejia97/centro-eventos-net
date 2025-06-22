@@ -1,4 +1,6 @@
 @page "/eventos/{EventoId:int}/reservas/agregar"
+@layout MainLayout
+@rendermode InteractiveServer
 
 @using CentroEventos.UI.Components.Forms
 
@@ -6,35 +8,31 @@
 @inject ReservaCrearUseCase ReservaAltaUseCase
 @inject NavigationManager NavigationManager
 
-<PageTitle>Alta de Reserva</PageTitle>
+<PageTitle>Crear Reserva</PageTitle>
 
-<h3>Alta de Reserva</h3>
-
-<ReservaForm
-    EventoId="@EventoId"
-    PersonaId="@PersonaId"
-    UsuarioId="@UsuarioId"
-    GuardarCambios="GuardarReserva"
-    SubmitButtonText="Crear Reserva"
-    MensajeDeError="@MensajeDeError"
-    GuardandoCambios="@Guardando"
-/>
-<Snackbar
-    Show="@MostrarSnackbar"
-    OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
-    Message="Reserva creada con éxito"
-/>
+<div class="container-md mt-4" style="max-width: 600px;">
+    <header>
+        <h4>Crear Reserva</h4>
+    </header>
+    <main>
+        <ReservaForm
+            EventoId="@EventoId"
+            PersonaId="@PersonaId"
+            UsuarioId="@UsuarioId"
+            GuardarCambios="GuardarReserva"
+            TextoBoton="Crear Reserva"
+            MensajeDeError="@MensajeDeError"
+            GuardandoCambios="@Guardando"
+        />
+    </main>
+</div>
 
 @code {
-
-    [Parameter]
-    public int EventoId { get; set; }
-    [Parameter]
-    public int PersonaId { get; set; } = 0;
+    [Parameter] public int EventoId { get; set; }
+    [Parameter] public int PersonaId { get; set; } = 0;
     private string? MensajeDeError;
     private bool Guardando = false;
     private int UsuarioId = 0;
-    private bool MostrarSnackbar = false;
 
     protected override void OnInitialized()
     {
@@ -42,34 +40,27 @@
         UsuarioId = customAuthenticationStateProvider.ExtractUserId();
     }
 
-    private async Task GuardarReserva(Reserva submittedDto)
+    private void GuardarReserva(Reserva reserva)
     {
         if (Guardando) return;
-
         Guardando = true;
         MensajeDeError = null;
-
         try
         {
             ReservaAltaUseCase.Ejecutar(
                 UsuarioId,
-                submittedDto.PersonaId,
-                submittedDto.EventoDeportivoId
+                reserva.PersonaId,
+                reserva.EventoDeportivoId
             );
-            MostrarSnackbar = true;
-
-            await Task.Delay(1_000);
             NavigationManager.NavigateTo($"/eventos/{EventoId}/reservas");
         }
         catch (Exception ex)
         {
-            MensajeDeError = $"Error al guardar la reserva: {ex.Message}";
-            Console.WriteLine($"Error en GuardarReserva: {ex}");
+            MensajeDeError = $"Error al crear la reserva: {ex.Message}";
         }
         finally
         {
             Guardando = false;
-
             StateHasChanged();
         }
     }

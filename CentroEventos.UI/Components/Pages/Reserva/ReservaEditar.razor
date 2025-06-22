@@ -1,0 +1,120 @@
+@page "/eventos/{EventoId:int}/reservas/{PersonaId:int}"
+@layout MainLayout
+@rendermode InteractiveServer
+
+@using CentroEventos.UI.Components.Forms
+
+@inject AuthenticationStateProvider AuthProvider
+@inject ReservaActualizarUseCase ActualizarReservaUseCase
+@inject ReservaObtenerUseCase ObtenerReservaUseCase
+@inject NavigationManager NavigationManager
+
+<PageTitle>@Titulo</PageTitle>
+
+<div class="container-md mt-4" style="max-width: 600px;">
+    <header class="row justify-content-between align-items-center">
+        <h3 class="mb-0 col">@Titulo</h3>
+    </header>
+    <main>
+        @if (Cargando)
+        {
+            <p><em>Cargando datos de la reserva...</em></p>
+        }
+        else if (ErrorDeCarga)
+        {
+            <div class="alert alert-danger">@MensajeDeError</div>
+            <p><a href="/eventos/@EventoId/reservas" class="btn btn-link">Volver a la lista</a></p>
+        }
+        else if (ReservaAEditar == null)
+        {
+            <p><em>No se encontró la reserva o no se pudo cargar el formulario.</em></p>
+            <p><a href="/eventos/@EventoId/reservas" class="btn btn-link">Volver a la lista</a></p>
+        }
+        else
+        {
+            <ReservaForm
+                EventoId="@EventoId"
+                PersonaId="@PersonaId"
+                UsuarioId="@UsuarioId"
+                ReservaAEditar="@ReservaAEditar"
+                GuardarCambios="GuardarReserva"
+                TextoBoton="Guardar Cambios"
+                MensajeDeExito="@MensajeDeExito"
+                MensajeDeError="@MensajeDeError"
+                GuardandoCambios="@Guardando"
+            />
+            <Snackbar
+                Show="@MostrarSnackbar"
+                OnClose="@EventCallback.Factory.Create(this, () => MostrarSnackbar = false)"
+                Message="Reserva actualizada con éxito"
+            />
+        }
+    </main>
+</div>
+
+@code {
+    [Parameter] public int EventoId { get; set; }
+    [Parameter] public int PersonaId { get; set; }
+    private Reserva? ReservaAEditar { get; set; } = null;
+    private string Titulo = "Editar Reserva";
+    private string? MensajeDeError;
+    private string? MensajeDeExito;
+    private bool ErrorDeCarga = false;
+    private bool Guardando = false;
+    private bool Cargando = true;
+    private int UsuarioId = 0;
+    private bool MostrarSnackbar = false;
+
+    protected override void OnInitialized()
+    {
+        var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthProvider;
+        try
+        {
+            UsuarioId = customAuthenticationStateProvider.ExtractUserId();
+            var reserva = ObtenerReservaUseCase.Ejecutar(UsuarioId, PersonaId, EventoId);
+            if (reserva != null)
+            {
+                ReservaAEditar = reserva;
+                Titulo = $"Editar reserva de {reserva.Persona?.NombreCompleto} para {reserva.EventoDeportivo?.Nombre}";
+            }
+            else
+            {
+                ErrorDeCarga = true;
+                MensajeDeError = $"Reserva con ID {PersonaId} no encontrada para el evento {EventoId}.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorDeCarga = true;
+            MensajeDeError = $"Error al cargar la reserva: {ex.Message}";
+        }
+        finally
+        {
+            Cargando = false;
+        }
+    }
+
+    private void GuardarReserva(Reserva ReservaAModificar)
+    {
+        if (Guardando) return;
+        Guardando = true;
+        MensajeDeExito = null;
+        MensajeDeError = null;
+        try
+        {
+            ActualizarReservaUseCase.Ejecutar(UsuarioId, ReservaAModificar);
+            MensajeDeExito = "Reserva actualizada con éxito";
+            MostrarSnackbar = true;
+            NavigationManager.NavigateTo($"/eventos/{EventoId}/reservas");
+        }
+        catch (Exception ex)
+        {
+            MensajeDeError = $"Error al guardar la reserva: {ex.Message}";
+        }
+        finally
+        {
+            Guardando = false;
+            StateHasChanged();
+        }
+    }
+}
