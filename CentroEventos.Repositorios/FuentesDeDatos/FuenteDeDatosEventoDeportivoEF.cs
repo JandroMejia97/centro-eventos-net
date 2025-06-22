@@ -38,12 +38,24 @@ public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatosEventoDeportivo
 
     public EventoDeportivo? ObtenerPorId(int id)
     {
-        return _context.EventosDeportivos.Include(e => e.Responsable).FirstOrDefault(e => e.Id == id);
+        var evento = _context.EventosDeportivos.Include(e => e.Responsable).FirstOrDefault(e => e.Id == id);
+        if (evento != null)
+        {
+            evento.NumeroReservas = _context.Reservas.Count(r => r.EventoDeportivoId == evento.Id);
+        }
+        return evento;
     }
 
     public IEnumerable<EventoDeportivo> ObtenerTodos()
     {
-        return _context.EventosDeportivos.Include(e => e.Responsable).AsNoTracking().ToList();
+        var eventos = _context.EventosDeportivos.Include(e => e.Responsable).AsNoTracking().ToList();
+        var reservasPorEvento = _context.Reservas.GroupBy(r => r.EventoDeportivoId)
+            .ToDictionary(g => g.Key, g => g.Count());
+        foreach (var evento in eventos)
+        {
+            evento.NumeroReservas = reservasPorEvento.TryGetValue(evento.Id, out var count) ? count : 0;
+        }
+        return eventos;
     }
 
     public IEnumerable<EventoDeportivo> ObtenerPorFechaYDuracion(DateTime fechaHoraInicio, double duracionHoras)

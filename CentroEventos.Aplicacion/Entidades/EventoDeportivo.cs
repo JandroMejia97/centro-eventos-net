@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace CentroEventos.Aplicacion.Entidades;
 
 public class EventoDeportivo
@@ -10,6 +12,8 @@ public class EventoDeportivo
     public int CupoMaximo { get; set; }
     public int ResponsableId { get; set; }
     public Persona? Responsable { get; set; }
+    [NotMapped]
+    public int NumeroReservas { get; set; }
 
     public EventoDeportivo(string nombre, string descripcion, DateTime fechaHoraInicio, double duracionHoras, int cupoMaximo, int responsableId, Persona? responsable = null)
     {
