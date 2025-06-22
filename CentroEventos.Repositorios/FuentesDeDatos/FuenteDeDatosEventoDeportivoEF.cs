@@ -60,7 +60,7 @@ public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatosEventoDeportivo
 
     public IEnumerable<EventoDeportivo> ObtenerPorFechaYDuracion(DateTime fechaHoraInicio, double duracionHoras)
     {
-        DateTime FechaFinal = fechaHoraInicio.Date.AddHours(duracionHoras);
+        DateTime FechaFinal = fechaHoraInicio.AddHours(duracionHoras);
         return [.. _context.EventosDeportivos
             .Include(e => e.Responsable)
             .Where(e => e.FechaHoraInicio >= fechaHoraInicio && e.FechaHoraInicio <= FechaFinal)
