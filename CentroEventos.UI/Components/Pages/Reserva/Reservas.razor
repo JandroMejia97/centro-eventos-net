@@ -26,11 +26,16 @@
     EliminarDatoDelegado="@EliminarReserva"
     ExtraerNombreDelDato="@(r => r.Persona?.NombreCompleto ?? r.PersonaId.ToString())">
     <CabeceraDeTabla>
-        <th>Persona</th>
-        <th>Evento</th>
-        <th>Fecha de Reserva</th>
-        <th>Estado</th>
-        <th style="width: 150px;">Acciones</th>
+        @if (!string.IsNullOrEmpty(MensajeDeError))
+        {
+            <div class="alert alert-danger">@MensajeDeError</div>
+        } else {
+            <th>Persona</th>
+            <th>Evento</th>
+            <th>Fecha de Reserva</th>
+            <th>Estado</th>
+            <th style="width: 150px;">Acciones</th>
+        }
     </CabeceraDeTabla>
     <VistaMovil Context="currentReserva">
         <ReservaTarjeta 
@@ -55,11 +60,33 @@
     [Parameter, Required]
     public int UsuarioId { get; set; } = 0;
     public string RutaCrearNuevaReserva = string.Empty;
+    public string MensajeDeError { get; set; } = string.Empty;
 
     protected override void OnInitialized()
     {
         var customAuthenticationStateProvider = (CustomAuthStateProvider)AuthenticationStateProvider;
         UsuarioId = customAuthenticationStateProvider.ExtractUserId();
+        if (EventoId <= 0 && PersonaId <= 0)
+        {
+            MensajeDeError = "Debe especificar un Evento o una Persona para cargar las reservas.";
+            return;
+        }
+        ObtenerEvento();
+        ObtenerPersona();
+    }
+
+    protected IEnumerable<Reserva> CargarReservas()
+    {
+        if (EventoId <= 0)
+        {
+            return ReservasPorPersonaUseCase.Ejecutar(PersonaId, UsuarioId);
+        }
+        return ReservasPorEventoUseCase.Ejecutar(EventoId, UsuarioId);
+    }
+
+    private void ObtenerEvento()
+    {
+        if (EventoId <= 0) return;
         EventoDeportivo evento = EventoDeportivoObtenerPorIdUseCase.Ejecutar(UsuarioId, EventoId);
         if (evento == null)
         {
@@ -72,18 +99,16 @@
         }
     }
 
-    protected IEnumerable<Reserva> CargarReservas()
+    private void ObtenerPersona()
     {
-        if (EventoId <= 0 && PersonaId <= 0)
+        if (PersonaId <= 0) return;
+        Persona persona = ObtenerPersonaPorIdUseCase.Ejecutar(UsuarioId, PersonaId);
+        if (persona == null)
         {
-            NavigationManager.NavigateTo("/eventos");
-            return Enumerable.Empty<Reserva>();
+            NavigationManager.NavigateTo("/personas");
+            return;
         }
-        if (EventoId <= 0)
-        {
-            return ReservasPorPersonaUseCase.Ejecutar(PersonaId, UsuarioId);
-        }
-        return ReservasPorEventoUseCase.Ejecutar(EventoId, UsuarioId);
+        RutaCrearNuevaReserva = $"/personas/{PersonaId}/reservas/agregar";
     }
 
     private void EliminarReserva(Reserva reservaAEliminar)
