@@ -50,12 +50,15 @@ namespace CentroEventos.Aplicacion.CasosDeUso
                 ?? throw new EntidadNotFoundException("Persona no encontrada.");
             var evento = repositorioEvento.ObtenerPorId(eventoId)
                 ?? throw new EntidadNotFoundException("Evento no encontrado.");
-
+            var expirado = evento.FechaHoraInicio < DateTime.Now;
+            if (expirado)
+                throw new OperacionInvalidaException("No se pueden hacer reservas para eventos pasados.");
             if (repositorioReserva.ObtenerPorPersonaId(personaId).Any(r => r.EventoDeportivoId == eventoId))
                 throw new DuplicadoException("La persona ya tiene una reserva para este evento.");
 
             if (repositorioReserva.ObtenerPorEventoId(eventoId).Count() >= evento.CupoMaximo)
                 throw new CupoExcedidoException("Cupo máximo alcanzado.");
+
 
             var reserva = new Reserva(personaId, eventoId);
 

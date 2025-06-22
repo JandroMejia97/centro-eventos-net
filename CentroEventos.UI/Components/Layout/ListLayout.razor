@@ -4,7 +4,7 @@
 <PageTitle>@Titulo</PageTitle>
 <div class="container-fluid mt-4">
     <header class="row justify-content-between align-items-center mb-4">
-        <h1 class="mb-0 col">@NombreDeEntidades</h1>
+        <h1 class="mb-0 col-auto">@NombreDeEntidades</h1>
         @if (!string.IsNullOrWhiteSpace(RutaCrearNuevo))
         {
             <a href="@RutaCrearNuevo" class="btn btn-primary d-inline-flex gap-2 align-items-center col-auto">
@@ -70,8 +70,8 @@
         </div>
 
         @* Desktop View *@
-        <div class="d-none d-lg-block">
-            <table class="table table-hover align-middle">
+        <div class="d-none d-lg-block row">
+            <table class="table table-hover align-middle col-12">
                 <thead class="table-light">
                     <tr>
                         @CabeceraDeTabla

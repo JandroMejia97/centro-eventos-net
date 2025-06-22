@@ -2,9 +2,9 @@
 
 <td>@Dato.Nombre</td>
 <td>@Dato.Descripcion</td>
-<td>@Dato.FechaHoraInicio.ToString("g")</td>
-<td>@Dato.DuracionHoras</td>
-<td>@Dato.CupoMaximo</td>
+<td class="text-center">@Dato.FechaHoraInicio.ToString("g")</td>
+<td class="text-center">@Dato.DuracionHoras</td>
+<td class="text-center">@Dato.CupoMaximo</td>
 <td>
     @if (Dato.Responsable is null)
     {
@@ -15,10 +15,10 @@
         @Dato.Responsable?.NombreCompleto
     }
 </td>
-<td>
+<td class="text-center">
     <span class="badge @ClaseEstado">@EstadoEvento</span>
 </td>
-<td>@Dato.NumeroReservas</td>
+<td class="text-center">@Dato.NumeroReservas</td>
 <td style="width: 230px;">
     <a class="btn btn-outline-primary btn-sm" href="/eventos/@Dato.Id/reservas">Reservas</a>
     <a class="btn btn-outline-secondary btn-sm" href="/eventos/@Dato.Id">Editar</a>
