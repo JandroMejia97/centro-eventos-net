@@ -71,7 +71,7 @@ public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatosEventoDeportivo
     {
         return [.. _context.EventosDeportivos
             .Include(e => e.Responsable)
-            .Where(e => e.FechaHoraInicio.Date >= fechaHoraInicio.Date)
+            .Where(e => e.FechaHoraInicio >= fechaHoraInicio)
             .OrderBy(e => e.FechaHoraInicio)
             .AsNoTracking()];
     }
