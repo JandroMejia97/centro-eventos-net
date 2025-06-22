@@ -54,7 +54,7 @@
                 reserva.PersonaId,
                 reserva.EventoDeportivoId
             );
-            NavigationManager.NavigateTo($"/eventos/{EventoId}/reservas");
+            NavigationManager.NavigateTo($"/eventos/{(reserva.EventoDeportivoId)}/reservas");
         }
         catch (Exception ex)
         {
