@@ -1,5 +1,5 @@
 @page "/eventos/{EventoId:int}/reservas"
-@page "/personas/{UsuarioId:int}/reservas"
+@page "/personas/{PersonaId:int}/reservas"
 @rendermode InteractiveServer
 @layout MainLayout
 
@@ -10,7 +10,7 @@
 @inject ReservaObtenerPorEventoUseCase ReservasPorEventoUseCase
 @inject ReservaObtenerPorPersonaUseCase ReservasPorPersonaUseCase
 @inject EventoDeportivoObtenerPorIdUseCase EventoDeportivoObtenerPorIdUseCase
-@inject ObtenerPersonaPorIdUseCase ObtenerPersonaPorIdUseCase
+@inject PersonaObtenerPorIdUseCase ObtenerPersonaPorIdUseCase
 @inject ReservaEliminarUseCase ReservaEliminarUseCase
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
