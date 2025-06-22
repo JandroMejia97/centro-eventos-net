@@ -3,8 +3,8 @@
 <td>@Dato.NombreCompleto</td>
 <td>@Dato.DNI</td>
 <td>@Dato.Email</td>
-<td style="width: 200px;">
-    <button class="btn btn-outline-primary btn-sm" @onclick="() => SolicitarVisualizacion.InvokeAsync(Dato)">Ver</button>
+<td style="width: 230px;">
+    <a class="btn btn-outline-primary btn-sm" href="/personas/@Dato.Id/reservas">Reservas</a>
     <a class="btn btn-outline-secondary btn-sm" href="/personas/@Dato.Id">Editar</a>
     <button class="btn btn-outline-danger btn-sm" @onclick="() => SolicitarEliminacion.InvokeAsync(Dato)">Eliminar</button>
 </td>
@@ -15,6 +15,4 @@
 
     [Parameter, EditorRequired]
     public EventCallback<Persona> SolicitarEliminacion { get; set; }
-    [Parameter, EditorRequired]
-    public EventCallback<Persona> SolicitarVisualizacion { get; set; }
 }

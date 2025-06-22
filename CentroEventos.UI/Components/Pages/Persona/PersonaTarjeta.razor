@@ -9,7 +9,7 @@
             <li><strong>Teléfono:</strong> @Dato.Telefono</li>
         </ul>
         <div class="d-flex gap-2 mt-auto">
-            <button class="btn btn-outline-primary btn-sm" @onclick="() => SolicitarVisualizacion.InvokeAsync(Dato)">Ver</button>
+            <a class="btn btn-outline-primary btn-sm" href="/personas/@Dato.Id/reservas">Reservas</a>
             <a class="btn btn-outline-secondary btn-sm" href="/personas/@Dato.Id">Editar</a>
             <button class="btn btn-outline-danger btn-sm" @onclick="() => SolicitarEliminacion.InvokeAsync(Dato)">Eliminar</button>
         </div>
@@ -22,6 +22,4 @@
 
     [Parameter, EditorRequired]
     public EventCallback<Persona> SolicitarEliminacion { get; set; }
-    [Parameter, EditorRequired]
-    public EventCallback<Persona> SolicitarVisualizacion { get; set; }
 }

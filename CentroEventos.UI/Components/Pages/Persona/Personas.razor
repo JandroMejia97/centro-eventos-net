@@ -24,19 +24,17 @@
         <th>Nombre Completo</th>
         <th>DNI</th>
         <th>Email</th>
-        <th style="width: 200px;">Acciones</th>
+        <th style="width: 230px;">Acciones</th>
     </CabeceraDeTabla>
     <VistaMovil Context="currentPersona">
         <PersonaTarjeta 
             Dato="currentPersona"
-            SolicitarVisualizacion="VistaDeListaDePersonas.MostrarDetallesDeDato"
             SolicitarEliminacion="VistaDeListaDePersonas.MostrarConfirmacionDeEliminacion"
         />
     </VistaMovil>
     <FilaDeTabla Context="currentPersona">
         <PersonaFila
             Dato="currentPersona"
-            SolicitarVisualizacion="VistaDeListaDePersonas.MostrarDetallesDeDato"
             SolicitarEliminacion="VistaDeListaDePersonas.MostrarConfirmacionDeEliminacion"
         />
     </FilaDeTabla>
