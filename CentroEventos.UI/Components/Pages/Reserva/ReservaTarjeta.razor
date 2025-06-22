@@ -1,0 +1,43 @@
+@using CentroEventos.Aplicacion.Entidades
+
+<div class="card h-100 shadow-sm">
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title mb-1">@(Dato.Persona?.NombreCompleto ?? Dato.PersonaId.ToString())</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Evento: @(Dato.EventoDeportivo?.Nombre ?? Dato.EventoDeportivoId.ToString())</h6>
+        <ul class="list-unstyled mb-2">
+            <li><strong>Fecha de Reserva:</strong> @Dato.FechaAltaReserva.ToString("g")</li>
+            <li><strong>Estado:</strong> <span class="badge @ClaseEstado">@EstadoReserva</span></li>
+        </ul>
+        <div class="d-flex gap-2 mt-auto">
+            <a class="btn btn-outline-secondary btn-sm" href="/eventos/@Dato.EventoDeportivoId/reservas/@Dato.PersonaId">Editar</a>
+            <button class="btn btn-outline-danger btn-sm" @onclick="() => SolicitarEliminacion.InvokeAsync(Dato)">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Reserva Dato { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public EventCallback<Reserva> SolicitarEliminacion { get; set; }
+
+    private string EstadoReserva = string.Empty;
+    private string ClaseEstado = string.Empty;
+    protected override void OnInitialized()
+    {
+        EstadoReserva = Dato.EstadoAsistencia.ToString();
+        ClaseEstado = ObtenerClaseEstado();
+    }
+
+    private string ObtenerClaseEstado()
+    {
+        return EstadoReserva switch
+        {
+            "Pendiente" => "bg-warning text-dark",
+            "Presente" => "bg-success",
+            "Ausente" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

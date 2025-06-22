@@ -1,0 +1,39 @@
+@using CentroEventos.Aplicacion.Entidades
+
+<td>@(Dato.Persona?.NombreCompleto ?? Dato.PersonaId.ToString())</td>
+<td>@(Dato.EventoDeportivo?.Nombre ?? Dato.EventoDeportivoId.ToString())</td>
+<td>@Dato.FechaAltaReserva.ToString("g")</td>
+<td>
+    <span class="badge @ClaseEstado">@EstadoReserva</span>
+</td>
+<td style="width: 150px;">
+    <a class="btn btn-outline-secondary btn-sm" href="/eventos/@Dato.EventoDeportivoId/reservas/@Dato.PersonaId">Editar</a>
+    <button class="btn btn-outline-danger btn-sm" @onclick="() => SolicitarEliminacion.InvokeAsync(Dato)">Eliminar</button>
+</td>
+
+@code {
+    [Parameter, EditorRequired]
+    public CentroEventos.Aplicacion.Entidades.Reserva Dato { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public EventCallback<CentroEventos.Aplicacion.Entidades.Reserva> SolicitarEliminacion { get; set; }
+
+    private string EstadoReserva = string.Empty;
+    private string ClaseEstado = string.Empty;
+    protected override void OnInitialized()
+    {
+        EstadoReserva = Dato.EstadoAsistencia.ToString();
+        ClaseEstado = ObtenerClaseEstado();
+    }
+
+    private string ObtenerClaseEstado()
+    {
+        return EstadoReserva switch
+        {
+            "Pendiente" => "bg-warning text-dark",
+            "Presente" => "bg-success",
+            "Ausente" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
