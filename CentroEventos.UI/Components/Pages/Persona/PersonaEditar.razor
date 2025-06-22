@@ -119,6 +119,7 @@
         MensajeDeError = null;
         Persona PersonaAGuardar = UsuarioAGuardar.Persona;
         PersonaAGuardar.Id = Id;
+        UsuarioAGuardar.PersonaId = Id;
         try
         {
             PersonaActualizarUseCase.Ejecutar(UsuarioId, PersonaAGuardar);
