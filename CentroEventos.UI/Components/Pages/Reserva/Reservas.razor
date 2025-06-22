@@ -1,4 +1,5 @@
 @page "/eventos/{EventoId:int}/reservas"
+@page "/personas/{UsuarioId:int}/reservas"
 @rendermode InteractiveServer
 @layout MainLayout
 
@@ -7,6 +8,7 @@
 @using CentroEventos.UI.Components.Pages.Reserva
 
 @inject ReservaObtenerPorEventoUseCase ReservasPorEventoUseCase
+@inject ReservaObtenerPorPersonaUseCase ReservasPorPersonaUseCase
 @inject EventoDeportivoObtenerPorIdUseCase EventoDeportivoObtenerPorIdUseCase
 @inject ReservaEliminarUseCase ReservaEliminarUseCase
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -46,8 +48,10 @@
 
 @code {
     private ListLayout<Reserva> VistaDeListaDeReservas = null!;
-    [Parameter, Required]
-    public int EventoId { get; set; }
+    [Parameter]
+    public int EventoId { get; set; } = 0;
+    [Parameter]
+    public int PersonaId { get; set; } = 0;
     [Parameter, Required]
     public int UsuarioId { get; set; } = 0;
     public string RutaCrearNuevaReserva = string.Empty;
@@ -64,12 +68,21 @@
         }
         if (evento.FechaHoraInicio > DateTime.Now)
         {
-            RutaCrearNuevaReserva = $"/eventos/{EventoId}/reservas";
+            RutaCrearNuevaReserva = $"/eventos/{EventoId}/reservas/agregar";
         }
     }
 
     protected IEnumerable<Reserva> CargarReservas()
     {
+        if (EventoId <= 0 && PersonaId <= 0)
+        {
+            NavigationManager.NavigateTo("/eventos");
+            return Enumerable.Empty<Reserva>();
+        }
+        if (EventoId <= 0)
+        {
+            return ReservasPorPersonaUseCase.Ejecutar(PersonaId, UsuarioId);
+        }
         return ReservasPorEventoUseCase.Ejecutar(EventoId, UsuarioId);
     }
 
