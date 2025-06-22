@@ -167,6 +167,10 @@
             MensajeDeError = ex.Message;
             MensajeDeExito = null;
         }
+        finally
+        {
+            GuardandoCambios = false;
+        }
     }
 
     public class EventoDeportivoDto

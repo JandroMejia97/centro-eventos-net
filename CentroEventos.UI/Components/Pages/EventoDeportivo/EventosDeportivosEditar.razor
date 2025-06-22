@@ -91,22 +91,15 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
     private void Guardar(EventoDeportivo EventoAGuardar)
     {
-        try
-        {
-            EventoAGuardar.Id = Id;
-            ActualizarEventoUseCase.Ejecutar(UserId, EventoAGuardar);
-            MensajeDeExito = "Evento guardado correctamente.";
-            MensajeDeError = null;
-            Navigation.NavigateTo("/eventos");
-        }
-        catch (Exception ex)
-        {
-            MensajeDeError = ex.Message;
-            MensajeDeExito = null;
-        }
+        EventoAGuardar.Id = Id;
+        ActualizarEventoUseCase.Ejecutar(UserId, EventoAGuardar);
+        MensajeDeExito = "Evento guardado correctamente.";
+        MensajeDeError = null;
+        Navigation.NavigateTo("/eventos");
     }
 }
