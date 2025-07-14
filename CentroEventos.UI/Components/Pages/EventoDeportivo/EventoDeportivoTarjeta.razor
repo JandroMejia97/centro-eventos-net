@@ -12,6 +12,9 @@
             <li><strong>Duración:</strong> @Dato.DuracionHoras h</li>
             <li><strong>Cupo máximo:</strong> @Dato.CupoMaximo</li>
             <li><strong>Reservas:</strong> @Dato.NumeroReservas</li>
+            <li><strong>Cupo disponible:</strong> 
+                <span class="badge @ObtenerClaseCupoDisponible()">@Dato.CupoDisponible</span>
+            </li>
             <li><strong>Responsable:</strong>
                 @if (Dato.Responsable is null)
                 {
@@ -67,5 +70,20 @@
             default:
                 return "bg-light";
         }
+    }
+
+    private string ObtenerClaseCupoDisponible()
+    {
+        var cupoDisponible = Dato.CupoDisponible;
+        var porcentajeDisponible = (double)cupoDisponible / Dato.CupoMaximo * 100;
+        
+        if (cupoDisponible <= 0)
+            return "bg-danger";
+        else if (porcentajeDisponible <= 20)
+            return "bg-warning text-dark";
+        else if (porcentajeDisponible <= 50)
+            return "bg-info text-dark";
+        else
+            return "bg-success";
     }
 }

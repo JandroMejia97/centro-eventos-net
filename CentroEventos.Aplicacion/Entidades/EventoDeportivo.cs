@@ -14,6 +14,8 @@ public class EventoDeportivo
     public Persona? Responsable { get; set; }
     [NotMapped]
     public int NumeroReservas { get; set; }
+    [NotMapped]
+    public int CupoDisponible => CupoMaximo - NumeroReservas;
 
     public EventoDeportivo(string nombre, string descripcion, DateTime fechaHoraInicio, double duracionHoras, int cupoMaximo, int responsableId, Persona? responsable = null)
     {
