@@ -22,8 +22,16 @@ public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatosEventoDeportivo
 
     public void Modificar(EventoDeportivo evento)
     {
-        _context.EventosDeportivos.Update(evento);
-        _context.SaveChanges();
+        var eventoExistente = _context.EventosDeportivos.Find(evento.Id);
+        if (eventoExistente != null)
+        {
+            _context.Entry(eventoExistente).CurrentValues.SetValues(evento);
+            _context.SaveChanges();
+        }
+        else
+        {
+            throw new InvalidOperationException("No se encontró el evento a modificar.");
+        }
     }
 
     public void Eliminar(int id)
@@ -38,7 +46,10 @@ public class FuenteDeDatosEventoDeportivoEF : IFuenteDeDatosEventoDeportivo
 
     public EventoDeportivo? ObtenerPorId(int id)
     {
-        var evento = _context.EventosDeportivos.Include(e => e.Responsable).FirstOrDefault(e => e.Id == id);
+        var evento = _context.EventosDeportivos
+            .Include(e => e.Responsable)
+            .AsNoTracking()
+            .FirstOrDefault(e => e.Id == id);
         if (evento != null)
         {
             evento.NumeroReservas = _context.Reservas.Count(r => r.EventoDeportivoId == evento.Id);
