@@ -22,8 +22,16 @@ public class FuenteDeDatosUsuarioEF : IFuenteDeDatos<Usuario>
 
     public void Modificar(Usuario usuario)
     {
-        _context.Usuarios.Update(usuario);
-        _context.SaveChanges();
+        var usuarioExistente = _context.Usuarios.Find(usuario.PersonaId);
+        if (usuarioExistente is not null)
+        {
+            _context.Entry(usuarioExistente).CurrentValues.SetValues(usuario);
+            _context.SaveChanges();
+        }
+        else
+        {
+            throw new InvalidOperationException("No se encontró el usuario a modificar.");
+        }
     }
 
     public void Eliminar(int id)
@@ -38,7 +46,11 @@ public class FuenteDeDatosUsuarioEF : IFuenteDeDatos<Usuario>
 
     public Usuario? ObtenerPorId(int id)
     {
-        return _context.Usuarios.Include(u => u.Persona).Include(u => u.PermisosUsuarios).FirstOrDefault(u => u.PersonaId == id);
+        return _context.Usuarios
+            .Include(u => u.Persona)
+            .Include(u => u.PermisosUsuarios)
+            .AsNoTracking()
+            .FirstOrDefault(u => u.PersonaId == id);
     }
 
     public IEnumerable<Usuario> ObtenerTodos()

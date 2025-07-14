@@ -22,8 +22,16 @@ public class FuenteDeDatosPersonaEF : IFuenteDeDatosPersona
 
     public void Modificar(Persona persona)
     {
-        _context.Personas.Update(persona);
-        _context.SaveChanges();
+        var personaExistente = _context.Personas.Find(persona.Id);
+        if (personaExistente is not null)
+        {
+            _context.Entry(personaExistente).CurrentValues.SetValues(persona);
+            _context.SaveChanges();
+        }
+        else
+        {
+            throw new InvalidOperationException("No se encontró la persona a modificar.");
+        }
     }
 
     public void Eliminar(int id)
@@ -38,7 +46,7 @@ public class FuenteDeDatosPersonaEF : IFuenteDeDatosPersona
 
     public Persona? ObtenerPorId(int id)
     {
-        return _context.Personas.Find(id);
+        return _context.Personas.AsNoTracking().FirstOrDefault(p => p.Id == id);
     }
 
     public IEnumerable<Persona> ObtenerTodos()

@@ -22,8 +22,16 @@ public class FuenteDeDatosReservaEF : IFuenteDeDatosReserva
 
     public void Modificar(Reserva reserva)
     {
-        _context.Reservas.Update(reserva);
-        _context.SaveChanges();
+        var reservaExistente = _context.Reservas.Find(reserva.PersonaId, reserva.EventoDeportivoId);
+        if (reservaExistente is not null)
+        {
+            _context.Entry(reservaExistente).CurrentValues.SetValues(reserva);
+            _context.SaveChanges();
+        }
+        else
+        {
+            throw new InvalidOperationException("No se encontró la reserva a modificar.");
+        }
     }
 
     public IEnumerable<Reserva> ObtenerTodos()
